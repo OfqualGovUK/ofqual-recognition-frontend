@@ -111,7 +111,8 @@ stages:
 # Test Stage: This stage runs unit tests, integration tests and end-to-end (E2E) tests.
 - stage: Test
   displayName: 'Run Unit, Integration and E2E Tests'
-  condition: always()
+  dependsOn: StaticAnalysis
+  condition: succeeded()
   jobs:
     # Unit Test Job: Executes unit tests to validate individual components.
     - job: Unit
@@ -229,6 +230,8 @@ stages:
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
 - stage: Build
   displayName: Build and Push Stage
+  dependsOn: Test
+  condition: succeeded()
   jobs:
   # Build and push to Dev/Preprod ACR
   - job: BuildDev
