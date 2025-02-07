@@ -1,17 +1,27 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ofqual.Recognition.Frontend.Web", "Ofqual.Recognition.Frontend.Web\Ofqual.Recognition.Frontend.Web.csproj", "{98A2FB1C-5D03-43F5-B13D-07BD141CBDBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Web", "Ofqual.Recognition.Frontend.Web\Ofqual.Recognition.Frontend.Web.csproj", "{98A2FB1C-5D03-43F5-B13D-07BD141CBDBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ofqual.Recognition.Frontend.Core", "Ofqual.Recognition.Frontend.Core\Ofqual.Recognition.Frontend.Core.csproj", "{780A5943-8567-42DF-A457-BE31BD8E18AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Core", "Ofqual.Recognition.Frontend.Core\Ofqual.Recognition.Frontend.Core.csproj", "{780A5943-8567-42DF-A457-BE31BD8E18AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ofqual.Recognition.Frontend.Infrastructure", "Ofqual.Recognition.Frontend.Infrastructure\Ofqual.Recognition.Frontend.Infrastructure.csproj", "{4D9E874E-E373-4D70-B28A-C0516276CE13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Infrastructure", "Ofqual.Recognition.Frontend.Infrastructure\Ofqual.Recognition.Frontend.Infrastructure.csproj", "{4D9E874E-E373-4D70-B28A-C0516276CE13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ofqual.Recognition.Frontend.Tests", "Ofqual.Recognition.Frontend.Tests\Ofqual.Recognition.Frontend.Tests.csproj", "{60285AE7-4907-4F06-B315-2F2528B0B8BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Tests", "Ofqual.Recognition.Frontend.Tests\Ofqual.Recognition.Frontend.Tests.csproj", "{60285AE7-4907-4F06-B315-2F2528B0B8BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ofqual.Recognition.Frontend.Playwright", "Ofqual.Recognition.Frontend.Playwright\Ofqual.Recognition.Frontend.Playwright.csproj", "{10FE9C28-B496-41C5-BE52-3C15529CBAF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Playwright", "Ofqual.Recognition.Frontend.Playwright\Ofqual.Recognition.Frontend.Playwright.csproj", "{10FE9C28-B496-41C5-BE52-3C15529CBAF5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AC58AF08-48EE-4F87-8D5C-CDDA082A0F53}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.gitignore = .gitignore
+		azure-pipelines.yml = azure-pipelines.yml
+		Dockerfile = Dockerfile
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
