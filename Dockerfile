@@ -12,19 +12,19 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ofqual-recognition-frontend/Ofqual.Recognition.Web.csproj", "ofqual-recognition-frontend/"]
-RUN dotnet restore "./ofqual-recognition-frontend/Ofqual.Recognition.Web.csproj"
+COPY ["Ofqual.Recognition.Frontend.Web/Ofqual.Recognition.Frontend.Web.csproj", "Ofqual.Recognition.Frontend.Web/"]
+RUN dotnet restore "./Ofqual.Recognition.Frontend.Web/Ofqual.Recognition.Frontend.Web.csproj"
 COPY . .
-WORKDIR "/src/ofqual-recognition-frontend"
-RUN dotnet build "./Ofqual.Recognition.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/Ofqual.Recognition.Frontend.Web"
+RUN dotnet build "./Ofqual.Recognition.Frontend.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Ofqual.Recognition.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Ofqual.Recognition.Frontend.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Ofqual.Recognition.Web.dll"]
+ENTRYPOINT ["dotnet", "Ofqual.Recognition.Frontend.Web.dll"]

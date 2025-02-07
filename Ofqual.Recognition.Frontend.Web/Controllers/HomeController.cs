@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ofqual_recognition_frontend.Controllers
+namespace Ofqual.Recognition.Frontend.Controllers
 {
     public class HomeController : Controller
     {
