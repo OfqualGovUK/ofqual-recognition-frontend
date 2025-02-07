@@ -1,11 +1,11 @@
 namespace Ofqual.Recognition.Frontend.Tests.Unit
 {
-    public class index_controller
+    public class IndexControllerTests
     {
         [Fact]
-        public void Test1()
+        public void Dummy()
         {
-
+            Assert.True(true);
         }
     }
 }
