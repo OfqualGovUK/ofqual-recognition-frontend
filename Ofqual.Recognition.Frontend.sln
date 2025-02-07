@@ -19,8 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		azure-pipelines.yml = azure-pipelines.yml
 		Dockerfile = Dockerfile
-		LICENSE.md = LICENSE.md
 		README.md = README.md
+		LICENCE.md = LICENCE.md
 	EndProjectSection
 EndProject
 Global
@@ -52,5 +52,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2F9ED320-CA39-4E69-B669-835D2DDFC52D}
 	EndGlobalSection
 EndGlobal
