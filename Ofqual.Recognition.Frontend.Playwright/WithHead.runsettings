@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Playwright Settings-->
+<RunSettings>
+	<Playwright>
+		<LaunchOptions>
+			<BrowserName>chromium</BrowserName>
+			<Headless>false</Headless>
+		</LaunchOptions>
+	</Playwright>
+</RunSettings>
