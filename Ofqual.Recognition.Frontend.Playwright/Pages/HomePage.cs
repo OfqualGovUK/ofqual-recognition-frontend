@@ -10,7 +10,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         public HomePage(IPage Page)
         {
             _page = Page;
-            _baseUrl = Environment.GetEnvironmentVariable("RecognitionBaseUrl") ?? "http://localhost:5024";
+            _baseUrl = Environment.GetEnvironmentVariable("RecognitionBaseUrl") ?? "http://localhost:7159";
             _heading = Page.Locator("h1");
         }
         public async Task GoToHomePage()
