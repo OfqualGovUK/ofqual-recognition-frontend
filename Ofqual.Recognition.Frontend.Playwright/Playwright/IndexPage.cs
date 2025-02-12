@@ -1,3 +1,6 @@
+
+using Playwright.Axe;
+
 namespace Ofqual.Recognition.Frontend.Playwright.Playwright
 {
     [Parallelizable(ParallelScope.Self)]
@@ -7,22 +10,13 @@ namespace Ofqual.Recognition.Frontend.Playwright.Playwright
         [Test]
         public async Task HomepageHasPlaywrightInTitleAndGetStartedLinkLinkingtoTheIntroPage()
         {
-            await Page.GotoAsync("https://playwright.dev");
+            await Page.GotoAsync("https://localhost:7072");
 
-            // Expect a title "to contain" a substring.
-            await Expect(Page).ToHaveTitleAsync(new Regex("Playwright"));
 
-            // create a locator
-            var getStarted = Page.Locator("text=Get Started");
-
-            // Expect an attribute "to be strictly equal" to the value.
-            await Expect(getStarted).ToHaveAttributeAsync("href", "/docs/intro");
-
-            // Click the get started link.
-            await getStarted.ClickAsync();
-
-            // Expects the URL to contain intro.
-            await Expect(Page).ToHaveURLAsync(new Regex(".*intro"));
+             //Runs Axe accessibility checks.
+            AxeHtmlReportOptions reportOptions = new(reportDir: "./reports");
+            AxeResults axeResults = await Page.RunAxe(reportOptions: reportOptions);
+            Console.WriteLine($"Axe ran against {axeResults.Url} on {axeResults.Timestamp}.");
         }
     }
 }
