@@ -1,76 +1,16 @@
-﻿﻿@{
-    var controllerName = this.ViewContext.RouteData.Values["controller"]?.ToString();
+﻿@{
+    Layout = "_GovUkPageTemplate";
 }
 
-<!DOCTYPE html>
-<html lang="en" class="govuk-template">
-
-<head>
-    <meta charset="utf-8">
-    <title>@ViewData["Title"] - Ofqual - GOV.UK</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#0b0c0c">
-    <link rel="icon" sizes="48x48" href="~/assets/images/favicon.ico">
-    <link rel="icon" sizes="any" href="~/assets/images/favicon.svg" type="image/svg+xml">
-    <link rel="mask-icon" href="~/assets/images/govuk-icon-mask.svg" color="#0b0c0c">
-    <link rel="apple-touch-icon" href="~/assets/images/govuk-icon-180.png">
-    <link rel="manifest" href="~/assets/manifest.json">
-    <link rel="stylesheet" href="~/css/govuk-frontend.min.css" asp-append-version="true">
-    <link rel="stylesheet" href="~/css/application.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <script type="text/javascript" src="~/js/analytics.js" asp-append-version="true"></script>
-
-    @await RenderSectionAsync("Head", required: false)
-    <noscript>
-        <style>
-            .jsonly {
-                display: none;
-            }
-        </style>
-    </noscript>
-
-</head>
-<body class="govuk-template__body">
-    <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
-
-    <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
-    <partial name="/Views/Shared/_AnalyticsCookieBannerPartial.cshtml" />
-    <partial name="/Views/Shared/_HeaderPartial.cshtml" />
-
+@section Header {
+    @await Html.PartialAsync("_HeaderPartial.cshtml")
     <div class="govuk-width-container">
-        <partial name="/Views/Shared/_PhaseBannerPartial.cshtml" />
-        @if (controllerName != null && !controllerName.StartsWith("Home"))
-        {
-            <p id="back" class="govuk-back-link jsonly">Back</p>
-        }
-        else
-        {
-            <p id="back" class="govuk-back-link jsonly" hidden>Back</p>
-
-        }
-
-        <main class="govuk-main-wrapper" id="main-content" role="main">
-            @RenderBody()
-        </main>
+        @await Html.PartialAsync("_PhaseBannerPartial.cshtml")
     </div>
+}
 
-    <partial name="/Views/Shared/_FooterPartial.cshtml" />
+@RenderBody()
 
-    @await RenderSectionAsync("Scripts", required: false)
-    <script type="module" src="~/js/govuk-frontend.min.js" asp-append-version="true"></script>
-    <script type="module">
-        import { initAll } from '/js/govuk-frontend.min.js'
-        initAll()
-    </script>
-    <script type="text/javascript">
-        if (window.history.length < 2) {
-            document.getElementById("back").style.display = "none";
-        }
-
-        document.getElementById("back").addEventListener("click", () => {
-            history.back();
-        });
-    </script>
-</body>
-
-</html>
+@section Footer {
+    @await Html.PartialAsync("_FooterPartial.cshtml")
+}
