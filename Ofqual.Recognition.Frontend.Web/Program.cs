@@ -1,4 +1,8 @@
+using GovUk.Frontend.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddGovUkFrontend();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

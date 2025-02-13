@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_GovUkPageTemplate";
+}
+
+@section Header {
+    @await Html.PartialAsync("_HeaderPartial.cshtml")
+    <div class="govuk-width-container">
+        @await Html.PartialAsync("_PhaseBannerPartial.cshtml")
+    </div>
+}
+
+@RenderBody()
+
+@section Footer {
+    @await Html.PartialAsync("_FooterPartial.cshtml")
+}
