@@ -7,16 +7,19 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         private readonly IPage _page;
         private readonly string _baseUrl;
         private readonly ILocator _heading;
+
         public HomePage(IPage Page)
         {
             _page = Page;
             _baseUrl = Environment.GetEnvironmentVariable("RecognitionBaseUrl") ?? "http://localhost:7159";
             _heading = Page.Locator("h1");
         }
+
         public async Task GoToHomePage()
         {
             await _page.GotoAsync(_baseUrl);
         }
+        
         public async Task checkPageHeading(String heading)
         {
             await Expect(_heading).ToHaveTextAsync(heading);

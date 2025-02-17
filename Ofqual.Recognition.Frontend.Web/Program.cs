@@ -1,4 +1,5 @@
 using GovUk.Frontend.AspNetCore;
+using Ofqual.Recognition.Frontend.Web.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,14 @@ builder.Services.AddGovUkFrontend();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSingleton(_ =>
+{
+    var options = new MatomoOptions();
+    builder.Configuration.GetSection("Matomo").Bind(options);
+
+    return options;
+});
 
 var app = builder.Build();
 
