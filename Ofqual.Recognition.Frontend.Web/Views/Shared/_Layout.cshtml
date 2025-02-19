@@ -25,6 +25,9 @@
     @await Html.PartialAsync("_AnalyticsCookieBannerPartial.cshtml")
 
     @await Html.PartialAsync("_HeaderPartial.cshtml")
+
+    @await RenderSectionAsync("Backlink", required: false)
+
     <div class="govuk-width-container">
         @await Html.PartialAsync("_PhaseBannerPartial.cshtml")
     </div>
@@ -34,6 +37,8 @@
 
 @section Footer {
     @await Html.PartialAsync("_FooterPartial.cshtml")
+    @await RenderSectionAsync("Scripts", required: false)
+    <script type="text/javascript" src="~/js/analytics.js" asp-append-version="true"></script>
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function (event) {
             checkMatomoCookie();
