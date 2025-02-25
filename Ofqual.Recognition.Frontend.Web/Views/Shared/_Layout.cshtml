@@ -1,9 +1,33 @@
 ﻿@{
     Layout = "_GovUkPageTemplate";
+    var controllerName = this.ViewContext.RouteData.Values["controller"]?.ToString();
+    var matomoId = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production" ? 12 : 9;
 }
 
 @section Header {
+    <!-- Matomo -->
+    <script>
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        // TODO: change domains once they have been allocated.
+        _paq.push(["setDomains", ["Apply-for-Recognition.services.ofqual.gov.uk", "*.ofq-prod-app-recognition-ofqual.azurewebsites.net", "*.ofq-preprod-app-recognition-ofqual.azurewebsites.net", "*.ofq-dev-app-recognition-ofqual.azurewebsites.net"]]);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+          var u="https://ofqual.matomo.cloud/";
+          _paq.push(['setTrackerUrl', u+'matomo.php']);
+          _paq.push(['setSiteId', '12']);
+          var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+          g.async=true; g.src='https://cdn.matomo.cloud/ofqual.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+    @await Html.PartialAsync("_AnalyticsCookieBannerPartial.cshtml")
+
     @await Html.PartialAsync("_HeaderPartial.cshtml")
+
+    @await RenderSectionAsync("Backlink", required: false)
+
     <div class="govuk-width-container">
         @await Html.PartialAsync("_PhaseBannerPartial.cshtml")
     </div>
@@ -13,4 +37,21 @@
 
 @section Footer {
     @await Html.PartialAsync("_FooterPartial.cshtml")
+    @await RenderSectionAsync("Scripts", required: false)
+    <script type="text/javascript" src="~/js/analytics.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function (event) {
+            checkMatomoCookie();
+        });
+
+        if (window.history.length < 2) {
+            document.getElementById("back").style.display = "none";
+        }
+
+        document.getElementById("back").addEventListener("click", () => {
+            history.back();
+        });
+
+        checkMatomoCookie();
+    </script>
 }
