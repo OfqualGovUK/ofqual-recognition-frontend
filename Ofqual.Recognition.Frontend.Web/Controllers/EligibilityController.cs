@@ -12,9 +12,9 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpPost]
         public IActionResult QuestionOne(string questionOne)
         {
-            if (string.IsNullOrEmpty(questionOne))
+            if (string.IsNullOrWhiteSpace(questionOne))
             {
-                ModelState.AddModelError("QuestionOne", "Please select an answer.");
+                ModelState.AddModelError("", "You need to select an option to continue.");
                 return View();
             }
 
@@ -28,11 +28,12 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpPost]
         public IActionResult QuestionTwo(string questionTwo)
         {
-            if (string.IsNullOrEmpty(questionTwo))
+            if (string.IsNullOrWhiteSpace(questionTwo))
             {
-                ModelState.AddModelError("QuestionTwo", "Please select an answer.");
+                ModelState.AddModelError("", "You need to select an option to continue.");
                 return View();
             }
+
             TempData["QuestionTwo"] = questionTwo;
 
             return RedirectToAction("QuestionThree");
@@ -43,11 +44,12 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpPost]
         public IActionResult QuestionThree(string questionThree)
         {
-            if (string.IsNullOrEmpty(questionThree))
+            if (string.IsNullOrWhiteSpace(questionThree))
             {
-                ModelState.AddModelError("QuestionThree", "Please select an answer.");
+                ModelState.AddModelError("", "You need to select an option to continue.");
                 return View();
             }
+
             TempData["QuestionThree"] = questionThree;
 
             return RedirectToAction("QuestionCheck");
