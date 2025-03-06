@@ -7,7 +7,8 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-form-group">
+        <span class="govuk-caption-l">Question 2/3</span>
+        <div class="govuk-form-group" @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
             <form method="post">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
@@ -15,15 +16,23 @@
                             Does your organisation have, or a reasonable expectation of having, learners in England?
                         </h1>
                     </legend>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <span class="govuk-error-message">
+                            @ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage
+                        </span>
+                    }
+
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="yes" name="questionTwo" type="radio" value="Yes" required>
+                            <input class="govuk-radios__input" id="yes" name="questionTwo" type="radio" value="Yes">
                             <label class="govuk-label govuk-radios__label" for="yes">
                                 Yes
                             </label>
                         </div>
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="no" name="questionTwo" type="radio" value="No" required>
+                            <input class="govuk-radios__input" id="no" name="questionTwo" type="radio" value="No">
                             <label class="govuk-label govuk-radios__label" for="no">
                                 No
                             </label>
