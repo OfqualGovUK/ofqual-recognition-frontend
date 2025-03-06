@@ -4,10 +4,8 @@ using Ofqual.Recognition.Frontend.Web.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGovUkFrontend();
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
 builder.Services.AddSingleton(_ =>
 {
     var options = new MatomoOptions();
@@ -28,11 +26,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.MapControllerRoute(

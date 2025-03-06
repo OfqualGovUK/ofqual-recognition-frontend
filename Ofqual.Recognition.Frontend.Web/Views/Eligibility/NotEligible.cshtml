@@ -3,22 +3,24 @@
     ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
 }
 
-<a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
-
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">
-            NOT ELIGIBLE
+            Not Eligible
         </h1>
 
         <p class="govuk-body">
-            Before you begin the application process, you should check that your organisation is eligible to offer regulated qualifications.
-            <br /><br />
-            This section will ask you a few questions to check if your organisation may be eligible to apply.
-            <br /><br />
-            If you need more information, you can find out more about <a class="govuk-link" href="#">Ofqual regulation</a>.
+            Based on your responses your organisation may not eligible to apply to have your qualifications regulated.
         </p>
 
-        <a asp-controller="Eligibility" asp-action="QuestionOne" class="govuk-button">Continue</a>
+        <h2 class="govuk-heading-m">
+            What happens next
+        </h2>
+
+        <p class="govuk-body">
+            If you have any questions or need further information you can <a class="govuk-link" href="https://contact.ofqual.gov.uk/">contact us</a>.
+            <br /><br />
+            If you think you are eligible you can continue to the application <a class="govuk-link" href="#">continue to the application</a>, but you should meet with us to discuss your application before you start.
+        </p>
     </div>
 </div>
