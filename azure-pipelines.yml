@@ -10,13 +10,15 @@ trigger:
 resources:
 - repo: self
 
+pool:
+  vmImage: 'ubuntu-latest'
+
 variables:
   # Container registry service connection established during pipeline creation
   dockerfilePath: '$(System.DefaultWorkingDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+  # .NET SDK Version number
+  dotnetVersion: '8.0'
 
 stages:
 # Static Analysis stage: This stage runs static code analysis using SonarQube and audits dependencies for vulnerabilities.
@@ -28,14 +30,12 @@ stages:
     - job: SonarQube
       condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/heads/main'))
       displayName: 'Run SonarQube Static Code Analysis'
-      pool:
-        vmImage: $(vmImageName)
       steps:
         # Step 1: Set up .NET SDK
         - task: UseDotNet@2
-          displayName: 'Set Up .NET SDK (Version 8.x)'
+          displayName: 'Set Up .NET SDK (Version $(dotnetVersion))'
           inputs:
-            version: 8.x
+            version: '$(dotnetVersion).x'
             performMultiLevelLookup: true
             includePreviewVersions: true
         # Step 2: Restore NuGet packages to ensure all dependencies are installed
@@ -74,7 +74,7 @@ stages:
             arguments: "--no-restore"
         # Step 6: Run SonarQube static code analysis
         - task: SonarQubeAnalyze@5
-          displayName: 'Execute SonarQube Static Code Analysis'
+          displayName: 'Run SonarQube Static Code Analysis'
         # Step 7: Publish SonarQube results to the dashboard
         - task: SonarQubePublish@5
           displayName: 'Publish SonarQube Analysis Results'
@@ -83,8 +83,6 @@ stages:
     # Audit job: This job audits dependencies for vulnerabilities.
     - job: Audit
       displayName: 'Audit Dependencies for Security Vulnerabilities'
-      pool:
-        vmImage: $(vmImageName)
       steps:
         # Step 1: Restore NuGet packages to ensure all dependencies are installed
         - task: DotNetCoreCLI@2
@@ -102,7 +100,7 @@ stages:
               dotnet list package --vulnerable --include-transitive 2>&1 | tee build.log
               echo "Analyse dotnet list package command log output..."
               if grep -q -i "critical\|high" build.log; then
-                  echo "Must fix security vulnerabilities found on the log output"
+                  echo "Must fix security vulnerabilities found on the log output."
                   exit 1      # Fails the job if critical or high vulnerabilities are found
               else
                   echo "No critical or high severity vulnerabilities found."
@@ -114,19 +112,17 @@ stages:
   dependsOn: StaticAnalysis
   condition: succeeded()
   jobs:
-    # Unit Test Job: Executes unit tests to validate individual components.
+    # Unit Test Job: Runs unit tests to validate individual components.
     - job: Unit
-      displayName: 'Execute Unit Tests'
+      displayName: 'Run Unit Tests'
       dependsOn: []
-      pool:
-        vmImage: $(vmImageName)
       steps:
         # Step 1: Set up .NET SDK
         - task: UseDotNet@2
-          displayName: 'Set Up .NET SDK (Version 8.x)'
+          displayName: 'Set Up .NET SDK (Version $(dotnetVersion))'
           inputs:
             packageType: 'sdk'
-            version: '8.0.x'
+            version: '$(dotnetVersion).x'
         # Step 2: Restore project dependencies from NuGet
         - task: DotNetCoreCLI@2
           displayName: 'Restore Project Dependencies'
@@ -142,27 +138,25 @@ stages:
             command: 'build'
             projects: '**/*.csproj'
             arguments: '--no-restore'
-        # Step 4: Execute unit tests and filter by category
+        # Step 4: Run unit tests and filter by category
         - task: DotNetCoreCLI@2
-          displayName: 'Execute Unit Tests'
+          displayName: 'Run Unit Tests'
           inputs:
             command: 'test'
             projects: '**/*Tests.csproj'
             arguments: '--no-build --no-restore --filter Category=Unit'
             testRunTitle: 'Recognition-Frontend-Unit-$(Build.BuildId)'
-    # Integration Test Job: Executes integration tests to validate system interactions.
+    # Integration Test Job: Runs integration tests to validate system interactions.
     - job: Integration
-      displayName: 'Execute Integration Tests'
+      displayName: 'Run Integration Tests'
       dependsOn: []
-      pool:
-        vmImage: $(vmImageName)
       steps:
         # Step 1: Set up .NET SDK
         - task: UseDotNet@2
-          displayName: 'Set Up .NET SDK (Version 8.x)'
+          displayName: 'Set Up .NET SDK (Version $(dotnetVersion))'
           inputs:
             packageType: 'sdk'
-            version: '8.0.x'
+            version: '$(dotnetVersion).x'
         # Step 2: Restore project dependencies from NuGet
         - task: DotNetCoreCLI@2
           displayName: 'Restore Project Dependencies'
@@ -178,9 +172,9 @@ stages:
             command: 'build'
             projects: '**/*.csproj'
             arguments: '--no-restore'
-        # Step 4: Execute integration tests and filter by category
+        # Step 4: Run integration tests and filter by category
         - task: DotNetCoreCLI@2
-          displayName: 'Execute Integration Tests'
+          displayName: 'Run Integration Tests'
           inputs:
             command: 'test'
             projects: '**/*Tests.csproj'
@@ -188,17 +182,15 @@ stages:
             testRunTitle: 'Recognition-Frontend-Integration-$(Build.BuildId)'
     # E2E Test Job: Runs UI and functional tests to validate user workflows.
     - job: E2E
-      displayName: 'Execute E2E Tests'
+      displayName: 'Run E2E Tests'
       dependsOn: []
-      pool:
-        vmImage: $(vmImageName)
       steps:
         # Step 1: Set up .NET SDK
         - task: UseDotNet@2
-          displayName: 'Set Up .NET SDK (Version 8.x)'
+          displayName: 'Set Up .NET SDK (Version $(dotnetVersion))'
           inputs:
             packageType: 'sdk'
-            version: '8.0.x'
+            version: '$(dotnetVersion).x'
         # Step 2: Restore project dependencies from NuGet
         - task: DotNetCoreCLI@2
           displayName: 'Restore Project Dependencies'
@@ -214,19 +206,22 @@ stages:
             command: 'build'
             projects: '**/*.csproj'
             arguments: '--no-restore'
-        # Step 4: Install Playwright browsers (Required for running E2E tests)
+        # Step 4: Install Playwright browsers
         - script: |
-            pwsh Ofqual.Recognition.Frontend.Playwright/bin/Debug/net8.0/playwright.ps1 install --with-deps
+            pwsh Ofqual.Recognition.Frontend.Playwright/bin/Debug/net$(dotnetVersion)/playwright.ps1 install --with-deps
           displayName: 'Install E2E Test Browsers'
-        # Step 5: Start the application server (Runs in the background)
+        # Step 5: Start the application server
         - script: |
             dotnet run --project Ofqual.Recognition.Frontend.Web/Ofqual.Recognition.Frontend.Web.csproj --urls "http://localhost:7159" &
             sleep 10
           displayName: 'Start Application Server for E2E Tests'
-        # Step 6: Execute E2E tests
-        - script: |
-            dotnet test
-          displayName: 'Execute End-to-End Tests'
+        # Step 6: Run Playwright E2E tests
+        - task: DotNetCoreCLI@2
+          displayName: 'Run Playwright End-to-End Tests'
+          inputs:
+            command: 'test'
+            projects: 'Ofqual.Recognition.Frontend.Playwright/Ofqual.Recognition.Frontend.Playwright.csproj'
+            arguments: '--no-build --no-restore'
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
 - stage: Build
   displayName: Build and Push Stage
@@ -237,8 +232,6 @@ stages:
   - job: BuildDev
     displayName: Build and Push for Development/Preproduction
     condition: and(succeeded(), not(startsWith(variables['build.sourceBranch'], 'refs/pull')))
-    pool:
-      vmImage: $(vmImageName)
     steps:
     # Step 1: Build and push the Docker image to the Development/Preproduction container registry
     - task: Docker@2
@@ -255,8 +248,6 @@ stages:
   - job: BuildProd
     displayName: Build and Push for Production
     condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/heads/releases'))
-    pool:
-      vmImage: $(vmImageName)
     steps:
     # Step 1: Build and push the Docker image to the Production container registry
     - task: Docker@2
