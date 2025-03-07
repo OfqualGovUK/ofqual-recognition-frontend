@@ -5,62 +5,46 @@
     ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
 }
 
+<link rel="stylesheet" href="~/css/stepper.css" asp-append-version="true">
+
+<h1 class="govuk-heading-l">Check your answers</h1>
+
 <div class="govuk-grid-row">
-    @* <div class="govuk-grid-column-two-thirds"> *@
-        <div class="govuk-summary-card">
-            <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">
-                    Check you're eligible
-                </h2>
-            </div>
-            <div class="govuk-summary-card__content">
-                <dl class="govuk-summary-list">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Is your organisation ordinarily resident in, or have a substantial presence in the UK, Gibraltar, and/or EU or EFTA member state?
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            @Model.QuestionOne
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a asp-controller="Eligibility" asp-action="QuestionOne" class="govuk-link">
-                                Change<span class="govuk-visually-hidden"> Question 1</span>
-                            </a>
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Does your organisation have, or a reasonable expectation of having, learners in England?
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            @Model.QuestionTwo
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a asp-controller="Eligibility" asp-action="QuestionTwo" class="govuk-link">
-                                Change<span class="govuk-visually-hidden"> Question 2</span>
-                            </a>
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Do the qualifications you are seeking to be recognised to offer as regulated qualifications suitably assess the attainment of learners?
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            @Model.QuestionThree
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a asp-controller="Eligibility" asp-action="QuestionThree" class="govuk-link">
-                                Change<span class="govuk-visually-hidden"> Question 3</span>
-                            </a>
-                        </dd>
-                    </div>
-                </dl>
-            </div>
-        @* </div> *@
-        @* <form method="post" asp-action="QuestionSubmit"> *@
-        @*     <button type="submit" class="govuk-button">Continue</button> *@
-        @* </form> *@
-    </div>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Do you award or intend to award qualifications?
+            </dt>
+            <dd class="govuk-summary-list__value">
+                @Model.QuestionOne
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="QuestionOne">Change<span class="govuk-visually-hidden"> name</span></a>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not, does your organisation have a substantial presence in one of those territories?
+            </dt>
+            <dd class="govuk-summary-list__value">
+                @Model.QuestionTwo
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="QuestionTwo">Change<span class="govuk-visually-hidden"> date of birth</span></a>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Do you intend to make qualifications available to learners in England?
+            </dt>
+            <dd class="govuk-summary-list__value">
+                @Model.QuestionThree
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="QuestionThree">Change<span class="govuk-visually-hidden"> address</span></a>
+            </dd>
+        </div>
+    </dl>
     <form method="post" asp-action="QuestionSubmit">
         <button type="submit" class="govuk-button">Continue</button>
     </form>

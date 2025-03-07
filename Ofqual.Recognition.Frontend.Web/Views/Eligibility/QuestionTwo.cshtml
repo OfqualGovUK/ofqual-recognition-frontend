@@ -3,17 +3,24 @@
     ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
 }
 
+<link rel="stylesheet" href="~/css/stepper.css" asp-append-version="true">
+
 <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <span class="govuk-caption-l">Question 2/3</span>
-        <div class="govuk-form-group" @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
+        <div class="stepper">
+            <span class="govuk-caption-l">Question 2 of 3</span>
+            <div class="stepper__bar">
+                <div class="stepper__progress" style="width: 66.66%;"></div>
+            </div>
+        </div>
+        <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
             <form method="post">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                         <h1 class="govuk-fieldset__heading">
-                            Does your organisation have, or a reasonable expectation of having, learners in England?
+                            Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not, does your organisation have a substantial presence in one of those territories?
                         </h1>
                     </legend>
 
@@ -38,9 +45,9 @@
                             </label>
                         </div>
                     </div>
-                    <br /><br />
-                    <button type="submit" class="govuk-button">Continue</button>
                 </fieldset>
+                <br />
+                <button type="submit" class="govuk-button">Continue</button>
             </form>
         </div>
     </div>
