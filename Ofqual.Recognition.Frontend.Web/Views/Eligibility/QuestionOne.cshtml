@@ -3,22 +3,33 @@
     ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
 }
 
+<link rel="stylesheet" href="~/css/stepper.css" asp-append-version="true">
+
 <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <span class="govuk-caption-l">Question 1/3</span>
-        <div class="govuk-form-group" @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
+        <div class="stepper">
+            <span class="govuk-caption-l">Question 1 of 3</span>
+            <div class="stepper__bar">
+                <div class="stepper__progress" style="width: 33.33%;"></div>
+            </div>
+        </div>
+        <h1 class="govuk-heading-l">
+            Qualifications we regulate
+        </h1>
+        <p class="govuk-body">
+            A qualification must have a result that is given based on the learner demonstrating knowledge, skills and understanding - rather than issuing certificates which reflect attendance at a training event or course.
+            <br /><br />
+            We do not regulate courses that do not include an assessment of a learners attainment related to the specific knowledge, skills and behaviours
+        </p>
+        <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
             <form method="post">
                 <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <h1 class="govuk-fieldset__heading">
-                            Is your organisation ordinarily resident in, or have a substantial presence in the UK, Gibraltar, and/or EU or EFTA member state?
-                        </h1>
-                        <br />
-                        <p class="govuk-body">
-                            Your organisation has to operate in and be registered with appropriate authorities within the United Kingdom (UK), Gibraltar, the European Union (EU) or European Free Trade Association (EFTA).
-                        </p>
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                        <h2 class="govuk-fieldset__heading">
+                            Do you award or intend to award qualifications?
+                        </h2>
                     </legend>
 
                     @if (!ViewData.ModelState.IsValid)
@@ -42,9 +53,9 @@
                             </label>
                         </div>
                     </div>
-                    <br /><br />
-                    <button type="submit" class="govuk-button">Continue</button>
                 </fieldset>
+                <br />
+                <button type="submit" class="govuk-button">Continue</button>
             </form>
         </div>
     </div>
