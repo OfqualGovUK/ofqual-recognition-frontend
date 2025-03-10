@@ -1,16 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ofqual.Recognition.Frontend.Web.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers
 {
     [Route("eligibility")]
     public class EligibilityController : Controller
     {
+        private readonly IEligibilityService _eligibilityService;
+
+        public EligibilityController(IEligibilityService eligibilityService)
+        {
+            _eligibilityService = eligibilityService;
+        }
+
         [HttpGet("start")]
         public IActionResult Start() => View();
 
         [HttpGet("question-one")]
-        public IActionResult QuestionOne() => View();
+        public IActionResult QuestionOne()
+        {
+            var model = _eligibilityService.GetAnswers();
+
+            return View(model);
+        }
 
         [HttpPost("question-one")]
         public IActionResult QuestionOne(string questionOne)
@@ -21,13 +33,18 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 return View();
             }
 
-            TempData["QuestionOne"] = questionOne;
+            _eligibilityService.SaveAnswers(questionOne, null, null);
 
             return RedirectToAction("QuestionTwo");
         }
 
         [HttpGet("question-two")]
-        public IActionResult QuestionTwo() => View();
+        public IActionResult QuestionTwo()
+        {
+            var model = _eligibilityService.GetAnswers();
+
+            return View(model);
+        }
 
         [HttpPost("question-two")]
         public IActionResult QuestionTwo(string questionTwo)
@@ -38,13 +55,18 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 return View();
             }
 
-            TempData["QuestionTwo"] = questionTwo;
+            _eligibilityService.SaveAnswers(null, questionTwo, null);
 
             return RedirectToAction("QuestionThree");
         }
 
         [HttpGet("question-three")]
-        public IActionResult QuestionThree() => View();
+        public IActionResult QuestionThree()
+        {
+            var model = _eligibilityService.GetAnswers();
+
+            return View(model);
+        }
 
         [HttpPost("question-three")]
         public IActionResult QuestionThree(string questionThree)
@@ -55,7 +77,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 return View();
             }
 
-            TempData["QuestionThree"] = questionThree;
+            _eligibilityService.SaveAnswers(null, null, questionThree);
 
             return RedirectToAction("QuestionCheck");
         }
@@ -63,14 +85,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpGet("check")]
         public IActionResult QuestionCheck()
         {
-            var model = new EligibilityModel
-            {
-                QuestionOne = TempData.Peek("QuestionOne") as string ?? string.Empty,
-                QuestionTwo = TempData.Peek("QuestionTwo") as string ?? string.Empty,
-                QuestionThree = TempData.Peek("QuestionThree") as string ?? string.Empty
-            };
-
-            TempData.Keep();
+            var model = _eligibilityService.GetAnswers();
 
             return View(model);
         }
@@ -78,23 +93,14 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpPost("submit")]
         public IActionResult QuestionSubmit(string questionThree)
         {
-            var model = new EligibilityModel
-            {
-                QuestionOne = TempData["QuestionOne"] as string ?? string.Empty,
-                QuestionTwo = TempData["QuestionTwo"] as string ?? string.Empty,
-                QuestionThree = TempData["QuestionThree"] as string ?? string.Empty
-            };
-
-            TempData.Keep();
+            var model = _eligibilityService.GetAnswers();
 
             if (model.QuestionOne == "Yes" && model.QuestionTwo == "Yes" && model.QuestionThree == "Yes")
             {
                 return RedirectToAction("Eligible");
             }
-            else
-            {
-                return RedirectToAction("NotEligible");
-            }
+
+            return RedirectToAction("NotEligible");
         }
 
         [HttpGet("eligible")]
@@ -103,14 +109,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpGet("not-eligible")]
         public IActionResult NotEligible() 
         {
-            var model = new EligibilityModel
-            {
-                QuestionOne = TempData["QuestionOne"] as string ?? string.Empty,
-                QuestionTwo = TempData["QuestionTwo"] as string ?? string.Empty,
-                QuestionThree = TempData["QuestionThree"] as string ?? string.Empty
-            };
-
-            TempData.Keep();
+            var model = _eligibilityService.GetAnswers();
 
             return View(model);
         }

@@ -1,4 +1,5 @@
 using GovUk.Frontend.AspNetCore;
+using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Web.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,9 @@ builder.Services.AddSingleton(_ =>
 
     return options;
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSession();
+builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 
 var app = builder.Build();
 
@@ -26,6 +30,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseSession();
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
