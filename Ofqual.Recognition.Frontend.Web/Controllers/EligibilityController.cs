@@ -5,7 +5,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
 {
     public class EligibilityController : Controller
     {
-        public IActionResult Index() => View();
+        public IActionResult Start() => View();
 
         public IActionResult QuestionOne() => View();
 
@@ -59,12 +59,10 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         {
             var model = new EligibilityModel
             {
-                QuestionOne = TempData["QuestionOne"] as string,
-                QuestionTwo = TempData["QuestionTwo"] as string,
-                QuestionThree = TempData["QuestionThree"] as string
+                QuestionOne = TempData.Peek("QuestionOne") as string ?? string.Empty,
+                QuestionTwo = TempData.Peek("QuestionTwo") as string ?? string.Empty,
+                QuestionThree = TempData.Peek("QuestionThree") as string ?? string.Empty
             };
-
-            TempData.Keep();
 
             return View(model);
         }
@@ -74,14 +72,14 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         {
             var model = new EligibilityModel
             {
-                QuestionOne = TempData["QuestionOne"] as string,
-                QuestionTwo = TempData["QuestionTwo"] as string,
-                QuestionThree = TempData["QuestionThree"] as string
+                QuestionOne = TempData["QuestionOne"] as string ?? string.Empty,
+                QuestionTwo = TempData["QuestionTwo"]as string ?? string.Empty,
+                QuestionThree = TempData["QuestionThree"] as string ?? string.Empty
             };
 
             TempData.Keep();
 
-            if (model.IsEligible())
+            if (model.QuestionOne == "Yes" && model.QuestionTwo == "Yes" && model.QuestionThree == "Yes")
             {
                 return RedirectToAction("Eligible");
             }
