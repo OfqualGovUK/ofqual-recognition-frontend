@@ -3,13 +3,16 @@ using Ofqual.Recognition.Frontend.Web.Models;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers
 {
+    [Route("eligibility")]
     public class EligibilityController : Controller
     {
+        [HttpGet("start")]
         public IActionResult Start() => View();
 
+        [HttpGet("question-one")]
         public IActionResult QuestionOne() => View();
 
-        [HttpPost]
+        [HttpPost("question-one")]
         public IActionResult QuestionOne(string questionOne)
         {
             if (string.IsNullOrWhiteSpace(questionOne))
@@ -23,9 +26,10 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             return RedirectToAction("QuestionTwo");
         }
 
+        [HttpGet("question-two")]
         public IActionResult QuestionTwo() => View();
 
-        [HttpPost]
+        [HttpPost("question-two")]
         public IActionResult QuestionTwo(string questionTwo)
         {
             if (string.IsNullOrWhiteSpace(questionTwo))
@@ -39,9 +43,10 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             return RedirectToAction("QuestionThree");
         }
 
+        [HttpGet("question-three")]
         public IActionResult QuestionThree() => View();
 
-        [HttpPost]
+        [HttpPost("question-three")]
         public IActionResult QuestionThree(string questionThree)
         {
             if (string.IsNullOrWhiteSpace(questionThree))
@@ -55,6 +60,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             return RedirectToAction("QuestionCheck");
         }
 
+        [HttpGet("check")]
         public IActionResult QuestionCheck()
         {
             var model = new EligibilityModel
@@ -69,13 +75,13 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("submit")]
         public IActionResult QuestionSubmit(string questionThree)
         {
             var model = new EligibilityModel
             {
                 QuestionOne = TempData["QuestionOne"] as string ?? string.Empty,
-                QuestionTwo = TempData["QuestionTwo"]as string ?? string.Empty,
+                QuestionTwo = TempData["QuestionTwo"] as string ?? string.Empty,
                 QuestionThree = TempData["QuestionThree"] as string ?? string.Empty
             };
 
@@ -91,8 +97,10 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             }
         }
 
+        [HttpGet("eligible")]
         public IActionResult Eligible() => View();
 
+        [HttpGet("not-eligible")]
         public IActionResult NotEligible() 
         {
             var model = new EligibilityModel
