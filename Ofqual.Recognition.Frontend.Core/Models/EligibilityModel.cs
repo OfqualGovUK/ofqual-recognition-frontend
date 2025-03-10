@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Ofqual.Recognition.Frontend.Web.Models
+﻿namespace Ofqual.Recognition.Frontend.Web.Models
 {
     public class EligibilityModel
     {
