@@ -7,7 +7,5 @@ namespace Ofqual.Recognition.Frontend.Web.Models
         public string QuestionOne { get; set; }
         public string QuestionTwo { get; set; }
         public string QuestionThree { get; set; }
-
-        public bool IsEligible() => QuestionOne == "Yes" && QuestionTwo == "Yes" && QuestionThree == "Yes";
     }
 }
