@@ -64,6 +64,8 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 QuestionThree = TempData.Peek("QuestionThree") as string ?? string.Empty
             };
 
+            TempData.Keep();
+
             return View(model);
         }
 
@@ -91,6 +93,18 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
 
         public IActionResult Eligible() => View();
 
-        public IActionResult NotEligible() => View();
+        public IActionResult NotEligible() 
+        {
+            var model = new EligibilityModel
+            {
+                QuestionOne = TempData["QuestionOne"] as string ?? string.Empty,
+                QuestionTwo = TempData["QuestionTwo"] as string ?? string.Empty,
+                QuestionThree = TempData["QuestionThree"] as string ?? string.Empty
+            };
+
+            TempData.Keep();
+
+            return View(model);
+        }
     }
 }
