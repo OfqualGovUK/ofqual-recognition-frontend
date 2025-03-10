@@ -32,7 +32,7 @@
                             Do you award or intend to award qualifications?
                         </h2>
                     </legend>
-                    @if (!ViewData.ModelState.IsValid)
+                    @if (ViewData.ModelState["questionOne"]?.Errors?.Any() == true)
                     {
                         <span class="govuk-error-message">
                             @ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage

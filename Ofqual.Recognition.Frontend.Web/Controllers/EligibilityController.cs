@@ -30,7 +30,9 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             if (string.IsNullOrWhiteSpace(questionOne))
             {
                 ModelState.AddModelError("", "You need to select an option to continue.");
-                return View();
+                var model = _eligibilityService.GetAnswers();
+
+                return View(model);
             }
 
             _eligibilityService.SaveAnswers(questionOne, null, null);
@@ -52,7 +54,9 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             if (string.IsNullOrWhiteSpace(questionTwo))
             {
                 ModelState.AddModelError("", "You need to select an option to continue.");
-                return View();
+                var model = _eligibilityService.GetAnswers();
+
+                return View(model);
             }
 
             _eligibilityService.SaveAnswers(null, questionTwo, null);
@@ -74,7 +78,9 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             if (string.IsNullOrWhiteSpace(questionThree))
             {
                 ModelState.AddModelError("", "You need to select an option to continue.");
-                return View();
+                var model = _eligibilityService.GetAnswers();
+
+                return View(model);
             }
 
             _eligibilityService.SaveAnswers(null, null, questionThree);
@@ -96,7 +102,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             var model = _eligibilityService.GetAnswers();
 
             if (model.QuestionOne == "Yes" && model.QuestionTwo == "Yes" && model.QuestionThree == "Yes")
-            {
+            { 
                 return RedirectToAction("Eligible");
             }
 
@@ -104,7 +110,11 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         }
 
         [HttpGet("eligible")]
-        public IActionResult Eligible() => View();
+        public IActionResult Eligible() {
+            HttpContext.Session.Clear();
+
+            return View();
+        }
 
         [HttpGet("not-eligible")]
         public IActionResult NotEligible() 

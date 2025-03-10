@@ -24,7 +24,7 @@
                             Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not, does your organisation have a substantial presence in one of those territories?
                         </h1>
                     </legend>
-                    @if (!ViewData.ModelState.IsValid)
+                    @if (ViewData.ModelState["questionTwo"]?.Errors?.Any() == true)
                     {
                         <span class="govuk-error-message">
                             @ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage
@@ -32,13 +32,13 @@
                     }
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="yes" name="questionTwo" type="radio" value="Yes" @(Model.QuestionOne == "Yes" ? "checked" : "")>
+                            <input class="govuk-radios__input" id="yes" name="questionTwo" type="radio" value="Yes" @(Model.QuestionTwo == "Yes" ? "checked" : "")>
                             <label class="govuk-label govuk-radios__label" for="yes">
                                 Yes
                             </label>
                         </div>
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="no" name="questionTwo" type="radio" value="No" @(Model.QuestionOne == "No" ? "checked" : "")>
+                            <input class="govuk-radios__input" id="no" name="questionTwo" type="radio" value="No" @(Model.QuestionTwo == "No" ? "checked" : "")>
                             <label class="govuk-label govuk-radios__label" for="no">
                                 No
                             </label>
