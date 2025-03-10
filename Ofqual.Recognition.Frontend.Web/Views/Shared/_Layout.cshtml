@@ -26,10 +26,9 @@
 
     @await Html.PartialAsync("_HeaderPartial.cshtml")
 
-    @await RenderSectionAsync("Backlink", required: false)
-
     <div class="govuk-width-container">
         @await Html.PartialAsync("_PhaseBannerPartial.cshtml")
+        @await RenderSectionAsync("Backlink", required: false)
     </div>
 }
 

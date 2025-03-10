@@ -5,8 +5,9 @@
 
 <link rel="stylesheet" href="~/css/stepper.css" asp-append-version="true">
 
-<a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
-
+@section BackLink {
+    <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
+}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <div class="stepper">
@@ -23,14 +24,12 @@
                             Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not, does your organisation have a substantial presence in one of those territories?
                         </h1>
                     </legend>
-
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <span class="govuk-error-message">
                             @ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage
                         </span>
                     }
-
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="yes" name="questionTwo" type="radio" value="Yes">
@@ -51,4 +50,4 @@
             </form>
         </div>
     </div>
-<div>
+</div>

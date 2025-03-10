@@ -5,8 +5,9 @@
 
 <link rel="stylesheet" href="~/css/stepper.css" asp-append-version="true">
 
-<a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
-
+@section BackLink {
+    <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
+}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <div class="stepper">
@@ -51,4 +52,4 @@
             </form>
         </div>
     </div>
-<div>
+</div>
