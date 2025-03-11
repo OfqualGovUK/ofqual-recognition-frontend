@@ -11,6 +11,10 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <div class="progress">
+            <span class="govuk-caption-l">Question 1 of 3</span>
+            <div class="progress__bar">
+            <div class="bar__progress" style="width: 33.33%;"></div>
+            @*
             <div class="progress__bar">
                 <div class="bar__segment" style="width: 33.33%;"></div>
                 <div class="bar__segment gap"></div>
@@ -19,6 +23,7 @@
                 <div class="bar__segment"></div>
             </div>
             <div class="progress__labels">
+                 @*
                 <span class="progress__link progress__link--active govuk-caption-l">
                     <svg class="progress__icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" fill="none" />
@@ -38,6 +43,7 @@
                     </svg>
                     Question 3
                 </span>
+                 *@
             </div>
         </div>
         <h1 class="govuk-heading-l">
@@ -46,7 +52,7 @@
         <p class="govuk-body">
             A qualification must have a result that is given based on the learner demonstrating knowledge, skills and understanding - rather than issuing certificates which reflect attendance at a training event or course.
             <br /><br />
-            We do not regulate courses that do not include an assessment of a learners attainment related to the specific knowledge, skills and behaviours
+            We do not regulate courses that do not include an assessment of a learners attainment related to the specific knowledge, skills and behaviours.
         </p>
         <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
             <form method="post">

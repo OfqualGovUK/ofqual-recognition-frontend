@@ -1,4 +1,4 @@
-﻿/*.progress {
+﻿.progress {
     display: flex;
     flex-direction: column;
     align-items: start;
@@ -17,19 +17,16 @@
     background-color: #d6d6d6;
     position: relative;
     overflow: hidden;
-    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .bar__progress {
     height: 100%;
     background-color: #1d70b8;
-    transition: width 0.3s ease-in-out;*/
+    transition: width 0.3s ease-in-out;
 
-
-
-
-
-.progress {
+/* Glass Morphic Design */
+/*.progress {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -40,26 +37,26 @@
 .progress__bar {
     width: 100%;
     height: 4px;
-    background: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
-    border-radius: 10px; /* Rounded corners for the progress bar */
-    backdrop-filter: blur(10px); /* Glassmorphism blur effect */
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
     position: relative;
     overflow: hidden;
     margin-bottom: 8px;
     display: flex;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow to enhance the glass effect */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .bar__progress {
     height: 100%;
-    background-color: #1d70b8; /* GOV.UK blue color */
-    width: 0%; /* Start with 0% width */
-    transition: width 3s ease-in-out; /* Smooth transition over 3s */
+    background-color: #1d70b8;
+    width: 0%;
+    transition: width 3s ease-in-out;
 }
 
 .bar__segment {
     height: 100%;
-    background-color: #1d70b8; /* GOV.UK blue color */
+    background-color: #1d70b8;
     transition: width 0.3s ease-in-out;
 }
 
@@ -101,4 +98,4 @@
 .progress__link:hover .progress__icon,
 .progress__link--active .progress__icon {
     color: #1d70b8;
-}
+}*/
