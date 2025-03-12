@@ -16,7 +16,10 @@ builder.Services.AddSingleton(_ =>
     return options;
 });
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSession();
+builder.Services.AddSession(options => 
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
 builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 
 var app = builder.Build();
