@@ -1,6 +1,7 @@
 using GovUk.Frontend.AspNetCore;
+using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
-using Ofqual.Recognition.Frontend.Web.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

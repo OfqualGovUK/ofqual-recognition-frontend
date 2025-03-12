@@ -1,5 +1,5 @@
-﻿namespace Ofqual.Recognition.Frontend.Web.Models
-{
+﻿namespace Ofqual.Recognition.Frontend.Core.Models
+{ 
     public class MatomoOptions
     {
         public Uri TrackerURL { get; set; } = default!;
