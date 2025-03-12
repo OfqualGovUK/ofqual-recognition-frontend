@@ -44,6 +44,7 @@
             </div>
         </dl>
         <form method="post" asp-action="QuestionSubmit">
+            @Html.AntiForgeryToken()
             <button type="submit" class="govuk-button">Continue</button>
         </form>
     </div>
