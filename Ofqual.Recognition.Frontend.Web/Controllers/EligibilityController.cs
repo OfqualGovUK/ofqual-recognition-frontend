@@ -7,10 +7,12 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
     public class EligibilityController : Controller
     {
         private readonly IEligibilityService _eligibilityService;
+        private readonly ILogger<EligibilityController> _logger;
 
-        public EligibilityController(IEligibilityService eligibilityService)
+        public EligibilityController(IEligibilityService eligibilityService, ILogger<EligibilityController> logger)
         {
             _eligibilityService = eligibilityService;
+            _logger = logger;
         }
 
         [HttpGet("start")]
@@ -19,9 +21,9 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpGet("question-one")]
         public IActionResult QuestionOne()
         {
-            var model = _eligibilityService.GetAnswers();
+            _logger.LogInformation("Getting answers for QuestionOne.");
 
-            return View(model);
+            return View(_eligibilityService.GetAnswers());
         }
 
         [HttpPost("question-one")]
@@ -29,12 +31,13 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(questionOne))
             {
+                _logger.LogWarning("Invalid input: QuestionOne is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
-                var model = _eligibilityService.GetAnswers();
 
-                return View(model);
+                return View(_eligibilityService.GetAnswers());
             }
 
+            _logger.LogInformation("Saving answer for QuestionOne: {questionOne}", questionOne);
             _eligibilityService.SaveAnswers(questionOne, null, null);
 
             return RedirectToAction("QuestionTwo");
@@ -43,9 +46,9 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpGet("question-two")]
         public IActionResult QuestionTwo()
         {
-            var model = _eligibilityService.GetAnswers();
+            _logger.LogInformation("Getting answers for QuestionTwo.");
 
-            return View(model);
+            return View(_eligibilityService.GetAnswers());
         }
 
         [HttpPost("question-two")]
@@ -53,12 +56,13 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(questionTwo))
             {
+                _logger.LogWarning("Invalid input: QuestionTwo is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
-                var model = _eligibilityService.GetAnswers();
 
-                return View(model);
+                return View(_eligibilityService.GetAnswers());
             }
 
+            _logger.LogInformation("Saving answer for QuestionTwo: {questionTwo}", questionTwo);
             _eligibilityService.SaveAnswers(null, questionTwo, null);
 
             return RedirectToAction("QuestionThree");
@@ -67,9 +71,9 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpGet("question-three")]
         public IActionResult QuestionThree()
         {
-            var model = _eligibilityService.GetAnswers();
+            _logger.LogInformation("Getting answers for QuestionThree.");
 
-            return View(model);
+            return View(_eligibilityService.GetAnswers());
         }
 
         [HttpPost("question-three")]
@@ -77,12 +81,13 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(questionThree))
             {
+                _logger.LogWarning("Invalid input: QuestionThree is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
-                var model = _eligibilityService.GetAnswers();
 
-                return View(model);
+                return View(_eligibilityService.GetAnswers());
             }
 
+            _logger.LogInformation("Saving answer for QuestionThree: {questionThree}", questionThree);
             _eligibilityService.SaveAnswers(null, null, questionThree);
 
             return RedirectToAction("QuestionCheck");
@@ -91,9 +96,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpGet("check")]
         public IActionResult QuestionCheck()
         {
-            var model = _eligibilityService.GetAnswers();
-
-            return View(model);
+            return View(_eligibilityService.GetAnswers());
         }
 
         [HttpPost("submit")]
@@ -119,9 +122,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpGet("not-eligible")]
         public IActionResult NotEligible() 
         {
-            var model = _eligibilityService.GetAnswers();
-
-            return View(model);
+            return View(_eligibilityService.GetAnswers());
         }
     }
 }

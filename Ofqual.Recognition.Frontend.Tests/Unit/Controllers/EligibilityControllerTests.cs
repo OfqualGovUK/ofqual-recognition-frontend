@@ -1,8 +1,9 @@
-﻿using Moq;
-using Microsoft.AspNetCore.Mvc;
-using Ofqual.Recognition.Frontend.Web.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.Controllers;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers
 {
@@ -11,7 +12,8 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers
         // Helper to create the controller with a mocked service
         private EligibilityController GetController(IEligibilityService service)
         {
-            return new EligibilityController(service);
+            var mockLogger = new Mock<ILogger<EligibilityController>>();
+            return new EligibilityController(service, mockLogger.Object);
         }
 
         [Fact]
