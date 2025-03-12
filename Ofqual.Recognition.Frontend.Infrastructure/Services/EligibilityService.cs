@@ -1,15 +1,9 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Http;
-using Ofqual.Recognition.Frontend.Web.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 {
-    public interface IEligibilityService
-    {
-        void SaveAnswers(string questionOne, string questionTwo, string questionThree);
-        EligibilityModel GetAnswers();
-    }
-
     public class EligibilityService : IEligibilityService
     {
         private readonly ISession _session;

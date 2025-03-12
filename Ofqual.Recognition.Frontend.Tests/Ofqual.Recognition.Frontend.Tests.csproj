@@ -24,6 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
+	<ProjectReference Include="..\Ofqual.Recognition.Frontend.Infrastructure\Ofqual.Recognition.Frontend.Infrastructure.csproj" />
+	<ProjectReference Include="..\Ofqual.Recognition.Frontend.Core\Ofqual.Recognition.Frontend.Core.csproj" />
     <ProjectReference Include="..\Ofqual.Recognition.Frontend.Web\Ofqual.Recognition.Frontend.Web.csproj" />
   </ItemGroup>
 

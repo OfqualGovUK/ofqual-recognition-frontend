@@ -3,11 +3,11 @@ using Ofqual.Recognition.Frontend.Controllers;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ofqual.Recognition.Frontend.Tests.Unit
+namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers
 {
     public class HomeControllerTests
     {
-        private HomeController _sut; 
+        private HomeController _sut;
         public HomeControllerTests()
         {
             _sut = new HomeController(new Mock<ILogger<HomeController>>().Object);
