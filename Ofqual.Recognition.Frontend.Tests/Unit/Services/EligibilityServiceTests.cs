@@ -20,7 +20,17 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Services
 
         public void Remove(string key) => _sessionStorage.Remove(key);
         public void Set(string key, byte[] value) => _sessionStorage[key] = value;
-        public bool TryGetValue(string key, out byte[] value) => _sessionStorage.TryGetValue(key, out value);
+        public bool TryGetValue(string key, out byte[] value) 
+        {
+            if (_sessionStorage.TryGetValue(key, out var foundValue))
+            {
+                value = foundValue;
+                return true;
+            }
+
+            value = Array.Empty<byte>();
+            return false;
+        } 
     }
 
     public class EligibilityServiceTests

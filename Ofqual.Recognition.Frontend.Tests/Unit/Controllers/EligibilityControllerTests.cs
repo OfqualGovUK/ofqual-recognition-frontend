@@ -80,7 +80,7 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers
             // Assert
             Assert.NotNull(result);
             Assert.Equal("QuestionTwo", result.ActionName);
-            eligibilityServiceMock.Verify(x => x.SaveAnswers("Yes", null, null), Times.Once);
+            eligibilityServiceMock.Verify(x => x.SaveAnswers("Yes", string.Empty, string.Empty), Times.Once);
         }
     }
 }

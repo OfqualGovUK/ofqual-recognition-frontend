@@ -16,7 +16,10 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         }
 
         [HttpGet("start")]
-        public IActionResult Start() => View();
+        public IActionResult Start() 
+        {
+            return RedirectToAction("QuestionOne");
+        } 
 
         [HttpGet("question-one")]
         public IActionResult QuestionOne()
@@ -27,6 +30,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         }
 
         [HttpPost("question-one")]
+        [ValidateAntiForgeryToken]
         public IActionResult QuestionOne(string questionOne)
         {
             if (string.IsNullOrWhiteSpace(questionOne))
@@ -34,11 +38,11 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 _logger.LogWarning("Invalid input: QuestionOne is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
 
-                return View(_eligibilityService.GetAnswers());
+                return View();
             }
 
             _logger.LogInformation("Saving answer for QuestionOne: {questionOne}", questionOne);
-            _eligibilityService.SaveAnswers(questionOne, null, null);
+            _eligibilityService.SaveAnswers(questionOne, string.Empty, string.Empty);
 
             return RedirectToAction("QuestionTwo");
         }
@@ -52,6 +56,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         }
 
         [HttpPost("question-two")]
+        [ValidateAntiForgeryToken]
         public IActionResult QuestionTwo(string questionTwo)
         {
             if (string.IsNullOrWhiteSpace(questionTwo))
@@ -59,11 +64,11 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 _logger.LogWarning("Invalid input: QuestionTwo is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
 
-                return View(_eligibilityService.GetAnswers());
+                return View();
             }
 
             _logger.LogInformation("Saving answer for QuestionTwo: {questionTwo}", questionTwo);
-            _eligibilityService.SaveAnswers(null, questionTwo, null);
+            _eligibilityService.SaveAnswers(string.Empty, questionTwo, string.Empty);
 
             return RedirectToAction("QuestionThree");
         }
@@ -77,6 +82,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         }
 
         [HttpPost("question-three")]
+        [ValidateAntiForgeryToken]
         public IActionResult QuestionThree(string questionThree)
         {
             if (string.IsNullOrWhiteSpace(questionThree))
@@ -84,11 +90,11 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 _logger.LogWarning("Invalid input: QuestionThree is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
 
-                return View(_eligibilityService.GetAnswers());
+                return View();
             }
 
             _logger.LogInformation("Saving answer for QuestionThree: {questionThree}", questionThree);
-            _eligibilityService.SaveAnswers(null, null, questionThree);
+            _eligibilityService.SaveAnswers(string.Empty, string.Empty, questionThree);
 
             return RedirectToAction("QuestionCheck");
         }
@@ -100,7 +106,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         }
 
         [HttpPost("submit")]
-        public IActionResult QuestionSubmit(string questionThree)
+        public IActionResult QuestionSubmit()
         {
             var model = _eligibilityService.GetAnswers();
 
@@ -113,7 +119,8 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         }
 
         [HttpGet("eligible")]
-        public IActionResult Eligible() {
+        public IActionResult Eligible() 
+        {
             HttpContext.Session.Clear();
 
             return View();

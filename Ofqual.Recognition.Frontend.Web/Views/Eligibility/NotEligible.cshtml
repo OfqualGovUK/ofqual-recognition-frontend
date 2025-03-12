@@ -14,19 +14,19 @@
             Ofqual cannot regulate the qualifications your organisation proposes to offer because you have indicated:
         </p>
         <ul class="govuk-list govuk-list--bullet">
-            @if (Model.QuestionOne == "No")
+            @if (Model.QuestionOne != "Yes")
             {
                 <li>
                     <p class="govuk-body">That you intend to offer training, which is not assessed, rather than qualifications</p>
                 </li>
             }
-            @if (Model.QuestionTwo == "No")
+            @if (Model.QuestionTwo != "Yes")
             {
                 <li>
                     <p class="govuk-body">That your organisation does not have the necessary presence in a relevant territory</p>
                 </li>
             }
-            @if (Model.QuestionThree == "No")
+            @if (Model.QuestionThree != "Yes")
             {
                 <li>
                     <p class="govuk-body">That you do not intend to offer qualifications to learners in England</p>
