@@ -17,7 +17,7 @@
                     @Model.QuestionOne
                 </dd>
                 <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
-                    <a class="govuk-link" href="question-one">Change<span class="govuk-visually-hidden"> Question One</span></a>
+                    <a class="govuk-link" href="@Url.Action("QuestionOne", new { returnUrl = Url.Action("QuestionCheck") })">Change<span class="govuk-visually-hidden"> Question One</span></a>
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
@@ -28,7 +28,7 @@
                     @Model.QuestionTwo
                 </dd>
                 <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
-                    <a class="govuk-link" href="question-two">Change<span class="govuk-visually-hidden"> Question Two</span></a>
+                    <a class="govuk-link" href="@Url.Action("QuestionTwo", new { returnUrl = Url.Action("QuestionCheck") })">Change<span class="govuk-visually-hidden"> Question Two</span></a>
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
