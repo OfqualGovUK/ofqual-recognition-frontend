@@ -28,7 +28,7 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Services
                 return true;
             }
 
-            value = Array.Empty<byte>();
+            value = [];
             return false;
         } 
     }
