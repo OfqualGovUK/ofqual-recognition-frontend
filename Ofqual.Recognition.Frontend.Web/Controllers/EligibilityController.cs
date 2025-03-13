@@ -38,7 +38,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 _logger.LogWarning("Invalid input: QuestionOne is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
 
-                return View();
+                return View(_eligibilityService.GetAnswers());
             }
 
             _logger.LogInformation("Saving answer for QuestionOne: {questionOne}", questionOne);
@@ -64,7 +64,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 _logger.LogWarning("Invalid input: QuestionTwo is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
 
-                return View();
+                return View(_eligibilityService.GetAnswers());
             }
 
             _logger.LogInformation("Saving answer for QuestionTwo: {questionTwo}", questionTwo);
@@ -90,7 +90,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 _logger.LogWarning("Invalid input: QuestionThree is empty.");
                 ModelState.AddModelError("", "You need to select an option to continue.");
 
-                return View();
+                return View(_eligibilityService.GetAnswers());
             }
 
             _logger.LogInformation("Saving answer for QuestionThree: {questionThree}", questionThree);

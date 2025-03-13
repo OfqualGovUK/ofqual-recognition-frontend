@@ -14,7 +14,7 @@ builder.Services.AddControllersWithViews(options =>
 });
 builder.Services.AddSingleton(_ =>
 {
-    var options = new MatomoOptions();
+    var options = new MatomoModel();
     builder.Configuration.GetSection("Matomo").Bind(options);
 
     return options;
