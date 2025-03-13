@@ -22,16 +22,18 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         } 
 
         [HttpGet("question-one")]
-        public IActionResult QuestionOne()
+        public IActionResult QuestionOne(string returnUrl = null)
         {
             _logger.LogInformation("Getting answers for QuestionOne.");
+
+            ViewBag.ReturnUrl = returnUrl;
 
             return View(_eligibilityService.GetAnswers());
         }
 
         [HttpPost("question-one")]
         [ValidateAntiForgeryToken]
-        public IActionResult QuestionOne(string questionOne)
+        public IActionResult QuestionOne(string questionOne, string returnUrl)
         {
             if (string.IsNullOrWhiteSpace(questionOne))
             {
@@ -44,20 +46,27 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             _logger.LogInformation("Saving answer for QuestionOne: {questionOne}", questionOne);
             _eligibilityService.SaveAnswers(questionOne, string.Empty, string.Empty);
 
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
             return RedirectToAction("QuestionTwo");
         }
 
         [HttpGet("question-two")]
-        public IActionResult QuestionTwo()
+        public IActionResult QuestionTwo(string returnUrl = null)
         {
             _logger.LogInformation("Getting answers for QuestionTwo.");
+
+            ViewBag.ReturnUrl = returnUrl;
 
             return View(_eligibilityService.GetAnswers());
         }
 
         [HttpPost("question-two")]
         [ValidateAntiForgeryToken]
-        public IActionResult QuestionTwo(string questionTwo)
+        public IActionResult QuestionTwo(string questionTwo, string returnUrl)
         {
             if (string.IsNullOrWhiteSpace(questionTwo))
             {
@@ -69,6 +78,11 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
 
             _logger.LogInformation("Saving answer for QuestionTwo: {questionTwo}", questionTwo);
             _eligibilityService.SaveAnswers(string.Empty, questionTwo, string.Empty);
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
 
             return RedirectToAction("QuestionThree");
         }
