@@ -16,6 +16,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\lib\" />
+	<ProjectReference Include="..\Ofqual.Recognition.Frontend.Infrastructure\Ofqual.Recognition.Frontend.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

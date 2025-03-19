@@ -1,5 +1,7 @@
 using GovUk.Frontend.AspNetCore;
 using Ofqual.Recognition.Frontend.Web.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,13 @@ builder.Services.AddSingleton(_ =>
 
     return options;
 });
+
+builder.Services.AddHttpClient("RecognitionCitizen", client =>
+{
+    client.BaseAddress = new Uri(//TODO);
+});
+
+builder.Services.AddScoped<IApplicationService, ApplicationService>();
 
 var app = builder.Build();
 

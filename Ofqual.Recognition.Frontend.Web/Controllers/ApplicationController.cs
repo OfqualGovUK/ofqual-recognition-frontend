@@ -20,7 +20,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             // get task list with statuses
 
             // display tasks in their sections
-            return View();
+            return View(model);
         }
 
         [HttpGet("check-your-answers")]
