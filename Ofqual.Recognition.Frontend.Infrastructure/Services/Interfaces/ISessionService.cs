@@ -9,8 +9,8 @@ public interface ISessionService
     public void SetApplication(Application application);
     bool HasApplication();
 
-    List<TaskItemStatusSectionDto> GetTasks();
-    public void SetTasks(List<TaskItemStatusSectionDto> tasks);
+    List<TaskItemStatusSection> GetTasks();
+    public void SetTasks(List<TaskItemStatusSection> tasks);
     public bool HasTasks();
     public void ClearTasks();
 }

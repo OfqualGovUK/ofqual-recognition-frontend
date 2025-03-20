@@ -35,16 +35,16 @@ public class SessionService : ISessionService
         return session?.GetString("Application") != null;
     }
 
-    public List<TaskItemStatusSectionDto> GetTasks()
+    public List<TaskItemStatusSection> GetTasks()
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         var serializedTasks = session?.GetString("TaskList");
         return string.IsNullOrEmpty(serializedTasks)
-            ? new List<TaskItemStatusSectionDto>()
-            : JsonConvert.DeserializeObject<List<TaskItemStatusSectionDto>>(serializedTasks) ?? new List<TaskItemStatusSectionDto>();
+            ? new List<TaskItemStatusSection>()
+            : JsonConvert.DeserializeObject<List<TaskItemStatusSection>>(serializedTasks) ?? new List<TaskItemStatusSection>();
     }
 
-    public void SetTasks(List<TaskItemStatusSectionDto> tasks)
+    public void SetTasks(List<TaskItemStatusSection> tasks)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         if (session == null) return;

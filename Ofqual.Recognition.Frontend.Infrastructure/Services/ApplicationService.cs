@@ -27,7 +27,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                 }
 
                 var client = _client.GetClient();
-                var response = await client.PostAsync("/recognition/citizen/application", null);
+                var response = await client.PostAsync("/applications", null);
                 
                 if (!response.IsSuccessStatusCode)
                 {

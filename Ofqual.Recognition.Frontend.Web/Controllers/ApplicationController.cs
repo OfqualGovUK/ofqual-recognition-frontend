@@ -37,8 +37,8 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             Application? application = _sessionService.GetApplication();
 
             if (application == null) {
-                // TODO: Redirect to error page or login page?
-                return RedirectToAction("Error", "Home");
+                // TODO: Redirect to login page and not home page
+                return RedirectToAction("Home");
             }
 
             var tasks = await _taskService.GetApplicationTasks(application.ApplicationId);
@@ -52,8 +52,8 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             Application? application = _sessionService.GetApplication();
 
             if (application == null) {
-                // TODO: Redirect to error page or login page?
-                return RedirectToAction("Error", "Home");
+                // TODO: Redirect to login page and not home page
+                return RedirectToAction("Home");
             }
 
             // TODO: Check user progress instead of hard coding completed status

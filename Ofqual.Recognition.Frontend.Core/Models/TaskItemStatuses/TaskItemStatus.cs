@@ -5,7 +5,7 @@ namespace Ofqual.Recognition.Frontend.Core.Models;
 /// <summary>
 /// Represents the status of a task.
 /// </summary>
-public class TaskItemStatusDto
+public class TaskItemStatus
 {
     public Guid TaskId { get; set; }
     public required string TaskName { get; set; }

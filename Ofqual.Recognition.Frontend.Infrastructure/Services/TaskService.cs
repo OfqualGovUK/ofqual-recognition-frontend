@@ -18,7 +18,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             _sessionService = sessionService;
         }
 
-        public async Task<List<TaskItemStatusSectionDto>> GetApplicationTasks(Guid applicationId)
+        public async Task<List<TaskItemStatusSection>> GetApplicationTasks(Guid applicationId)
         {
             try
             {
@@ -28,12 +28,12 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                 }
 
                 var client = _client.GetClient();
-                var result = await client.GetFromJsonAsync<List<TaskItemStatusSectionDto>>($"/recognition/citizen/application/{applicationId}/tasks");
+                var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/applications/{applicationId}/tasks");
 
                 if (result == null || result.Count == 0)
                 {
                     Log.Warning("No tasks found for Application ID {ApplicationId}", applicationId);
-                    result = new List<TaskItemStatusSectionDto>();
+                    result = new List<TaskItemStatusSection>();
                 }
 
                 _sessionService.SetTasks(result);
@@ -42,7 +42,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while retrieving tasks for Application ID {ApplicationId}", applicationId);
-                return new List<TaskItemStatusSectionDto>();
+                return new List<TaskItemStatusSection>();
             }
         }
 
@@ -51,7 +51,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             try
             {
                 var client = _client.GetClient();
-                var response = await client.PostAsync($"/recognition/citizen/application/{applicationId}/tasks/{taskId}/status/{status}", null);
+                var response = await client.PostAsync($"/applications/{applicationId}/tasks/{taskId}", null);
 
                 if (!response.IsSuccessStatusCode)
                 {
