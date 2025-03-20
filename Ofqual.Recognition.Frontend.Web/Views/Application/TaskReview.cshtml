@@ -1,4 +1,4 @@
-﻿@using Ofqual.Recognition.Frontend.Core.Models
+@using Ofqual.Recognition.Frontend.Core.Models
 @using Ofqual.Recognition.Frontend.Core.Extensions
 
 @model List<TaskItemStatusSection>
@@ -6,6 +6,10 @@
 @{
     ViewData["Title"] = "Apply to have your qualifications recognised";
     ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
+}
+
+@section BackLink {
+    <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
 }
 
 <h1 class="govuk-heading-l">Check your answers</h1>
@@ -71,7 +75,7 @@
                     <br />
                     <div class="govuk-button-group">
                         <button type="submit" class="govuk-button">Save and continue</button>
-                        <a class="govuk-link" href="#">Cancel</a>
+                        <a class="govuk-link" href="/application/tasks">Cancel</a>
                     </div>
                 </fieldset>
             </form>
