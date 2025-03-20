@@ -1,52 +1,116 @@
 using GovUk.Frontend.AspNetCore;
-using Ofqual.Recognition.Frontend.Web.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Infrastructure.Client;
+using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using CorrelationId.DependencyInjection;
+using CorrelationId;
+using Serilog;
+using System.Reflection;
+using Serilog.Events;
+using Serilog.Sinks.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#region Services
+
+// Add GovUK frontend
 builder.Services.AddGovUkFrontend();
 
-// Add services to the container.
+// Add Controllers with Views
 builder.Services.AddControllersWithViews();
 
+// Register Matomo Options
 builder.Services.AddSingleton(_ =>
 {
     var options = new MatomoOptions();
     builder.Configuration.GetSection("Matomo").Bind(options);
-
     return options;
 });
 
+// Configure Serilog logging
+builder.Host.UseSerilog((ctx, svc, cfg) => cfg
+    .ReadFrom.Configuration(ctx.Configuration)
+    .ReadFrom.Services(svc)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Environment", ctx.Configuration.GetValue<string>("LogzIo:Environment") ?? "Unknown")
+    .Enrich.WithProperty("Assembly", Assembly.GetEntryAssembly()?.GetName()?.Name ?? "Ofqual.Recognition.Frontend")
+    .MinimumLevel.Override("CorrelationId", LogEventLevel.Error)
+    .WriteTo.Console(
+        restrictedToMinimumLevel: ctx.Configuration.GetValue<string>("LogzIo:Environment") == "LOCAL"
+            ? LogEventLevel.Verbose
+            : LogEventLevel.Error)
+    .WriteTo.LogzIoDurableHttp(
+        requestUri: ctx.Configuration.GetValue<string>("LogzIo:Uri"),
+        bufferBaseFileName: "Buffer",
+        bufferRollingInterval: BufferRollingInterval.Hour,
+        bufferFileSizeLimitBytes: 524288000L,
+        retainedBufferFileCountLimit: 12
+    )
+);
+
+// Add Correlation ID service for tracking requests across logs
+builder.Services.AddCorrelationId(opt =>
+{
+    opt.AddToLoggingScope = true;
+    opt.UpdateTraceIdentifier = true;
+}).WithTraceIdentifierProvider();
+
+// Enable Correlation ID tracking for incoming requests
+builder.Services.AddCorrelationId();
+
+// Configure HttpClient for API calls
 builder.Services.AddHttpClient("RecognitionCitizen", client =>
 {
-    client.BaseAddress = new Uri(//TODO);
+    client.BaseAddress = new Uri(builder.Configuration["ApiAuthentication:BaseUrl"]!);
 });
 
+// Register session management
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = CookieConstants.SessionCookieName;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.IdleTimeout = TimeSpan.FromHours(20);
+    options.Cookie.IsEssential = true;
+});
+
+// Register essential services
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IRecognitionCitizenClient, RecognitionCitizenClient>();
+builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+
+#endregion
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+#region Middleware
+
+// Configure middleware and request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
+app.UseCorrelationId();
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
 
+// Configure route mapping
 app.MapControllers();
-
 app.MapControllerRoute(
-       name: "default",
-       pattern: "{controller=Home}/{action=Index}"
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}"
 );
+
+#endregion
 
 app.Run();

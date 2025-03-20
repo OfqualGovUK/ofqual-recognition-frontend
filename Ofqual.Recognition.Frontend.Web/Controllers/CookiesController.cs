@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Ofqual.Common.RegisterFrontend.Controllers
+namespace Ofqual.Recognition.Frontend.Web.Controllers
 {
     [Route("cookies")]
     public class CookiesController : Controller

@@ -1,31 +1,63 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Ofqual.Recognition.Frontend.Core.Enums;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers
 {
     [Route("application")]
     public class ApplicationController : Controller
     {
-        private readonly ILogger<ApplicationController> _logger;
+        private readonly IApplicationService _applicationService;
+        private readonly ITaskService _taskService;
+        private readonly ISessionService _sessionService;
 
-        public ApplicationController(ILogger<ApplicationController> logger)
+        public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService)
         { 
-            _logger = logger;
+            _applicationService = applicationService;
+            _taskService = taskService;
+            _sessionService = sessionService;
+        }
+
+        public async Task<IActionResult> StartApplication()
+        {
+            Application? application = await _applicationService.SetUpApplication();
+
+            if (application == null) {
+                // TODO: Redirect to error page or login page?
+                return RedirectToAction("Error", "Home");
+            }
+
+            return RedirectToAction("TaskList");
         }
 
         [HttpGet("tasks")]
-        public IActionResult TaskList()
+        public async Task<IActionResult> TaskList()
         {
-            // attempt to get an applicationId via creation or cache
+            Application? application = _sessionService.GetApplication();
 
-            // get task list with statuses
+            if (application == null) {
+                // TODO: Redirect to error page or login page?
+                return RedirectToAction("Error", "Home");
+            }
 
-            // display tasks in their sections
-            return View(model);
+            var tasks = await _taskService.GetApplicationTasks(application.ApplicationId);
+
+            return View(tasks);
         }
 
         [HttpGet("check-your-answers")]
-        public IActionResult TaskCheck() {
-            // add ?taskId={taskId} to url check-your-answers?taskId={taskId}
+        public async Task<IActionResult> TaskCheck(Guid taskId)
+        {
+            Application? application = _sessionService.GetApplication();
+
+            if (application == null) {
+                // TODO: Redirect to error page or login page?
+                return RedirectToAction("Error", "Home");
+            }
+
+            // TODO: Check user progress instead of hard coding completed status
+            await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed);
             return View();
         }
     }

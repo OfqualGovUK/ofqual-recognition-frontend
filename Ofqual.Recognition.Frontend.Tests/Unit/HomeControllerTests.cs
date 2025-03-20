@@ -10,7 +10,7 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit
         private HomeController _sut; 
         public HomeControllerTests()
         {
-            _sut = new HomeController(new Mock<ILogger<HomeController>>().Object);
+            _sut = new HomeController();
         }
 
         [Fact]

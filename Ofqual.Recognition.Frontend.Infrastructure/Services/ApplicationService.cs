@@ -1,47 +1,53 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using System.Net.Http.Json;
+using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 {
     public class ApplicationService : IApplicationService
     {
-        private readonly ISession _session;
+        private readonly IRecognitionCitizenClient _client;
+        private readonly ISessionService _sessionService;
 
-        public ApplicationService(IHttpContextAccessor httpContextAccessor) 
+        public ApplicationService(IRecognitionCitizenClient client, ISessionService sessionService)
         {
-            _session = httpContextAccessor!.HttpContext!.Session;
+            _client = client;
+            _sessionService = sessionService;
         }
 
-        public async void CreateApplication()
+        public async Task<Application?> SetUpApplication()
         {
             try
             {
-                var client = GetClient();
-                var response = await GetFromJsonAsync<ApplicationModel>(baseUrlAndId);
-
-                if (response != null)
+                if (_sessionService.HasApplication())
                 {
-                    return response;
+                    return _sessionService.GetApplication();
                 }
+
+                var client = _client.GetClient();
+                var response = await client.PostAsync("/recognition/citizen/application", null);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    Log.Warning("API request to create application failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
+                    return null;
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<Application>();
+
+                if (result != null)
+                {
+                    _sessionService.SetApplication(result);
+                }
+
+                return result;
             }
             catch (Exception ex)
             {
-                Console.Write(ex.ToString());
-            }
-
-            return new List<ApplicationModel>();
-        }
-
-        public ApplicationModel GetApplication()
-        { 
-            return new ApplicationModel
-            {
-                ApplicationId = _session.
-                CreatedDate = _session.
-                ModifiedDate = _session.
-                CreatedByUpn = _session.
-                ModifiedByUpn = _session.
+                Log.Error(ex, "An unexpected error occurred while setting up the application.");
+                return null;
             }
         }
     }

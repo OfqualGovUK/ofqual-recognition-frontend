@@ -1,6 +1,8 @@
-﻿namespace Ofqual.Recognition.Frontend.Infrastructure.Client
+﻿using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+
+namespace Ofqual.Recognition.Frontend.Infrastructure.Client
 {
-    public class RecognitionCitizenClient
+    public class RecognitionCitizenClient : IRecognitionCitizenClient
     {
         private readonly IHttpClientFactory _clientFactory;
 

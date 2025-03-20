@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Ofqual.Recognition.Frontend.Controllers
+namespace Ofqual.Recognition.Frontend.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+        public HomeController(){ }
 
         public async Task<IActionResult> Index()
         {
