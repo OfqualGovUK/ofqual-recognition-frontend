@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Apply to have your qualifications recognised";
+    ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
+}
+
+@section BackLink {
+    <a asp-controller="Home" asp-action="index" class="govuk-back-link">Back</a>
+}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">
+            Check if your organisation is eligible to apply for Ofqual recognition
+        </h1>
+        <p class="govuk-body">
+            Before you begin the application process, you should check that the qualifications your organisation offers, or proposes to offer, can be regulated by Ofqual.
+            <br /><br />
+            This section will ask you three questions to check if your organisation is eligible to apply.
+        </p>
+        <a asp-controller="Eligibility" asp-action="questionOne" class="govuk-button">Continue</a>
+    </div>
+</div>

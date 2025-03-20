@@ -1,26 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Ofqual.Recognition.Frontend.Controllers
+namespace Ofqual.Recognition.Frontend.Web.Controllers;
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+
+    public HomeController(ILogger<HomeController> logger)
     {
-        private readonly ILogger<HomeController> _logger;
+        _logger = logger;
+    }
 
-        public HomeController(ILogger<HomeController> logger)
+    public async Task<IActionResult> Index()
+    {
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production")
         {
-            _logger = logger;
+            return View();
         }
-
-        public async Task<IActionResult> Index()
+        else
         {
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production")
-            {
-                return View();
-            }
-            else
-            {
-                return NotFound();
-            }
+            return NotFound();
         }
     }
 }

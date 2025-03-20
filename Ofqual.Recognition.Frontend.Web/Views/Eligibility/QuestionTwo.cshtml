@@ -1,0 +1,57 @@
+@model Ofqual.Recognition.Frontend.Core.Models.EligibilityModel
+
+@{
+    ViewData["Title"] = "Apply to have your qualifications recognised";
+    ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
+}
+
+<link rel="stylesheet" href="~/css/progress_bar.css" asp-append-version="true">
+
+@section BackLink {
+    <a href="question-one" class="govuk-back-link">Back</a>
+}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="progress">
+            <div class="progress__bar">
+                <div class="bar__progress" style="width: 66.66%;"></div>
+            </div>
+            <span class="govuk-caption-l">Question 2 of 3</span>
+            <br />
+        </div>
+        <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
+            <form method="post">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        <h1 class="govuk-fieldset__heading">
+                            Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not, does your organisation have a substantial presence in one of those territories?
+                        </h1>
+                    </legend>
+                    @if (ViewData.ModelState["questionTwo"]?.Errors?.Any() == true)
+                    {
+                        <span class="govuk-error-message">
+                            @ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage
+                        </span>
+                    }
+                    <div class="govuk-radios" data-module="govuk-radios">
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="yes" name="questionTwo" type="radio" value="Yes" @(Model.QuestionTwo == "Yes" ? "checked" : "")>
+                            <label class="govuk-label govuk-radios__label" for="yes">
+                                Yes
+                            </label>
+                        </div>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="no" name="questionTwo" type="radio" value="No" @(Model.QuestionTwo == "No" ? "checked" : "")>
+                            <label class="govuk-label govuk-radios__label" for="no">
+                                No
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                <br />
+                @Html.AntiForgeryToken()
+                <button type="submit" class="govuk-button">Continue</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -14,7 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\css\" />
+	<ProjectReference Include="..\Ofqual.Recognition.Frontend.Infrastructure\Ofqual.Recognition.Frontend.Infrastructure.csproj" />
+  </ItemGroup>
+	
+  <ItemGroup>
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 

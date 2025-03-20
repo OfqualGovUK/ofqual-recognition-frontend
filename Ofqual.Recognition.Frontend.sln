@@ -4,10 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Web", "Ofqual.Recognition.Frontend.Web\Ofqual.Recognition.Frontend.Web.csproj", "{98A2FB1C-5D03-43F5-B13D-07BD141CBDBC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4D9E874E-E373-4D70-B28A-C0516276CE13} = {4D9E874E-E373-4D70-B28A-C0516276CE13}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Core", "Ofqual.Recognition.Frontend.Core\Ofqual.Recognition.Frontend.Core.csproj", "{780A5943-8567-42DF-A457-BE31BD8E18AC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Infrastructure", "Ofqual.Recognition.Frontend.Infrastructure\Ofqual.Recognition.Frontend.Infrastructure.csproj", "{4D9E874E-E373-4D70-B28A-C0516276CE13}"
+	ProjectSection(ProjectDependencies) = postProject
+		{780A5943-8567-42DF-A457-BE31BD8E18AC} = {780A5943-8567-42DF-A457-BE31BD8E18AC}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Tests", "Ofqual.Recognition.Frontend.Tests\Ofqual.Recognition.Frontend.Tests.csproj", "{60285AE7-4907-4F06-B315-2F2528B0B8BF}"
 EndProject

@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Apply to have your qualifications recognised";
     ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
 } 
@@ -8,8 +8,13 @@
         <h1 class="govuk-heading-xl">
             Apply to have your qualifications recognised
         </h1>
+        <h2 class="govuk-heading-m">
+            About this service
+        </h2>
+        <p class="govuk-body">
+            This service is currently in private beta. Use this service and support its continuous improvement.
+        </p>
 
-        <h2 class="govuk-heading-m">About this service</h2>
-        <p class="govuk-body">This service is currently in private beta. Use this service and support its continuous improvement.</p>
+        <a asp-controller="Eligibility" asp-action="start" class="govuk-button govuk-button--start">Start now</a>
     </div>
 </div>

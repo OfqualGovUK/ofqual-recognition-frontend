@@ -1,20 +1,30 @@
 using GovUk.Frontend.AspNetCore;
-using Ofqual.Recognition.Frontend.Web.Models;
+using Microsoft.AspNetCore.Mvc;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGovUkFrontend();
-
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-
+builder.Services.AddControllersWithViews(options => 
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 builder.Services.AddSingleton(_ =>
 {
-    var options = new MatomoOptions();
+    var options = new MatomoModel();
     builder.Configuration.GetSection("Matomo").Bind(options);
 
     return options;
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSession(options => 
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 
 var app = builder.Build();
 
@@ -28,11 +38,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseSession();
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.MapControllerRoute(

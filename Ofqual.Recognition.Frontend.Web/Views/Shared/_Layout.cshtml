@@ -26,10 +26,9 @@
 
     @await Html.PartialAsync("_HeaderPartial.cshtml")
 
-    @await RenderSectionAsync("Backlink", required: false)
-
     <div class="govuk-width-container">
         @await Html.PartialAsync("_PhaseBannerPartial.cshtml")
+        @await RenderSectionAsync("Backlink", required: false)
     </div>
 }
 
@@ -45,10 +44,13 @@
         });
 
         if (window.history.length < 2) {
-            document.getElementById("back").style.display = "none";
+            const backLink = document.getElementById("back");
+            if (backLink) {
+                backLink.style.display = "none";   
+            }
         }
 
-        document.getElementById("back").addEventListener("click", () => {
+        document.getElementById("back")?.addEventListener("click", () => {
             history.back();
         });
 

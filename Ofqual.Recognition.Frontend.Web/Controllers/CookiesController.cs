@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Ofqual.Common.RegisterFrontend.Controllers
+namespace Ofqual.Recognition.Frontend.Web.Controllers;
+
+[Route("cookies")]
+public class CookiesController : Controller
 {
-    [Route("cookies")]
-    public class CookiesController : Controller
+    public IActionResult Index()
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+        return View();
     }
 }
