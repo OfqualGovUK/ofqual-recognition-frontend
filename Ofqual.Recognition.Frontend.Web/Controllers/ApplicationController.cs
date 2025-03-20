@@ -1,64 +1,84 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
-namespace Ofqual.Recognition.Frontend.Web.Controllers
+namespace Ofqual.Recognition.Frontend.Web.Controllers;
+
+[Route("application")]
+public class ApplicationController : Controller
 {
-    [Route("application")]
-    public class ApplicationController : Controller
+    private readonly IApplicationService _applicationService;
+    private readonly ITaskService _taskService;
+    private readonly ISessionService _sessionService;
+
+    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService)
+    { 
+        _applicationService = applicationService;
+        _taskService = taskService;
+        _sessionService = sessionService;
+    }
+
+    public async Task<IActionResult> StartApplication()
     {
-        private readonly IApplicationService _applicationService;
-        private readonly ITaskService _taskService;
-        private readonly ISessionService _sessionService;
+        Application? application = await _applicationService.SetUpApplication();
 
-        public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService)
-        { 
-            _applicationService = applicationService;
-            _taskService = taskService;
-            _sessionService = sessionService;
-        }
-
-        public async Task<IActionResult> StartApplication()
+        if (application == null) 
         {
-            Application? application = await _applicationService.SetUpApplication();
-
-            if (application == null) {
-                // TODO: Redirect to error page or login page?
-                return RedirectToAction("Error", "Home");
-            }
-
-            return RedirectToAction("TaskList");
+            // TODO: Redirect to error page or login page?
+            return RedirectToAction("Error", "Home");
         }
 
-        [HttpGet("tasks")]
-        public async Task<IActionResult> TaskList()
+        return RedirectToAction("TaskList");
+    }
+
+    [HttpGet("tasks")]
+    public async Task<IActionResult> TaskList()
+    {
+        Application? application = _sessionService.GetApplication();
+
+        if (application == null) 
         {
-            Application? application = _sessionService.GetApplication();
-
-            if (application == null) {
-                // TODO: Redirect to login page and not home page
-                return RedirectToAction("Home");
-            }
-
-            var tasks = await _taskService.GetApplicationTasks(application.ApplicationId);
-
-            return View(tasks);
+            // TODO: Redirect to login page and not home page
+            return RedirectToAction("Home");
         }
 
-        [HttpGet("check-your-answers")]
-        public async Task<IActionResult> TaskCheck(Guid taskId)
+        var tasks = await _taskService.GetApplicationTasks(application.ApplicationId);
+
+        return View(tasks);
+    }
+
+    [HttpGet("review-your-task-answers")]
+    public async Task<IActionResult> TaskReview(Guid taskId)
+    {
+        Application? application = _sessionService.GetApplication();
+
+        if (application == null)
         {
-            Application? application = _sessionService.GetApplication();
-
-            if (application == null) {
-                // TODO: Redirect to login page and not home page
-                return RedirectToAction("Home");
-            }
-
-            // TODO: Check user progress instead of hard coding completed status
-            await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed);
-            return View();
+            // TODO: Redirect to login page and not home page
+            return RedirectToAction("Home");
         }
+
+        // TODO: Check user progress instead of hard coding completed status
+        await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed);
+
+        return View();
+    }
+
+    [HttpGet("review-your-application-answers")]
+    public async Task<IActionResult> ApplicationReview(Guid taskId)
+    {
+        Application? application = _sessionService.GetApplication();
+
+        if (application == null) 
+        {
+            // TODO: Redirect to login page and not home page
+            return RedirectToAction("Home");
+        }
+
+        // TODO: Check user progress instead of hard coding completed status
+        await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed);
+
+        return View();
     }
 }
