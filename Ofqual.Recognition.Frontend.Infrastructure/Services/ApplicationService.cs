@@ -2,6 +2,7 @@
 using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Constants;
 using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services
@@ -21,9 +22,9 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
         {
             try
             {
-                if (_sessionService.HasApplication())
+                if (_sessionService.HasInSession(SessionKeys.Application))
                 {
-                    return _sessionService.GetApplication();
+                    return _sessionService.GetFromSession<Application>(SessionKeys.Application);
                 }
 
                 var client = _client.GetClient();
@@ -39,7 +40,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 
                 if (result != null)
                 {
-                    _sessionService.SetApplication(result);
+                    _sessionService.SetInSession(SessionKeys.Application, result);
                 }
 
                 return result;

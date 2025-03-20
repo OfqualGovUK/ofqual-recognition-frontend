@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -13,7 +14,7 @@ public class ApplicationController : Controller
     private readonly ISessionService _sessionService;
 
     public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService)
-    { 
+    {
         _applicationService = applicationService;
         _taskService = taskService;
         _sessionService = sessionService;
@@ -23,7 +24,7 @@ public class ApplicationController : Controller
     {
         Application? application = await _applicationService.SetUpApplication();
 
-        if (application == null) 
+        if (application == null)
         {
             // TODO: Redirect to error page or login page?
             return RedirectToAction("Error", "Home");
@@ -35,9 +36,9 @@ public class ApplicationController : Controller
     [HttpGet("tasks")]
     public async Task<IActionResult> TaskList()
     {
-        Application? application = _sessionService.GetApplication();
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
-        if (application == null) 
+        if (application == null)
         {
             // TODO: Redirect to login page and not home page
             return RedirectToAction("Home");
@@ -49,9 +50,9 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("review-your-task-answers")]
-    public async Task<IActionResult> TaskReview(Guid taskId)
+    public async Task<IActionResult> CheckYourAnswers(Guid taskId)
     {
-        Application? application = _sessionService.GetApplication();
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
         {
@@ -68,9 +69,9 @@ public class ApplicationController : Controller
     [HttpGet("review-your-application-answers")]
     public async Task<IActionResult> ApplicationReview(Guid taskId)
     {
-        Application? application = _sessionService.GetApplication();
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
-        if (application == null) 
+        if (application == null)
         {
             // TODO: Redirect to login page and not home page
             return RedirectToAction("Home");

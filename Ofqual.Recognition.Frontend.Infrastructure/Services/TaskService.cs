@@ -6,6 +6,7 @@ using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Serilog;
 using Newtonsoft.Json;
 using System.Text;
+using Ofqual.Recognition.Frontend.Core.Constants;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 {
@@ -24,9 +25,9 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
         {
             try
             {
-                if (_sessionService.HasTasks())
+                if (_sessionService.HasInSession(SessionKeys.TaskList))
                 {
-                    return _sessionService.GetTasks();
+                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(SessionKeys.TaskList);
                 }
 
                 var client = _client.GetClient();
@@ -38,7 +39,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                     result = new List<TaskItemStatusSection>();
                 }
 
-                _sessionService.SetTasks(result);
+                _sessionService.SetInSession(SessionKeys.TaskList, result);
                 return result;
             }
             catch (Exception ex)
@@ -62,7 +63,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                     return false;
                 }
 
-                _sessionService.ClearTasks();
+                _sessionService.UpdateTaskStatusInSession(taskId, status);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
