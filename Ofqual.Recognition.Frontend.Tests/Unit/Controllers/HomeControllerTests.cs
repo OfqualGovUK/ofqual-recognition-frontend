@@ -1,23 +1,22 @@
 using Microsoft.Extensions.Logging;
-using Ofqual.Recognition.Frontend.Controllers;
-using Moq;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Ofqual.Recognition.Frontend.Web.Controllers;
 
-namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers
+namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
+
+public class HomeControllerTests
 {
-    public class HomeControllerTests
+    private HomeController _sut;
+    public HomeControllerTests()
     {
-        private HomeController _sut;
-        public HomeControllerTests()
-        {
-            _sut = new HomeController(new Mock<ILogger<HomeController>>().Object);
-        }
+        _sut = new HomeController(new Mock<ILogger<HomeController>>().Object);
+    }
 
-        [Fact]
-        public async Task IndexPageReturnsOk()
-        {
-            var result = await _sut.Index();
-            Assert.IsType<ViewResult>(result);
-        }
+    [Fact]
+    public async Task IndexPageReturnsOk()
+    {
+        var result = await _sut.Index();
+        Assert.IsType<ViewResult>(result);
     }
 }

@@ -1,4 +1,4 @@
-﻿.progress {
+﻿﻿.progress {
     display: flex;
     flex-direction: column;
     align-items: start;
@@ -27,78 +27,3 @@
     background-color: #1d70b8;
     transition: width 0.3s ease-in-out;
 }
-
-/* Glass Morphic Design */
-/*.progress {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-.progress__bar {
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 8px;
-    display: flex;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.bar__progress {
-    height: 100%;
-    background-color: #1d70b8;
-    width: 0%;
-    transition: width 3s ease-in-out;
-}
-
-.bar__segment {
-    height: 100%;
-    background-color: #1d70b8;
-    transition: width 0.3s ease-in-out;
-}
-
-.bar__segment.gap {
-    width: 5px;
-    background-color: transparent;
-}
-
-.progress__labels {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-}
-
-.progress__link {
-    text-decoration: none;
-    color: #505a5f;
-    font-size: 16px;
-    font-weight: bold;
-    position: relative;
-    padding-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.progress__link:hover,
-.progress__link--active {
-    color: #1d70b8;
-}
-
-.progress__icon {
-    width: 16px;
-    height: 16px;
-    color: #505a5f;
-}
-
-.progress__link:hover .progress__icon,
-.progress__link--active .progress__icon {
-    color: #1d70b8;
-}*/

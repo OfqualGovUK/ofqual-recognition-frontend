@@ -1,10 +1,9 @@
 ﻿using Ofqual.Recognition.Frontend.Core.Models;
 
-namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces
+namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+
+public interface IEligibilityService
 {
-    public interface IEligibilityService
-    {
-        void SaveAnswers(string questionOne, string questionTwo, string questionThree);
-        EligibilityModel GetAnswers();
-    }
+    public void SaveAnswers(string questionOne, string questionTwo, string questionThree);
+    public EligibilityModel GetAnswers();
 }
