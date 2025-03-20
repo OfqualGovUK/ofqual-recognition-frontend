@@ -1,7 +1,5 @@
-using Microsoft.Extensions.Logging;
-using Ofqual.Recognition.Frontend.Controllers;
-using Moq;
 using Microsoft.AspNetCore.Mvc;
+using Ofqual.Recognition.Frontend.Web.Controllers;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit
 {

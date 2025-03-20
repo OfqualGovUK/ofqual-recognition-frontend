@@ -1,9 +1,11 @@
-﻿@using Ofqual.Recognition.Frontend.Core.Models
+﻿@using Ofqual.Recognition.Frontend.Core.Enums
+@using Ofqual.Recognition.Frontend.Core.Models
 @using Ofqual.Recognition.Frontend.Core.Extensions
 @model List<TaskItemStatusSection>
 
 @{
     ViewData["Title"] = "Apply to have your qualifications recognised";
+    ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
 }
 
 <div class="govuk-grid-row">
@@ -25,16 +27,26 @@
                     {
                         <li class="govuk-task-list__item govuk-task-list__item--with-link">
                             <div class="govuk-task-list__name-and-hint">
-                                <a class="govuk-link govuk-task-list__link"
+                                @if (task.Status == TaskStatusEnum.CannotStartYet)
+                                {
+                                    <div>@task.TaskName</div>
+                                    <div id="review-submit-@task.TaskId-hint" class="govuk-task-list__hint">
+                                        You must complete all sections first
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a class="govuk-link govuk-task-list__link"
                                     href="@(task.TaskName == "Review application" ?
-                                        $"/application/review-your-application-answers?taskId={task.TaskId}" :
-                                        $"/application/review-your-task-answers?taskId={task.TaskId}")"
+                                            $"/application/review-your-application-answers?taskId={task.TaskId}" :
+                                            $"/application/review-your-task-answers?taskId={task.TaskId}")"
                                     aria-describedby="task-@task.TaskId-status">
-                                    @task.TaskName
-                                </a>
+                                        @task.TaskName
+                                    </a>
+                                }
                             </div>
                             <div class="govuk-task-list__status" id="task-@task.TaskId-status">
-                                <strong class="govuk-tag govuk-tag--blue">
+                                <strong class="govuk-tag @task.Status.GetTagClass()">
                                     @task.Status.GetDisplayName()
                                 </strong>
                             </div>

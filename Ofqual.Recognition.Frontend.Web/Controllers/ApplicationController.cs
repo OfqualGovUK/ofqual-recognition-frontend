@@ -50,7 +50,7 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("review-your-task-answers")]
-    public async Task<IActionResult> CheckYourAnswers(Guid taskId)
+    public IActionResult TaskReview(Guid taskId)
     {
         var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -60,14 +60,12 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        // TODO: Check user progress instead of hard coding completed status
-        await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed);
-
+        ViewBag.TaskId = taskId;
         return View();
     }
 
     [HttpGet("review-your-application-answers")]
-    public async Task<IActionResult> ApplicationReview(Guid taskId)
+    public IActionResult ApplicationReview()
     {
         var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -77,9 +75,31 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        // TODO: Check user progress instead of hard coding completed status
-        await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed);
-
         return View();
+    }
+
+    [HttpPost("submit-answer")]
+    public async Task<IActionResult> SubmitApplicationAnswer(Guid taskId, [FromForm] string completed)
+    {
+        // TODO: This needs to use a viewmodel
+        
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+
+        if (application == null)
+        {
+            // TODO: Redirect to login page and not home page
+            return RedirectToAction("Home");
+        }
+
+        if (completed == "Yes")
+        {
+            await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed);
+        }
+        else
+        {
+            await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.InProgress);
+        }
+
+        return RedirectToAction("TaskList");
     }
 }
