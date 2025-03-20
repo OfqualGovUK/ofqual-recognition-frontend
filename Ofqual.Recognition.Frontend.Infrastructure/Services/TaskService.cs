@@ -4,6 +4,8 @@ using System.Net.Http.Json;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Serilog;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 {
@@ -51,7 +53,8 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             try
             {
                 var client = _client.GetClient();
-                var response = await client.PostAsync($"/applications/{applicationId}/tasks/{taskId}", null);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(status), Encoding.UTF8, "application/json");
+                var response = await client.PostAsync($"/applications/{applicationId}/tasks/{taskId}", jsonContent);
 
                 if (!response.IsSuccessStatusCode)
                 {
