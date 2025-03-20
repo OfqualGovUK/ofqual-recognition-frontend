@@ -4,10 +4,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
 {
     public class HomeController : Controller
     {
-
-        public HomeController(){ }
-
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production")
             {

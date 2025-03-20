@@ -5,17 +5,27 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit
 {
     public class HomeControllerTests
     {
-        private HomeController _sut; 
+        private HomeController _sut;
+        
         public HomeControllerTests()
         {
             _sut = new HomeController();
         }
 
-        [Fact]
-        public async Task IndexPageReturnsOk()
+        [Theory]
+        [InlineData("Development", typeof(ViewResult))]
+        [InlineData("PreProduction", typeof(ViewResult))]
+        [InlineData("Production", typeof(NotFoundResult))]
+        public void IndexPage_Returns_CorrectResult_BasedOnEnvironment(string environment, Type expectedType)
         {
-            var result = await _sut.Index();
-            Assert.IsType<ViewResult>(result);
+            // Arrange
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
+
+            // Act
+            var result = _sut.Index();
+
+            // Assert
+            Assert.IsType(expectedType, result);
         }
     }
 }

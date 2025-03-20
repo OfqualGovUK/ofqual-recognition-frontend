@@ -27,7 +27,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             {
                 if (_sessionService.HasInSession(SessionKeys.TaskList))
                 {
-                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(SessionKeys.TaskList);
+                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(SessionKeys.TaskList) ?? new List<TaskItemStatusSection>();
                 }
 
                 var client = _client.GetClient();

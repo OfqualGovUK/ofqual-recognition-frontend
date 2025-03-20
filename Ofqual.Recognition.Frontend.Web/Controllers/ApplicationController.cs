@@ -27,7 +27,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to error page or login page?
-            return RedirectToAction("Error", "Home");
+            return RedirectToAction("Home");
         }
 
         return RedirectToAction("TaskList");
