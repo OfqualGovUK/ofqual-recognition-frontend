@@ -47,7 +47,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         }
 
         [HttpGet("check-your-answers")]
-        public async Task<IActionResult> TaskCheck(Guid taskId)
+        public async Task<IActionResult> CheckYourAnswers(Guid taskId)
         {
             Application? application = _sessionService.GetApplication();
 
