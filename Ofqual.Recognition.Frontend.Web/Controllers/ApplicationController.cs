@@ -2,6 +2,7 @@
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.ViewModels;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
@@ -20,6 +21,7 @@ public class ApplicationController : Controller
         _sessionService = sessionService;
     }
 
+    [HttpGet]
     public async Task<IActionResult> StartApplication()
     {
         Application? application = await _applicationService.SetUpApplication();
@@ -50,7 +52,7 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("review-your-task-answers")]
-    public IActionResult TaskReview(Guid taskId)
+    public IActionResult TaskReview()
     {
         var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -60,8 +62,28 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        ViewBag.TaskId = taskId;
         return View();
+    }
+
+    [HttpPost("review-your-task-answers")]
+    public async Task<IActionResult> TaskReview(Guid taskId, TaskReview model)
+    {
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+
+        if (application == null)
+        {
+            // TODO: Redirect to login page and not home page
+            return RedirectToAction("Home");
+        }
+
+        if (model.Answer != TaskStatusEnum.Completed && model.Answer != TaskStatusEnum.InProgress)
+        {
+            return RedirectToAction("TaskReview");
+        }
+
+        await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, model.Answer);
+
+        return RedirectToAction("TaskList");
     }
 
     [HttpGet("review-your-application-answers")]
@@ -76,30 +98,5 @@ public class ApplicationController : Controller
         }
 
         return View();
-    }
-
-    [HttpPost("submit-answer")]
-    public async Task<IActionResult> SubmitApplicationAnswer(Guid taskId, [FromForm] string completed)
-    {
-        // TODO: This needs to use a viewmodel
-        
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-
-        if (application == null)
-        {
-            // TODO: Redirect to login page and not home page
-            return RedirectToAction("Home");
-        }
-
-        if (completed == "Yes")
-        {
-            await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed);
-        }
-        else
-        {
-            await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.InProgress);
-        }
-
-        return RedirectToAction("TaskList");
     }
 }

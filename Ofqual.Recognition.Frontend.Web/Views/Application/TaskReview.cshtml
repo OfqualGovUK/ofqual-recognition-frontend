@@ -1,3 +1,7 @@
+@using Ofqual.Recognition.Frontend.Core.Enums;
+@using Ofqual.Recognition.Frontend.Core.ViewModels;
+@model TaskReview;
+
 @{
     ViewData["Title"] = "Apply to have your qualifications recognised";
     ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
@@ -10,48 +14,36 @@
 <h1 class="govuk-heading-l">Check your answers</h1>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
+        
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                    Details of your organisation's legal entity
+                    Question Placeholder  1
                 </dt>
                 <dd class="govuk-summary-list__value govuk-!-width-one-quarter" style="text-align: center">
-                    @Model
+                    Value Placeholder 1 
                 </dd>
                 <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
-                    <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Details of your
-                            organisation's legal entity</span></a>
+                    <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Placeholder 1</span></a>
                 </dd>
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                    Companies house number
+                    Question Placeholder  1
                 </dt>
                 <dd class="govuk-summary-list__value govuk-!-width-one-quarter" style="text-align: center">
-                    @Model
+                    Value Placeholder 1 
                 </dd>
                 <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
-                    <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Companies house
-                            number</span></a>
-                </dd>
-            </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                    Explain how you meet criteria A.1, A.2 and A.3 - Identity and Constitution
-                </dt>
-                <dd class="govuk-summary-list__value govuk-!-width-one-quarter" style="text-align: center">
-                    @Model
-                </dd>
-                <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
-                    <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you meet
-                            criteria A.1, A.2 and A.3 - Identity and Constitution</span></a>
+                    <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Placeholder 2</span></a>
                 </dd>
             </div>
         </dl>
 
         <div class="govuk-form-group">
-            <form method="post" action="submit-answer?taskId=@ViewBag.TaskId">
+            <form method="post">
                 <fieldset class="govuk-fieldset">
+
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                         <h2 class="govuk-fieldset__heading">
                             Have you completed this section?
@@ -59,19 +51,21 @@
                     </legend>
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="yes" name="completed" type="radio" value="Yes">
+                            <input class="govuk-radios__input" id="yes" name="answer" type="radio" value="@( (int)TaskStatusEnum.Completed )">
                             <label class="govuk-label govuk-radios__label" for="yes">
                                 Yes, I've completed this section
                             </label>
                         </div>
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="no" name="completed" type="radio" value="No">
+                            <input class="govuk-radios__input" id="no" name="answer" type="radio" value="@( (int)TaskStatusEnum.InProgress )">
                             <label class="govuk-label govuk-radios__label" for="no">
                                 No, I'll come back to it later
                             </label>
                         </div>
                     </div>
+                    
                     <br />
+                    @Html.AntiForgeryToken()
                     <div class="govuk-button-group">
                         <button type="submit" class="govuk-button">Save and continue</button>
                         <a class="govuk-link" href="/application/tasks">Cancel</a>

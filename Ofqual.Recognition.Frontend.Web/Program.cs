@@ -11,6 +11,9 @@ using Serilog;
 using System.Reflection;
 using Serilog.Events;
 using Serilog.Sinks.Http;
+using Microsoft.AspNetCore.Mvc;
+using Ofqual.Recognition.Frontend.Infrastructure.Service;
+using Ofqual.Recognition.Frontend.Infrastructure.Service.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +23,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGovUkFrontend();
 
 // Add Controllers with Views
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => 
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 
 // Register Matomo Options
 builder.Services.AddSingleton(_ =>
@@ -83,6 +89,7 @@ builder.Services.AddScoped<IRecognitionCitizenClient, RecognitionCitizenClient>(
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 
 #endregion
 

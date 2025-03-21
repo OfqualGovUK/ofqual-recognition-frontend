@@ -6,14 +6,12 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
     {
         public IActionResult Index()
         {
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production")
-            {
-                return View();
-            }
-            else
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
             {
                 return NotFound();
             }
+            
+            return View();
         }
     }
 }
