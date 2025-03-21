@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Ofqual.Recognition.Frontend.Core.ViewModels.Interfaces;
 
-namespace Ofqual.Recognition.Frontend.Core.ViewModels;
+namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
-public class QuestionOne : IEligibilityQuestions
+public class QuestionOneViewModel
 {
     [Required(ErrorMessage = "You need to select an option to continue.")]
     public string Answer { get; set; } = string.Empty;

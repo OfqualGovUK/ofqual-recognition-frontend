@@ -1,4 +1,4 @@
-﻿namespace Ofqual.Recognition.Frontend.Core.ViewModels;
+﻿namespace Ofqual.Recognition.Frontend.Core.Models;
 
 public class Eligibility
 {

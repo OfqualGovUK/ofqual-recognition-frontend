@@ -1,8 +1,8 @@
 using Ofqual.Recognition.Frontend.Core.Enums;
 
-namespace Ofqual.Recognition.Frontend.Core.ViewModels;
+namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
-public class TaskReview
+public class TaskReviewViewModel
 {
     public TaskStatusEnum Answer { get; set; }
 }

@@ -1,11 +1,10 @@
 ﻿
-using Ofqual.Recognition.Frontend.Core.ViewModels;
-using Ofqual.Recognition.Frontend.Core.ViewModels.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Models;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Service.Interfaces;
 
 public interface IEligibilityService
 {
     public Eligibility GetAnswers();
-    public T GetQuestion<T>(string sessionKey) where T : IEligibilityQuestions, new();
+    public Question GetQuestion(string sessionKey);
 }

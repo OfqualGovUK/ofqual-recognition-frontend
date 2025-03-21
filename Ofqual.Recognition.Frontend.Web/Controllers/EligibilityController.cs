@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.ViewModels;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Infrastructure.Service.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Models;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -27,14 +28,17 @@ public class EligibilityController : Controller
     [HttpGet("question-one")]
     public IActionResult QuestionOne()
     {
-        var model = _eligibilityService.GetQuestion<QuestionOne>(SessionKeys.QuestionOne);
+        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionOne);
 
-        return View(model);
+        return View(new QuestionOneViewModel
+        {
+            Answer = model.Answer
+        });
     }
 
     [HttpPost("question-one")]
     [ValidateAntiForgeryToken]
-    public IActionResult QuestionOne(QuestionOne model, string? returnUrl)
+    public IActionResult QuestionOne(QuestionOneViewModel model, string? returnUrl)
     {
         if (!ModelState.IsValid)
         {
@@ -51,14 +55,17 @@ public class EligibilityController : Controller
     [HttpGet("question-two")]
     public IActionResult QuestionTwo()
     {
-        var model = _eligibilityService.GetQuestion<QuestionTwo>(SessionKeys.QuestionTwo);
+        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionTwo);
 
-        return View(model);
+        return View(new QuestionTwoViewModel
+        {
+            Answer = model.Answer
+        });
     }
 
     [HttpPost("question-two")]
     [ValidateAntiForgeryToken]
-    public IActionResult QuestionTwo(QuestionTwo model, string? returnUrl)
+    public IActionResult QuestionTwo(QuestionTwoViewModel model, string? returnUrl)
     {
         if (!ModelState.IsValid)
         {
@@ -75,14 +82,17 @@ public class EligibilityController : Controller
     [HttpGet("question-three")]
     public IActionResult QuestionThree()
     {
-        var model = _eligibilityService.GetQuestion<QuestionThree>(SessionKeys.QuestionThree);
+        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionThree);
 
-        return View(model);
+        return View(new QuestionThreeViewModel
+        {
+            Answer = model.Answer
+        });
     }
 
     [HttpPost("question-three")]
     [ValidateAntiForgeryToken]
-    public IActionResult QuestionThree(QuestionThree model)
+    public IActionResult QuestionThree(QuestionThreeViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -97,14 +107,20 @@ public class EligibilityController : Controller
     [HttpGet("check")]
     public IActionResult QuestionCheck()
     {
-        var model = _eligibilityService.GetAnswers();
-        return View(model);
+        Eligibility model = _eligibilityService.GetAnswers();
+
+        return View(new EligibilityViewModel
+        {
+            QuestionOne = model.QuestionOne,
+            QuestionTwo = model.QuestionTwo,
+            QuestionThree = model.QuestionThree
+        });
     }
 
     [HttpPost("submit")]
     public IActionResult QuestionSubmit()
     {
-        var model = _eligibilityService.GetAnswers();
+        Eligibility model = _eligibilityService.GetAnswers();
 
         if (model.QuestionOne == "Yes" && model.QuestionTwo == "Yes" && model.QuestionThree == "Yes")
         {
@@ -117,7 +133,7 @@ public class EligibilityController : Controller
     [HttpGet("eligible")]
     public IActionResult Eligible()
     {
-        var model = _eligibilityService.GetAnswers();
+        Eligibility model = _eligibilityService.GetAnswers();
 
         if (model.QuestionOne != "Yes" && model.QuestionTwo != "Yes" && model.QuestionThree != "Yes")
         {
@@ -132,7 +148,13 @@ public class EligibilityController : Controller
     [HttpGet("not-eligible")]
     public IActionResult NotEligible()
     {
-        var model = _eligibilityService.GetAnswers();
-        return View(model);
+        Eligibility model = _eligibilityService.GetAnswers();
+
+        return View(new EligibilityViewModel
+        {
+            QuestionOne = model.QuestionOne,
+            QuestionTwo = model.QuestionTwo,
+            QuestionThree = model.QuestionThree
+        });
     }
 }

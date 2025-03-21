@@ -2,7 +2,7 @@
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Core.ViewModels;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
@@ -66,7 +66,7 @@ public class ApplicationController : Controller
     }
 
     [HttpPost("review-your-task-answers")]
-    public async Task<IActionResult> TaskReview(Guid taskId, TaskReview model)
+    public async Task<IActionResult> TaskReview(Guid taskId, TaskReviewViewModel model)
     {
         var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 

@@ -1,8 +1,7 @@
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.ViewModels;
-using Ofqual.Recognition.Frontend.Core.ViewModels.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Service.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Models;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Service;
 
@@ -25,9 +24,9 @@ public class EligibilityService : IEligibilityService
         };
     }
 
-    public T GetQuestion<T>(string sessionKey) where T : IEligibilityQuestions, new()
+    public Question GetQuestion(string sessionKey)
     {
         var answer = _sessionService.GetFromSession<string>(sessionKey) ?? string.Empty;
-        return new T { Answer = answer }; 
+        return new Question { Answer = answer }; 
     }
 }
