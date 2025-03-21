@@ -1,5 +1,5 @@
-@using Ofqual.Recognition.Frontend.Core.ViewModels;
-@model QuestionThree;
+@using Ofqual.Recognition.Frontend.Core.ViewModels
+@model QuestionThree
 
 @{
     ViewData["Title"] = "Apply to have your qualifications recognised";
@@ -21,22 +21,22 @@
             <span class="govuk-caption-l">Question 3 of 3</span>
             <br />
         </div>
-        <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
-            <form method="post">
-                <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <h1 class="govuk-fieldset__heading">
-                            Do you intend to make qualifications available to learners in England?
-                        </h1>
-                    </legend>
-                    
+
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h1 class="govuk-fieldset__heading">
+                    Do you intend to make qualifications available to learners in England?
+                </h1>
+            </legend>
+            <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
+                <form method="post">
                     @if (ViewData.ModelState["Answer"]?.Errors?.Any() == true)
                     {
                         <span class="govuk-error-message">
                             @ViewData.ModelState["Answer"]?.Errors.FirstOrDefault()?.ErrorMessage
                         </span>
                     }
-                    
+
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="yes" name="Answer" type="radio" value="Yes"
@@ -53,11 +53,12 @@
                             </label>
                         </div>
                     </div>
-                </fieldset>
-                <br />
-                @Html.AntiForgeryToken()
-                <button type="submit" class="govuk-button">Continue</button>
-            </form>
-        </div>
+                    <br />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="govuk-button">Continue</button>
+                </form>
+            </div>
+        </fieldset>
+
     </div>
 </div>

@@ -1,5 +1,5 @@
-@using Ofqual.Recognition.Frontend.Core.ViewModels;
-@model QuestionTwo;
+@using Ofqual.Recognition.Frontend.Core.ViewModels
+@model QuestionTwo
 
 @{
     ViewData["Title"] = "Apply to have your qualifications recognised";
@@ -21,23 +21,26 @@
             <span class="govuk-caption-l">Question 2 of 3</span>
             <br />
         </div>
-        <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
-            <form method="post">
-                <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <h1 class="govuk-fieldset__heading">
-                            Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not,
-                            does your organisation have a substantial presence in one of those territories?
-                        </h1>
-                    </legend>
 
-                    @if (ViewData.ModelState["Answer"]?.Errors?.Any() == true)
-                    {
-                        <span class="govuk-error-message">
-                            @ViewData.ModelState["Answer"]?.Errors.FirstOrDefault()?.ErrorMessage
-                        </span>
-                    }
-                    
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h1 class="govuk-fieldset__heading">
+                    Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not,
+                    does your organisation have a substantial presence in one of those territories?
+                </h1>
+            </legend>
+
+
+            <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
+
+                @if (ViewData.ModelState["Answer"]?.Errors?.Any() == true)
+                {
+                    <span class="govuk-error-message">
+                        @ViewData.ModelState["Answer"]?.Errors.FirstOrDefault()?.ErrorMessage
+                    </span>
+                }
+
+                <form method="post">
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="yes" name="Answer" type="radio" value="Yes"
@@ -54,11 +57,11 @@
                             </label>
                         </div>
                     </div>
-                </fieldset>
-                <br />
-                @Html.AntiForgeryToken()
-                <button type="submit" class="govuk-button">Continue</button>
-            </form>
-        </div>
+                    @Html.AntiForgeryToken()
+                    <br />
+                    <button type="submit" class="govuk-button">Continue</button>
+                </form>
+            </div>
+        </fieldset>
     </div>
 </div>
