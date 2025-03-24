@@ -179,7 +179,7 @@ public class EligibilityControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void QuestionThree_Post_ValidModelState_RedirectsToQuestionCheck()
+    public void QuestionThree_Post_ValidModelState_RedirectsToQuestionReview()
     {
         // Arrange
         var viewModel = new QuestionThreeViewModel { Answer = "Yes" };
@@ -195,7 +195,7 @@ public class EligibilityControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void QuestionCheck_Get_ReturnsViewWithEligibilityModel()
+    public void QuestionReview_Get_ReturnsViewWithEligibilityModel()
     {
         // Arrange
         var eligibility = new Eligibility

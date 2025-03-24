@@ -1,8 +1,16 @@
 namespace Ofqual.Recognition.Frontend.Core.Constants;
 
+/// <summary>
+/// Conventions for URL and Page references in this codebase:
+/// </summary>
+/// <remarks>
+/// - <b>PATHs:</b> These relate to URLs and should be in lower case.
+/// - <b>PAGEs:</b> These relate to Pages and should be in PascalCase.
+/// </remarks>
 public static class RouteConstants
 {
-    public static class HomeConstants {
+    public static class HomeConstants
+    {
         public const string HOME_PATH = "/home";
     }
 
