@@ -66,6 +66,7 @@ public class ApplicationController : Controller
     }
 
     [HttpPost("review-your-task-answers")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> TaskReview(Guid taskId, TaskReviewViewModel model)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);

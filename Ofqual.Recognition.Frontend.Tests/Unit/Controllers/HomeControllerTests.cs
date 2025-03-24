@@ -5,14 +5,15 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class HomeControllerTests
 {
-    private HomeController _sut;
+    private HomeController _controller;
 
     public HomeControllerTests()
     {
-        _sut = new HomeController();
+        _controller = new HomeController();
     }
 
     [Theory]
+    [Trait("Category", "Unit")]
     [InlineData("Development", typeof(ViewResult))]
     [InlineData("PreProduction", typeof(ViewResult))]
     [InlineData("Production", typeof(NotFoundResult))]
@@ -22,7 +23,7 @@ public class HomeControllerTests
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
 
         // Act
-        var result = _sut.Index();
+        var result = _controller.Index();
 
         // Assert
         Assert.IsType(expectedType, result);

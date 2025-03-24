@@ -6,7 +6,7 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class ApplicationControllerTests
 {
-    private ApplicationController _sut;
+    private ApplicationController _controller;
     private readonly Mock<ISessionService> _sessionServiceMock;
     private readonly Mock<ITaskService> _taskServiceMock;
     private readonly Mock<IApplicationService> _applicationService;
@@ -17,6 +17,6 @@ public class ApplicationControllerTests
         _taskServiceMock = new Mock<ITaskService>();
         _applicationService = new Mock<IApplicationService>();
 
-        _sut = new ApplicationController(_applicationService.Object, _taskServiceMock.Object, _sessionServiceMock.Object);
+        _controller = new ApplicationController(_applicationService.Object, _taskServiceMock.Object, _sessionServiceMock.Object);
     }
 }

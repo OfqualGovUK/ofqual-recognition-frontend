@@ -1,7 +1,8 @@
 ﻿@{
+    ViewData["Title"] = "Apply to have your qualifications recognised";
+    ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
+
     Layout = "_GovUkPageTemplate";
-    var controllerName = this.ViewContext.RouteData.Values["controller"]?.ToString();
-    var matomoId = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production" ? 12 : 9;
 }
 
 @section Header {

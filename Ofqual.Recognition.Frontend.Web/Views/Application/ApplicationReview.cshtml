@@ -1,6 +1,4 @@
-﻿@{
-    ViewData["Title"] = "Apply to have your qualifications recognised";
-}
+﻿@using Ofqual.Recognition.Frontend.Core.Enums
 
 @section BackLink {
     <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
@@ -648,6 +646,7 @@
                 </dl>
             </div>
         </div>
+
         <div class="govuk-form-group">
             <form method="post">
                 <fieldset class="govuk-fieldset">
@@ -661,25 +660,26 @@
                     </div>
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="yes" name="Yes" type="radio" value="Yes">
+                            <input class="govuk-radios__input" id="yes" name="answer" type="radio" value="@( (int)TaskStatusEnum.Completed )">
                             <label class="govuk-label govuk-radios__label" for="yes">
                                 Yes, I've completed this section
                             </label>
                         </div>
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="no" name="No" type="radio" value="No">
+                            <input class="govuk-radios__input" id="no" name="answer" type="radio" value="@( (int)TaskStatusEnum.InProgress )">
                             <label class="govuk-label govuk-radios__label" for="no">
                                 No, I'll come back to it later
                             </label>
                         </div>
                     </div>
-                    <br />
-                    <div class="govuk-button-group">
+
+                    <div class="govuk-button-group govuk-!-margin-top-5"">
                         <button type="submit" class="govuk-button">Save and continue</button>
                         <a class="govuk-link" href="/application/tasks">Cancel</a>
                     </div>
                 </fieldset>
             </form>
         </div>
+
     </div>
 </div>

@@ -1,8 +1,3 @@
-@{
-    ViewData["Title"] = "Apply to have your qualifications recognised";
-    ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
-}
-
 @section BackLink {
     <a asp-controller="Home" asp-action="index" class="govuk-back-link">Back</a>
 }
@@ -18,6 +13,6 @@
             <br /><br />
             This section will ask you three questions to check if your organisation is eligible to apply.
         </p>
-        <a asp-controller="Eligibility" asp-action="questionOne" class="govuk-button">Continue</a>
+        <a asp-controller="eligibility" asp-action="questionOne" class="govuk-button">Continue</a>
     </div>
 </div>

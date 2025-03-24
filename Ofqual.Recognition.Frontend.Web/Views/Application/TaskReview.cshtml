@@ -2,11 +2,6 @@
 @using Ofqual.Recognition.Frontend.Web.ViewModels
 @model TaskReviewViewModel
 
-@{
-    ViewData["Title"] = "Apply to have your qualifications recognised";
-    ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
-}
-
 @section BackLink {
     <a href="javascript:window.history.back()" class="govuk-back-link">Back</a>
 }
@@ -62,10 +57,9 @@
                             </label>
                         </div>
                     </div>
-                    
-                    <br />
+            
                     @Html.AntiForgeryToken()
-                    <div class="govuk-button-group">
+                    <div class="govuk-button-group govuk-!-margin-top-5">
                         <button type="submit" class="govuk-button">Save and continue</button>
                         <a class="govuk-link" href="/application/tasks">Cancel</a>
                     </div>

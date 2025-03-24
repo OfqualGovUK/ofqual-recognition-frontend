@@ -29,12 +29,14 @@ public class SessionServiceTests
     }
 
     [Theory]
+    [Trait("Category", "Unit")]
     [MemberData(nameof(SessionServiceTestCases.SetInSessionTestCases), MemberType = typeof(SessionServiceTestCases))]
     public void SetInSession_ShouldCallSet_WithCorrectSerializedJson(string key, SessionServiceTestCases.TestData data)
     {
         // Arrange
         var expectedJson = JsonConvert.SerializeObject(data);
         var expectedBytes = Encoding.UTF8.GetBytes(expectedJson);
+
         _sessionMock.Setup(s => s.Set(key, It.Is<byte[]>(b => b.SequenceEqual(expectedBytes))))
                     .Verifiable();
 
@@ -46,6 +48,7 @@ public class SessionServiceTests
     }
 
     [Theory]
+    [Trait("Category", "Unit")]
     [MemberData(nameof(SessionServiceTestCases.GetFromSessionTestCases), MemberType = typeof(SessionServiceTestCases))]
     public void GetFromSession_ShouldReturnExpectedResult(string key, SessionServiceTestCases.TestData? testData, bool isSessionNull)
     {
@@ -79,6 +82,7 @@ public class SessionServiceTests
     }
 
     [Theory]
+    [Trait("Category", "Unit")]
     [InlineData("existingKey", true)]
     [InlineData("missingKey", false)]
     public void HasInSession_ShouldReturnExpectedResult(string key, bool exists)
@@ -96,10 +100,12 @@ public class SessionServiceTests
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public void ClearFromSession_ShouldRemoveKeyFromSession()
     {
         // Arrange
         var key = "keyToRemove";
+        
         _sessionMock.Setup(s => s.Remove(key))
             .Verifiable();
 
@@ -111,6 +117,7 @@ public class SessionServiceTests
     }
 
     [Theory]
+    [Trait("Category", "Unit")]
     [MemberData(nameof(SessionServiceTestCases.TaskStatusUpdateCases), MemberType = typeof(SessionServiceTestCases))]
     public void UpdateTaskStatusInSession_ShouldUpdateStatus_WhenTaskExists(TaskStatusEnum originalStatus, TaskStatusEnum newStatus)
     {
