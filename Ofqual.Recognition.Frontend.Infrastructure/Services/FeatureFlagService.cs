@@ -14,6 +14,11 @@ public class FeatureFlagService : IFeatureFlagService
 
     public bool IsFeatureEnabled(string featureName)
     {
-        return _config.GetValue($"FeatureFlag:{featureName}", false);
+        var value = _config[$"FeatureFlag:{featureName}"];
+
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+        
+        return bool.TryParse(value, out var result) && result;
     }
 }
