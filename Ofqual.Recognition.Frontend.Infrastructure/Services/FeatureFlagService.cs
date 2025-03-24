@@ -14,6 +14,6 @@ public class FeatureFlagService : IFeatureFlagService
 
     public bool IsFeatureEnabled(string featureName)
     {
-        return _config.GetValue<bool>($"FeatureFlag:{featureName}");
+        return _config.GetValue($"FeatureFlag:{featureName}", false);
     }
 }
