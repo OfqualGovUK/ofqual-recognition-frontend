@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Ofqual.Recognition.Frontend.Web.Controllers
+namespace Ofqual.Recognition.Frontend.Web.Controllers;
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    public IActionResult Index()
     {
-        public IActionResult Index()
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
         {
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
-            {
-                return NotFound();
-            }
-            
-            return View();
+            return NotFound();
         }
+
+        return View();
     }
 }
+

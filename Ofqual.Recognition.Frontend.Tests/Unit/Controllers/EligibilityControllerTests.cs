@@ -42,7 +42,7 @@ public class EligibilityControllerTests
             .Returns(question);
 
         // Act
-        var result = _controller.QuestionOne();
+        var result = _controller.QuestionOne(It.IsAny<string>());
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -103,7 +103,7 @@ public class EligibilityControllerTests
             .Returns(question);
 
         // Act
-        var result = _controller.QuestionTwo();
+        var result = _controller.QuestionTwo(It.IsAny<string>());
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -153,7 +153,7 @@ public class EligibilityControllerTests
             .Returns(question);
 
         // Act
-        var result = _controller.QuestionThree();
+        var result = _controller.QuestionThree(It.IsAny<string>());
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -170,32 +170,43 @@ public class EligibilityControllerTests
         var viewModel = new QuestionThreeViewModel();
 
         // Act
-        var result = _controller.QuestionThree(viewModel);
+        var result = _controller.QuestionThree(viewModel, It.IsAny<string>());
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
         Assert.Equal(viewModel, viewResult.Model);
     }
 
-    [Fact]
+    [Theory]
     [Trait("Category", "Unit")]
-    public void QuestionThree_Post_ValidModelState_RedirectsToQuestionReview()
+    [InlineData(null)]
+    [InlineData("/another-return-url")]
+    public void QuestionThree_Post_ValidModelState_RedirectsBasedOnReturnUrl(string returnUrl)
     {
         // Arrange
         var viewModel = new QuestionThreeViewModel { Answer = "Yes" };
 
         // Act
-        var result = _controller.QuestionThree(viewModel);
+        var result = _controller.QuestionThree(viewModel, returnUrl);
 
         // Assert
         _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.QuestionThree, "Yes"), Times.Once);
-        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("QuestionReview", redirectResult.ActionName);
+        
+        if (!string.IsNullOrEmpty(returnUrl))
+        {
+            var redirectResult = Assert.IsType<RedirectResult>(result);
+            Assert.Equal(returnUrl, redirectResult.Url);
+        }
+        else
+        {
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("QuestionReview", redirectResult.ActionName);
+        }
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void QuestionReview_Get_ReturnsViewWithEligibilityModel()
+    public void QuestionCheck_Get_ReturnsViewWithEligibilityModel()
     {
         // Arrange
         var eligibility = new Eligibility
