@@ -1,10 +1,11 @@
 @using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Constants
 @model QuestionOneViewModel
 
 <link rel="stylesheet" href="~/css/progress_bar.css" asp-append-version="true">
 
 @section BackLink {
-    <a href="start" class="govuk-back-link">Back</a>
+    <a href="@(Model.BackUrl)" class="govuk-back-link">Back</a>
 }
 
 <div class="govuk-grid-row">
@@ -58,8 +59,7 @@
                     </div>
                 </fieldset>
                 @Html.AntiForgeryToken()
-                <br />
-                <button type="submit" class="govuk-button">Continue</button>
+                <button type="submit" class="govuk-button govuk-!-margin-top-5">Continue</button>
             </form>
         </div>
     </div>

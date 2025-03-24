@@ -1,9 +1,10 @@
 @using Ofqual.Recognition.Frontend.Core.Enums
+@using Ofqual.Recognition.Frontend.Core.Constants
 @using Ofqual.Recognition.Frontend.Web.ViewModels
 @model TaskReviewViewModel
 
 @section BackLink {
-    <a href="tasks" class="govuk-back-link">Back</a>
+    <a href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)" class="govuk-back-link">Back</a>
 }
 
 <h1 class="govuk-heading-l">Check your answers</h1>
@@ -58,7 +59,7 @@
                     @Html.AntiForgeryToken()
                     <div class="govuk-button-group govuk-!-margin-top-5">
                         <button type="submit" class="govuk-button">Save and continue</button>
-                        <a class="govuk-link" href="/application/tasks">Cancel</a>
+                        <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
                     </div>
                 </fieldset>
             </form>

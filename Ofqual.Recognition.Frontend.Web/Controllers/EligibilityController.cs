@@ -26,11 +26,12 @@ public class EligibilityController : Controller
     }
 
     [HttpGet("question-one")]
-    public IActionResult QuestionOne()
+    public IActionResult QuestionOne(string? returnUrl)
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionOne);
 
         QuestionOneViewModel viewModel = EligibilityMapper.MapToQuestionOneViewModel(model);
+        viewModel.returnUrl = returnUrl;
 
         return View(viewModel);
     }
@@ -52,11 +53,12 @@ public class EligibilityController : Controller
     }
 
     [HttpGet("question-two")]
-    public IActionResult QuestionTwo()
+    public IActionResult QuestionTwo(string? returnUrl)
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionTwo);
 
         QuestionTwoViewModel viewModel = EligibilityMapper.MapToQuestionTwoViewModel(model);
+        viewModel.returnUrl = returnUrl;
 
         return View(viewModel);
     }
@@ -78,18 +80,19 @@ public class EligibilityController : Controller
     }
 
     [HttpGet("question-three")]
-    public IActionResult QuestionThree()
+    public IActionResult QuestionThree(string? returnUrl)
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionThree);
 
         QuestionThreeViewModel viewModel = EligibilityMapper.MapToQuestionThreeViewModel(model);
+        viewModel.returnUrl = returnUrl;
 
         return View(viewModel);
     }
 
     [HttpPost("question-three")]
     [ValidateAntiForgeryToken]
-    public IActionResult QuestionThree(QuestionThreeViewModel model)
+    public IActionResult QuestionThree(QuestionThreeViewModel model, string? returnUrl)
     {
         if (!ModelState.IsValid)
         {
@@ -98,7 +101,9 @@ public class EligibilityController : Controller
 
         _sessionService.SetInSession(SessionKeys.QuestionThree, model.Answer);
 
-        return RedirectToAction("QuestionReview");
+        return !string.IsNullOrEmpty(returnUrl)
+            ? Redirect(returnUrl)
+            : RedirectToAction("QuestionReview");
     }
 
     [HttpGet("question-review")]
