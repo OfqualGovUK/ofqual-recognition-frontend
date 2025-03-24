@@ -1,6 +1,6 @@
 namespace Ofqual.Recognition.Frontend.Core.Models;
 
-public class MatomoTrackerOptions
+public class MatomoTrackerModel
 {
     public bool DisableCookieTimeoutExtension { get; set; } = true;
     public bool NoScriptTracking { get; set; } = true;

@@ -70,7 +70,7 @@ public class EligibilityControllerTests
     [Trait("Category", "Unit")]
     [InlineData(null)]
     [InlineData("/some-return-url")]
-    public void QuestionOne_Post_ValidModelState_RedirectsProperly(string returnUrl)
+    public void QuestionOne_Post_ValidModelState_RedirectsProperly(string? returnUrl)
     {
         // Arrange
         var viewModel = new QuestionOneViewModel { Answer = "Yes" };
@@ -115,7 +115,7 @@ public class EligibilityControllerTests
     [Trait("Category", "Unit")]
     [InlineData(null)]
     [InlineData("/another-return-url")]
-    public void QuestionTwo_Post_ValidAndInvalidModelState(string returnUrl)
+    public void QuestionTwo_Post_ValidAndInvalidModelState(string? returnUrl)
     {
         // Invalid case
         var invalidModel = new QuestionTwoViewModel();
@@ -181,7 +181,7 @@ public class EligibilityControllerTests
     [Trait("Category", "Unit")]
     [InlineData(null)]
     [InlineData("/another-return-url")]
-    public void QuestionThree_Post_ValidModelState_RedirectsBasedOnReturnUrl(string returnUrl)
+    public void QuestionThree_Post_ValidModelState_RedirectsBasedOnReturnUrl(string? returnUrl)
     {
         // Arrange
         var viewModel = new QuestionThreeViewModel { Answer = "Yes" };
@@ -259,7 +259,7 @@ public class EligibilityControllerTests
     [Trait("Category", "Unit")]
     [InlineData("No", "No", "No", "Start")]
     [InlineData("Yes", "Yes", "Yes", null)]
-    public void Eligible_Get_RedirectsOrReturnsView(string answer1, string answer2, string answer3, string expectedRedirectAction)
+    public void Eligible_Get_RedirectsOrReturnsView(string answer1, string answer2, string answer3, string? expectedRedirectAction)
     {
         // Arrange
         var eligibility = new Eligibility

@@ -89,6 +89,7 @@ public class SessionServiceTests
     {
         // Arrange
         byte[] dummy = Encoding.UTF8.GetBytes("some value");
+        
         _sessionMock.Setup(s => s.TryGetValue(key, out dummy))
                     .Returns(exists);
 

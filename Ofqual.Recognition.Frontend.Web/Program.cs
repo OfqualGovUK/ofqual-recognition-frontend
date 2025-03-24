@@ -30,7 +30,7 @@ builder.Services.AddControllersWithViews(options =>
 // Register Matomo Options
 builder.Services.AddSingleton(_ =>
 {
-    var options = new MatomoOptions();
+    var options = new MatomoModel();
     builder.Configuration.GetSection("Matomo").Bind(options);
     return options;
 });
@@ -48,7 +48,7 @@ builder.Host.UseSerilog((ctx, svc, cfg) => cfg
             ? LogEventLevel.Verbose
             : LogEventLevel.Error)
     .WriteTo.LogzIoDurableHttp(
-        requestUri: ctx.Configuration.GetValue<string>("LogzIo:Uri"),
+        requestUri: ctx.Configuration.GetValue<string>("LogzIo:Uri") ?? string.Empty,
         bufferBaseFileName: "Buffer",
         bufferRollingInterval: BufferRollingInterval.Hour,
         bufferFileSizeLimitBytes: 524288000L,
