@@ -226,6 +226,8 @@ stages:
             command: 'test'
             projects: 'Ofqual.Recognition.Frontend.Playwright/Ofqual.Recognition.Frontend.Playwright.csproj'
             arguments: '--no-build --no-restore'
+          env:
+            FeatureFlag__Application: '$(FeatureFlag__Application)'
 
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
 - stage: Build
