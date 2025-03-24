@@ -1,4 +1,3 @@
-
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 
