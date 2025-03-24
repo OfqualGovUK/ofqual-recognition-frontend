@@ -98,11 +98,11 @@ public class EligibilityController : Controller
 
         _sessionService.SetInSession(SessionKeys.QuestionThree, model.Answer);
 
-        return RedirectToAction("QuestionCheck");
+        return RedirectToAction("QuestionReview");
     }
 
-    [HttpGet("check")]
-    public IActionResult QuestionCheck()
+    [HttpGet("question-review")]
+    public IActionResult QuestionReview()
     {
         Eligibility model = _eligibilityService.GetAnswers();
 
