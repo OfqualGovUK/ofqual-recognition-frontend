@@ -12,7 +12,7 @@ public class launchHomePage : PageTest
     {
         var homePage = new HomePage(Page);
 
-        await homePage.GoToHomePage(); ;
+        await homePage.GoToHomePage();
         await homePage.checkPageHeading("Apply to have your qualifications recognised");
 
         // run an axe accessibility scan on the page

@@ -12,7 +12,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         {
             _page = Page;
             _baseUrl = Environment.GetEnvironmentVariable("RecognitionBaseUrl") ?? "http://localhost:7159";
-            _heading = Page.Locator("h1");
+            _heading = Page.Locator("h1.govuk-heading-xl");
         }
 
         public async Task GoToHomePage()
@@ -20,7 +20,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
             await _page.GotoAsync(_baseUrl);
         }
         
-        public async Task checkPageHeading(String heading)
+        public async Task checkPageHeading(string heading)
         {
             await Expect(_heading).ToHaveTextAsync(heading);
         }
