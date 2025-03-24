@@ -12,7 +12,7 @@ public class HomePage : PageTest
     {
         _page = Page;
         _baseUrl = Environment.GetEnvironmentVariable("RecognitionBaseUrl") ?? "http://localhost:7159";
-        _heading = Page.Locator("h1.govuk-heading-xl");
+        _heading = Page.Locator("h1");
     }
 
     public async Task GoToHomePage()

@@ -1,5 +1,7 @@
 ﻿@using Ofqual.Recognition.Frontend.Core.Enums
 @using Ofqual.Recognition.Frontend.Core.Constants
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model TaskReviewViewModel
 
 @section BackLink {
     <a href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)" class="govuk-back-link">Back</a>
@@ -678,7 +680,7 @@
             </div>
         </div>
         <div class="govuk-form-group">
-            <form method="post">
+            <form method="post" asp-action="taskreview">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                         <h2 class="govuk-fieldset__heading">

@@ -13,10 +13,10 @@
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                    Question Placeholder  1
+                    Question Placeholder 1
                 </dt>
                 <dd class="govuk-summary-list__value govuk-!-width-one-quarter" style="text-align: center">
-                    Value Placeholder 1 
+                    Value Placeholder 1
                 </dd>
                 <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
                     <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Placeholder 1</span></a>
@@ -24,10 +24,10 @@
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                    Question Placeholder  1
+                    Question Placeholder 1
                 </dt>
                 <dd class="govuk-summary-list__value govuk-!-width-one-quarter" style="text-align: center">
-                    Value Placeholder 1 
+                    Value Placeholder 1
                 </dd>
                 <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
                     <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Placeholder 2</span></a>
@@ -44,13 +44,15 @@
                     </legend>
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="yes" name="answer" type="radio" value="@( (int)TaskStatusEnum.Completed )">
+                            <input class="govuk-radios__input" id="yes" name="answer" type="radio"
+                                value="@( (int)TaskStatusEnum.Completed )">
                             <label class="govuk-label govuk-radios__label" for="yes">
                                 Yes, I've completed this section
                             </label>
                         </div>
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="no" name="answer" type="radio" value="@( (int)TaskStatusEnum.InProgress )">
+                            <input class="govuk-radios__input" id="no" name="answer" type="radio"
+                                value="@( (int)TaskStatusEnum.InProgress )">
                             <label class="govuk-label govuk-radios__label" for="no">
                                 No, I'll come back to it later
                             </label>
