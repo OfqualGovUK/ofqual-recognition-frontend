@@ -5,6 +5,7 @@ using Ofqual.Recognition.Frontend.Infrastructure.Client;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Web.Middlewares;
 using CorrelationId.DependencyInjection;
 using CorrelationId;
 using Serilog;
@@ -88,6 +89,7 @@ builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IEligibilityService, EligibilityService>();
+builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
 
 #endregion
 
@@ -108,6 +110,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
+app.UseMiddleware<FeatureRedirectMiddleware>();
 
 // Configure route mapping
 app.MapControllers();

@@ -1,3 +1,6 @@
+@using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces
+@inject IFeatureFlagService FeatureFlagService
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">
@@ -14,10 +17,13 @@
             Eligibility:
         </h2>
         <a asp-controller="eligibility" asp-action="start" class="govuk-button govuk-button--start">Start now</a>
-        
-        <h2 class="govuk-heading-m">
-            Application:
-        </h2>
-        <a asp-controller="application" class="govuk-button govuk-button--start">Start now</a>
+
+        @if (FeatureFlagService.IsFeatureEnabled("TaskList"))
+        {
+            <h2 class="govuk-heading-m">
+                Application:
+            </h2>
+            <a asp-controller="application" class="govuk-button govuk-button--start">Start now</a>
+        }
     </div>
 </div>

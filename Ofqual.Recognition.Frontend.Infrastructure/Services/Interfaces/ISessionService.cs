@@ -1,4 +1,3 @@
-
 using Ofqual.Recognition.Frontend.Core.Enums;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
