@@ -190,7 +190,7 @@ public class EligibilityControllerTests
         // Assert
         _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.QuestionThree, "Yes"), Times.Once);
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("QuestionCheck", redirectResult.ActionName);
+        Assert.Equal("QuestionReview", redirectResult.ActionName);
     }
 
     [Fact]
@@ -209,7 +209,7 @@ public class EligibilityControllerTests
             .Returns(eligibility);
 
         // Act
-        var result = _controller.QuestionCheck();
+        var result = _controller.QuestionReview();
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
