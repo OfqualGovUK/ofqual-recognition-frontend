@@ -18,7 +18,7 @@
         </h2>
         <a asp-controller="eligibility" asp-action="start" class="govuk-button govuk-button--start">Start now</a>
 
-        @if (FeatureFlagService.IsFeatureEnabled("TaskList"))
+        @if (FeatureFlagService.IsFeatureEnabled("Application"))
         {
             <h2 class="govuk-heading-m">
                 Application:

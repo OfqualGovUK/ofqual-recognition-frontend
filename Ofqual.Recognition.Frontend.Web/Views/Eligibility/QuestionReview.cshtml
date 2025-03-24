@@ -19,7 +19,6 @@
                     </a>
                 </dd>
             </div>
-            
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-width-one-half">
                     Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not, does your
@@ -35,7 +34,6 @@
                     </a>
                 </dd>
             </div>
-
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key govuk-!-width-one-half">
                     Do you intend to make qualifications available to learners in England?
@@ -50,11 +48,9 @@
                 </dd>
             </div>
         </dl>
-
         <form method="post" asp-action="QuestionSubmit">
             @Html.AntiForgeryToken()
             <button type="submit" class="govuk-button">Continue</button>
         </form>
-        
     </div>
 </div>

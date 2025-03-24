@@ -17,7 +17,7 @@ public class FeatureRedirectMiddleware
         var featureFlagService = context.RequestServices.GetRequiredService<IFeatureFlagService>();
         var path = context.Request.Path.Value?.ToLowerInvariant();
 
-        if (!featureFlagService.IsFeatureEnabled("TaskList"))
+        if (!featureFlagService.IsFeatureEnabled("Application"))
         {
             if (!string.IsNullOrWhiteSpace(path) &&
                 (path.StartsWith(RouteConstants.ApplicationConstants.TASK_LIST_PATH) ||
