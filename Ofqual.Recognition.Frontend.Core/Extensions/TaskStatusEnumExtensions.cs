@@ -18,4 +18,19 @@ public static class TaskStatusEnumExtensions
             _ => "govuk-tag--grey"
         };
     }
+
+    /// <summary>
+    /// Gets the user-friendly display name for a given task status.
+    /// </summary>
+    public static string GetDisplayName(this TaskStatusEnum status)
+    {
+        return status switch
+        {
+            TaskStatusEnum.NotStarted => "Not started",
+            TaskStatusEnum.InProgress => "In progress",
+            TaskStatusEnum.Completed => "Completed",
+            TaskStatusEnum.CannotStartYet => "Cannot start yet",
+            _ => "Unknown"
+        };
+    }
 }

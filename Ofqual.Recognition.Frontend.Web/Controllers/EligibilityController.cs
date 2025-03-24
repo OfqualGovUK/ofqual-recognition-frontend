@@ -3,6 +3,7 @@ using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Web.Mappers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -29,12 +30,9 @@ public class EligibilityController : Controller
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionOne);
 
-        QuestionOneViewModel questionOne = new QuestionOneViewModel
-        {
-            Answer = model.Answer
-        };
+        QuestionOneViewModel viewModel = EligibilityMapper.MapToQuestionOneViewModel(model);
 
-        return View(questionOne);
+        return View(viewModel);
     }
 
     [HttpPost("question-one")]
@@ -58,12 +56,9 @@ public class EligibilityController : Controller
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionTwo);
 
-        QuestionTwoViewModel questionTwo = new QuestionTwoViewModel
-        {
-            Answer = model.Answer
-        };
+        QuestionTwoViewModel viewModel = EligibilityMapper.MapToQuestionTwoViewModel(model);
 
-        return View(questionTwo);
+        return View(viewModel);
     }
 
     [HttpPost("question-two")]
@@ -87,12 +82,9 @@ public class EligibilityController : Controller
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionThree);
 
-        QuestionThreeViewModel questionThree = new QuestionThreeViewModel
-        {
-            Answer = model.Answer
-        };
+        QuestionThreeViewModel viewModel = EligibilityMapper.MapToQuestionThreeViewModel(model);
 
-        return View(questionThree);
+        return View(viewModel);
     }
 
     [HttpPost("question-three")]
@@ -114,14 +106,9 @@ public class EligibilityController : Controller
     {
         Eligibility model = _eligibilityService.GetAnswers();
 
-        EligibilityViewModel eligibility = new EligibilityViewModel
-        {
-            QuestionOne = model.QuestionOne,
-            QuestionTwo = model.QuestionTwo,
-            QuestionThree = model.QuestionThree
-        };
+        EligibilityViewModel viewModel = EligibilityMapper.MapToEligibilityViewModel(model);
 
-        return View(eligibility);
+        return View(viewModel);
     }
 
     [HttpPost("submit")]
@@ -155,13 +142,8 @@ public class EligibilityController : Controller
     {
         Eligibility model = _eligibilityService.GetAnswers();
 
-        EligibilityViewModel eligibility = new EligibilityViewModel
-        {
-            QuestionOne = model.QuestionOne,
-            QuestionTwo = model.QuestionTwo,
-            QuestionThree = model.QuestionThree
-        };
+        EligibilityViewModel viewModel = EligibilityMapper.MapToEligibilityViewModel(model);
 
-        return View(eligibility);
+        return View(viewModel);
     }
 }

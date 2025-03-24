@@ -4,6 +4,7 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.Mappers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -28,7 +29,7 @@ public class ApplicationController : Controller
 
         if (application == null)
         {
-            // TODO: Redirect to error page or login page?
+            // TODO: Redirect to login page and not home page
             return RedirectToAction("Home");
         }
 
@@ -46,9 +47,11 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        var tasks = await _taskService.GetApplicationTasks(application.ApplicationId);
+        var domainSections = await _taskService.GetApplicationTasks(application.ApplicationId);
 
-        return View(tasks);
+        TaskListViewModel viewModel = TaskListMapper.MapToViewModel(domainSections);
+        
+        return View(viewModel);
     }
 
     [HttpGet("review-your-task-answers")]
