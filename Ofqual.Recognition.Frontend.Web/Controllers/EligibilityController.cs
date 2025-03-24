@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
-using Ofqual.Recognition.Frontend.Infrastructure.Service.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Models;
 
@@ -30,10 +29,12 @@ public class EligibilityController : Controller
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionOne);
 
-        return View(new QuestionOneViewModel
+        QuestionOneViewModel questionOne = new QuestionOneViewModel
         {
             Answer = model.Answer
-        });
+        };
+
+        return View(questionOne);
     }
 
     [HttpPost("question-one")]
@@ -57,10 +58,12 @@ public class EligibilityController : Controller
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionTwo);
 
-        return View(new QuestionTwoViewModel
+        QuestionTwoViewModel questionTwo = new QuestionTwoViewModel
         {
             Answer = model.Answer
-        });
+        };
+
+        return View(questionTwo);
     }
 
     [HttpPost("question-two")]
@@ -84,10 +87,12 @@ public class EligibilityController : Controller
     {
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionThree);
 
-        return View(new QuestionThreeViewModel
+        QuestionThreeViewModel questionThree = new QuestionThreeViewModel
         {
             Answer = model.Answer
-        });
+        };
+
+        return View(questionThree);
     }
 
     [HttpPost("question-three")]
@@ -109,12 +114,14 @@ public class EligibilityController : Controller
     {
         Eligibility model = _eligibilityService.GetAnswers();
 
-        return View(new EligibilityViewModel
+        EligibilityViewModel eligibility = new EligibilityViewModel
         {
             QuestionOne = model.QuestionOne,
             QuestionTwo = model.QuestionTwo,
             QuestionThree = model.QuestionThree
-        });
+        };
+
+        return View(eligibility);
     }
 
     [HttpPost("submit")]
@@ -122,12 +129,12 @@ public class EligibilityController : Controller
     {
         Eligibility model = _eligibilityService.GetAnswers();
 
-        if (model.QuestionOne == "Yes" && model.QuestionTwo == "Yes" && model.QuestionThree == "Yes")
+        if (model.QuestionOne != "Yes" || model.QuestionTwo != "Yes" || model.QuestionThree != "Yes")
         {
-            return RedirectToAction("Eligible");
+            return RedirectToAction("NotEligible");
         }
 
-        return RedirectToAction("NotEligible");
+        return RedirectToAction("Eligible");
     }
 
     [HttpGet("eligible")]
@@ -140,8 +147,6 @@ public class EligibilityController : Controller
             return RedirectToAction("Start");
         }
 
-        HttpContext.Session.Clear();
-
         return View();
     }
 
@@ -150,11 +155,13 @@ public class EligibilityController : Controller
     {
         Eligibility model = _eligibilityService.GetAnswers();
 
-        return View(new EligibilityViewModel
+        EligibilityViewModel eligibility = new EligibilityViewModel
         {
             QuestionOne = model.QuestionOne,
             QuestionTwo = model.QuestionTwo,
             QuestionThree = model.QuestionThree
-        });
+        };
+
+        return View(eligibility);
     }
 }

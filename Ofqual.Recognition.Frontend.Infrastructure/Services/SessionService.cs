@@ -1,4 +1,5 @@
 
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Ofqual.Recognition.Frontend.Core.Constants;
@@ -24,8 +25,11 @@ public class SessionService : ISessionService
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         if (session == null) return null;
-        var jsonData = session.GetString(key);
-        return jsonData != null ? JsonConvert.DeserializeObject<T>(jsonData) : null;
+
+        if (!session.TryGetValue(key, out var data)) return null;
+
+        var jsonData = Encoding.UTF8.GetString(data);
+        return JsonConvert.DeserializeObject<T>(jsonData);
     }
 
     /// <summary>
@@ -45,7 +49,9 @@ public class SessionService : ISessionService
     public bool HasInSession(string key)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
-        return session?.GetString(key) != null;
+        if (session == null) return false;
+
+        return session.TryGetValue(key, out var value) && value?.Length > 0;
     }
 
     /// <summary>
@@ -66,13 +72,12 @@ public class SessionService : ISessionService
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         if (session == null) return;
-
-        var serializedTasks = session.GetString(SessionKeys.TaskList);
-
+        
+        if (!session.TryGetValue(SessionKeys.TaskList, out var data)) return;
+        var serializedTasks = Encoding.UTF8.GetString(data);
         if (string.IsNullOrEmpty(serializedTasks)) return;
 
         var taskSections = JsonConvert.DeserializeObject<List<TaskItemStatusSection>>(serializedTasks);
-
         if (taskSections == null) return;
 
         foreach (var section in taskSections)
@@ -84,8 +89,9 @@ public class SessionService : ISessionService
                 break;
             }
         }
-
-        session.SetString(SessionKeys.TaskList, JsonConvert.SerializeObject(taskSections));
+        
+        var updatedData = JsonConvert.SerializeObject(taskSections);
+        session.Set(SessionKeys.TaskList, Encoding.UTF8.GetBytes(updatedData));
     }
 }
 

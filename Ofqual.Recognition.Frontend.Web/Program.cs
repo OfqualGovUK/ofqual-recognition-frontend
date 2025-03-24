@@ -12,8 +12,6 @@ using System.Reflection;
 using Serilog.Events;
 using Serilog.Sinks.Http;
 using Microsoft.AspNetCore.Mvc;
-using Ofqual.Recognition.Frontend.Infrastructure.Service;
-using Ofqual.Recognition.Frontend.Infrastructure.Service.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

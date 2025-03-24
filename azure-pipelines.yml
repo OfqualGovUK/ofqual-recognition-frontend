@@ -47,11 +47,11 @@ stages:
             feedsToUse: 'select'
             vstsFeed: 'b8db0229-c220-4583-b1d9-1111e482a1ce'
         # Step 3: Prepare SonarQube analysis
-        - task: SonarQubePrepare@5
+        - task: SonarQubePrepare@7
           displayName: 'Prepare SonarQube Analysis'
           inputs:
             SonarQube: $(SonarQubeServiceConnectionName)
-            scannerMode: 'MSBuild'
+            scannerMode: 'dotnet'
             projectKey: $(SonarQubeProjectKey)
         # Step 4: PowerShell script to modify SonarQube parameters
         - task: PowerShell@2
@@ -73,13 +73,14 @@ stages:
             projects: "**/*.csproj"
             arguments: "--no-restore"
         # Step 6: Run SonarQube static code analysis
-        - task: SonarQubeAnalyze@5
+        - task: SonarQubeAnalyze@7
           displayName: 'Run SonarQube Static Code Analysis'
         # Step 7: Publish SonarQube results to the dashboard
-        - task: SonarQubePublish@5
+        - task: SonarQubePublish@7
           displayName: 'Publish SonarQube Analysis Results'
           inputs:
             pollingTimeoutSec: '300'
+
     # Audit job: This job audits dependencies for vulnerabilities.
     - job: Audit
       displayName: 'Audit Dependencies for Security Vulnerabilities'
@@ -106,6 +107,7 @@ stages:
                   echo "No critical or high severity vulnerabilities found."
                   exit 0      # Passes the job if no critical/high vulnerabilities are found
               fi
+
 # Test Stage: This stage runs unit tests, integration tests and end-to-end (E2E) tests.
 - stage: Test
   displayName: 'Run Unit, Integration and E2E Tests'
@@ -146,6 +148,7 @@ stages:
             projects: '**/*Tests.csproj'
             arguments: '--no-build --no-restore --filter Category=Unit'
             testRunTitle: 'Recognition-Frontend-Unit-$(Build.BuildId)'
+            
     # Integration Test Job: Runs integration tests to validate system interactions.
     - job: Integration
       displayName: 'Run Integration Tests'
@@ -180,6 +183,7 @@ stages:
             projects: '**/*Tests.csproj'
             arguments: '--no-build --no-restore --filter Category=Integration'
             testRunTitle: 'Recognition-Frontend-Integration-$(Build.BuildId)'
+
     # E2E Test Job: Runs UI and functional tests to validate user workflows.
     - job: E2E
       displayName: 'Run E2E Tests'
@@ -222,6 +226,7 @@ stages:
             command: 'test'
             projects: 'Ofqual.Recognition.Frontend.Playwright/Ofqual.Recognition.Frontend.Playwright.csproj'
             arguments: '--no-build --no-restore'
+
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
 - stage: Build
   displayName: Build and Push Stage

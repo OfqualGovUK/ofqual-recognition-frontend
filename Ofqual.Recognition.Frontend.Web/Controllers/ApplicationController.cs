@@ -38,7 +38,7 @@ public class ApplicationController : Controller
     [HttpGet("tasks")]
     public async Task<IActionResult> TaskList()
     {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
         {
@@ -54,7 +54,7 @@ public class ApplicationController : Controller
     [HttpGet("review-your-task-answers")]
     public IActionResult TaskReview()
     {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
         {
@@ -68,7 +68,7 @@ public class ApplicationController : Controller
     [HttpPost("review-your-task-answers")]
     public async Task<IActionResult> TaskReview(Guid taskId, TaskReviewViewModel model)
     {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
         {
@@ -89,7 +89,7 @@ public class ApplicationController : Controller
     [HttpGet("review-your-application-answers")]
     public IActionResult ApplicationReview()
     {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
         {

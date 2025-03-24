@@ -1,9 +1,8 @@
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Infrastructure.Service.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Models;
 
-namespace Ofqual.Recognition.Frontend.Infrastructure.Service;
+namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
 public class EligibilityService : IEligibilityService
 {
