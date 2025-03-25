@@ -54,7 +54,11 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             try
             {
                 var client = _client.GetClient();
-                var jsonContent = new StringContent(JsonConvert.SerializeObject(status), Encoding.UTF8, "application/json");
+                var newTaskStatus = new UpdateTaskStatus
+                {
+                    Status = status
+                };
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(newTaskStatus), Encoding.UTF8, "application/json");
                 var response = await client.PostAsync($"/applications/{applicationId}/tasks/{taskId}", jsonContent);
 
                 if (!response.IsSuccessStatusCode)
