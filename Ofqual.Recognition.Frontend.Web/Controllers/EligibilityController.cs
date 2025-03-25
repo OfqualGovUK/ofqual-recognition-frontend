@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
@@ -15,6 +16,7 @@ public class EligibilityController : Controller
         _logger = logger;
     }
 
+    [Authorize]
     [HttpGet("start")]
     public IActionResult Start() 
     {
