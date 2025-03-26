@@ -2,27 +2,25 @@
 
 namespace Ofqual.Recognition.Frontend.Playwright.Pages
 {
-    public class HomePage : PageTest
+    public class HomePage : BasePage
     {
-        private readonly IPage _page;
         private readonly string _baseUrl;
-        private readonly ILocator _heading;
+        private readonly ILocator _startButton;
 
-        public HomePage(IPage Page)
+        public HomePage(IPage page) : base(page)
         {
-            _page = Page;
             _baseUrl = Environment.GetEnvironmentVariable("RecognitionBaseUrl") ?? "http://localhost:7159";
-            _heading = Page.Locator("h1");
+            _startButton = page.Locator(".govuk-button--start");
         }
 
         public async Task GoToHomePage()
         {
             await _page.GotoAsync(_baseUrl);
         }
-        
-        public async Task checkPageHeading(String heading)
+
+        public async Task ClickStartButton()
         {
-            await Expect(_heading).ToHaveTextAsync(heading);
+            await _startButton.ClickAsync();
         }
     }
 }
