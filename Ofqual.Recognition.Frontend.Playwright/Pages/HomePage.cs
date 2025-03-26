@@ -9,7 +9,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
 
         public HomePage(IPage page) : base(page)
         {
-            _baseUrl = Environment.GetEnvironmentVariable("RecognitionBaseUrl") ?? "http://localhost:5024";
+            _baseUrl = Environment.GetEnvironmentVariable("RecognitionBaseUrl") ?? "http://localhost:7159";
             _startButton = page.Locator(".govuk-button--start");
         }
 
