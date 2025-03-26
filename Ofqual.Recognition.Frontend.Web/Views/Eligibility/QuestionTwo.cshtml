@@ -19,8 +19,7 @@
         </div>
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                Is your organisation based in the UK, Gibraltar or an EU or EFTA member state, or if not,
-                does your organisation have a substantial presence in one of those territories?
+                 Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state, or if not, does your organisation have a substantial presence in one of those territories?
             </legend>
             <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
                 @if (ViewData.ModelState["Answer"]?.Errors?.Any() == true)
