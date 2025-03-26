@@ -22,7 +22,7 @@ public class EligibilityController : Controller
     } 
 
     [HttpGet("question-one")]
-    public IActionResult QuestionOne(string returnUrl = null)
+    public IActionResult QuestionOne(string? returnUrl = null)
     {
         _logger.LogInformation("Getting answers for QuestionOne.");
 
@@ -55,7 +55,7 @@ public class EligibilityController : Controller
     }
 
     [HttpGet("question-two")]
-    public IActionResult QuestionTwo(string returnUrl = null)
+    public IActionResult QuestionTwo(string? returnUrl = null)
     {
         _logger.LogInformation("Getting answers for QuestionTwo.");
 
@@ -135,8 +135,6 @@ public class EligibilityController : Controller
     [HttpGet("eligible")]
     public IActionResult Eligible() 
     {
-        HttpContext.Session.Clear();
-
         return View();
     }
 
