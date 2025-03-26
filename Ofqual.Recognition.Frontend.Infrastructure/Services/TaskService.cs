@@ -1,12 +1,12 @@
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
-using Ofqual.Recognition.Frontend.Core.Enums;
-using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
-using Serilog;
 using Newtonsoft.Json;
 using System.Text;
+using Serilog;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.Enums;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 {

@@ -1,5 +1,5 @@
-using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Extensions;
+using Ofqual.Recognition.Frontend.Core.Enums;
 
 namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 

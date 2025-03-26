@@ -1,9 +1,8 @@
 ﻿using Ofqual.Recognition.Frontend.Core.Models;
 
-namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces
+namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+
+public interface IApplicationService
 {
-    public interface IApplicationService
-    {
-        Task<Application?> SetUpApplication();
-    }
+    Task<Application?> SetUpApplication();
 }

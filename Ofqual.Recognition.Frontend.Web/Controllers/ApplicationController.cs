@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Web.ViewModels;
+using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Web.Mappers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;

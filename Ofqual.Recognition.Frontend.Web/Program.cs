@@ -1,18 +1,18 @@
-using GovUk.Frontend.AspNetCore;
-using Ofqual.Recognition.Frontend.Infrastructure.Services;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Infrastructure.Client;
-using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Web.Middlewares;
 using CorrelationId.DependencyInjection;
-using CorrelationId;
-using Serilog;
+using GovUk.Frontend.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
+using Serilog.Sinks.Http;
 using System.Reflection;
 using Serilog.Events;
-using Serilog.Sinks.Http;
-using Microsoft.AspNetCore.Mvc;
+using CorrelationId;
+using Serilog;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Ofqual.Recognition.Frontend.Infrastructure.Services;
+using Ofqual.Recognition.Frontend.Infrastructure.Client;
+using Ofqual.Recognition.Frontend.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

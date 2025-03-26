@@ -7,6 +7,5 @@ public class TaskItemStatusSection
 {
     public Guid SectionId { get; set; }
     public required string SectionName { get; set; }
-
-    public IEnumerable<TaskItemStatus> Tasks { get; set; } = new List<TaskItemStatus>();
+    public IEnumerable<TaskItemStatus> Tasks { get; set; } = [];
 }

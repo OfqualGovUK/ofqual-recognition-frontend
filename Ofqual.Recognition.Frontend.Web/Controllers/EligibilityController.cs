@@ -1,23 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Web.ViewModels;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Web.Mappers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 [Route("eligibility")]
-public class EligibilityController : Controller
+public class EligibilityController(IEligibilityService eligibilityService, ISessionService sessionService) : Controller
 {
-    private readonly IEligibilityService _eligibilityService;
-    private readonly ISessionService _sessionService;
-
-    public EligibilityController(IEligibilityService eligibilityService, ISessionService sessionService)
-    {
-        _eligibilityService = eligibilityService;
-        _sessionService = sessionService;
-    }
+    private readonly IEligibilityService _eligibilityService = eligibilityService;
+    private readonly ISessionService _sessionService = sessionService;
 
     [HttpGet("start")]
     public IActionResult Start()
@@ -31,7 +25,7 @@ public class EligibilityController : Controller
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionOne);
 
         QuestionOneViewModel viewModel = EligibilityMapper.MapToQuestionOneViewModel(model);
-        viewModel.returnUrl = returnUrl;
+        viewModel.ReturnUrl = returnUrl;
 
         return View(viewModel);
     }
@@ -58,7 +52,7 @@ public class EligibilityController : Controller
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionTwo);
 
         QuestionTwoViewModel viewModel = EligibilityMapper.MapToQuestionTwoViewModel(model);
-        viewModel.returnUrl = returnUrl;
+        viewModel.ReturnUrl = returnUrl;
 
         return View(viewModel);
     }
@@ -85,7 +79,7 @@ public class EligibilityController : Controller
         Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionThree);
 
         QuestionThreeViewModel viewModel = EligibilityMapper.MapToQuestionThreeViewModel(model);
-        viewModel.returnUrl = returnUrl;
+        viewModel.ReturnUrl = returnUrl;
 
         return View(viewModel);
     }

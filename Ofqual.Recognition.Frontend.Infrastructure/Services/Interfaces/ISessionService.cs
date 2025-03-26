@@ -8,6 +8,5 @@ public interface ISessionService
     public void SetInSession<T>(string key, T data) where T : class;
     public bool HasInSession(string key);
     public void ClearFromSession(string key);
-
     public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus);
 }

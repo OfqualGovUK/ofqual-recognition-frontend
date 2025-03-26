@@ -8,8 +8,8 @@ public class QuestionOneViewModel
     [Required(ErrorMessage = "You need to select an option to continue.")]
     public string Answer { get; set; } = string.Empty;
     
-    public string? returnUrl { get; set; }
-    public string BackUrl => returnUrl == RouteConstants.EligibilityConstants.QUESTION_REVIEW_PATH
+    public string? ReturnUrl { get; set; }
+    public string BackUrl => ReturnUrl == RouteConstants.EligibilityConstants.QUESTION_REVIEW_PATH
         ? RouteConstants.EligibilityConstants.QUESTION_REVIEW_PATH
         : RouteConstants.EligibilityConstants.START_PATH;
 }

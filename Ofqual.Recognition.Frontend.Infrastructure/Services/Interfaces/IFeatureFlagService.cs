@@ -1,5 +1,4 @@
-﻿
-namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+﻿namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 public interface IFeatureFlagService
 {
