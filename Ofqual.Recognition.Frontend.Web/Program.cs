@@ -69,7 +69,7 @@ builder.Services.AddCorrelationId();
 // Configure HttpClient for API calls
 builder.Services.AddHttpClient("RecognitionCitizen", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiAuthentication:BaseUrl"]!);
+    client.BaseAddress = new Uri(builder.Configuration["RecognitionApi:BaseUrl"]!);
 });
 
 // Register session management

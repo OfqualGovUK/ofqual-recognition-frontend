@@ -10,8 +10,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         public EligibilityDecisionPage(IPage page) : base(page)
         {
             _createAccountLink = page.Locator("a.govuk-button:has-text('Create an account')");
-            _reviewAndChangeLink = page.Locator("a.govuk-link[href='check']");
-
+            _reviewAndChangeLink = page.Locator("a.govuk-link[href='question-review']");
         }
 
         public async Task VerifyCreateAccountLink()

@@ -11,7 +11,6 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         {
             _continueButton = page.Locator("button.govuk-button:has-text('Continue')");
             _summaryList = page.Locator("dl.govuk-summary-list");
-
         }
 
         public async Task ClickContinueButton()

@@ -9,11 +9,11 @@
             This service is currently in private beta. Use this service and support its continuous improvement.
         </p>
         <h2 class="govuk-heading-m">Eligibility:</h2>
-        <a asp-controller="eligibility" asp-action="start" class="govuk-button govuk-button--start">Start now</a>
+        <a asp-controller="eligibility" asp-action="start" data-test="eligibility-start" class="govuk-button govuk-button--start">Start now</a>
         @if (FeatureFlagService.IsFeatureEnabled("Application"))
         {
             <h2 class="govuk-heading-m">Application:</h2>
-            <a asp-controller="application" class="govuk-button govuk-button--start">Start now</a>
+            <a asp-controller="application" data-test="application-start" class="govuk-button govuk-button--start">Start now</a>
         }
     </div>
 </div>

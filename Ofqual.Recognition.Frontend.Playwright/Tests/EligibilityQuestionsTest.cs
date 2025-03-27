@@ -5,7 +5,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Tests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class EligibilityQuestions : PageTest
+public class EligibilityQuestionsTest : PageTest
 {
     [Test]
     public async Task EligibleDecision()
@@ -21,7 +21,7 @@ public class EligibilityQuestions : PageTest
         //Homepage
         await homePage.GoToHomePage();
         await homePage.CheckPageHeading("Apply to have your qualifications recognised");
-        await homePage.ClickStartButton();
+        await homePage.ClickEligibilityStartButton();
 
         //Check organisation eligibility page
         await checkOrgaisationEligibilityPage.CheckPageHeading("Check if your organisation is eligible to apply for Ofqual recognition");
@@ -34,12 +34,12 @@ public class EligibilityQuestions : PageTest
         await question1Page.ClickContinueButton();
 
         //Is your organisation based in the UK, Gibraltar or a European Union page
-        await question2Page.CheckPageHeading("Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state, or if not, does your organisation have a substantial presence in one of those territories?");
+        await question2Page.CheckQuestionHeading("Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state, or if not, does your organisation have a substantial presence in one of those territories?");
         await question2Page.SelectRadioButtonByValue("Yes");
         await question2Page.ClickContinueButton();
 
         //Do you intend to make qualifications available to learners in England?
-        await question3Page.CheckPageHeading("Do you intend to make qualifications available to learners in England?");
+        await question3Page.CheckQuestionHeading("Do you intend to make qualifications available to learners in England?");
         await question3Page.SelectRadioButtonByValue("Yes");
         await question3Page.ClickContinueButton();
 
@@ -82,7 +82,7 @@ public class EligibilityQuestions : PageTest
 
         //Homepage
         await homePage.GoToHomePage();
-        await homePage.ClickStartButton();
+        await homePage.ClickEligibilityStartButton();
 
         //Check organisation eligibility page
         await checkOrgaisationEligibilityPage.ClickContinueButton();
