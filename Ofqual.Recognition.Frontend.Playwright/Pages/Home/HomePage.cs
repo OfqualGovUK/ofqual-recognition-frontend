@@ -17,7 +17,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
 
         public async Task GoToHomePage()
         {
-            await _page.GotoAsync(_baseUrl + _basePath);
+            await _page.GotoAsync($"{_baseUrl.TrimEnd()}{_basePath.TrimStart()}");
         }
 
         public async Task ClickEligibilityStartButton()
