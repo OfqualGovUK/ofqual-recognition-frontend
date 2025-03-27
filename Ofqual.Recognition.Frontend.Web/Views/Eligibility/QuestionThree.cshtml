@@ -1,15 +1,14 @@
-@model Ofqual.Recognition.Frontend.Core.Models.EligibilityModel
+@using Ofqual.Recognition.Frontend.Core.Constants
+@using Ofqual.Recognition.Frontend.Web.ViewModels
 
-@{
-    ViewData["Title"] = "Apply to have your qualifications recognised";
-    ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
-}
+@model QuestionThreeViewModel
 
 <link rel="stylesheet" href="~/css/progress_bar.css" asp-append-version="true">
 
 @section BackLink {
-    <a href="question-two" class="govuk-back-link">Back</a>
+    <a href="@(Model.BackUrl)" class="govuk-back-link">Back</a>
 }
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <div class="progress">
@@ -19,39 +18,40 @@
             <span class="govuk-caption-l">Question 3 of 3</span>
             <br />
         </div>
-        <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
-            <form method="post">
-                <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <h1 class="govuk-fieldset__heading">
-                            Do you intend to make qualifications available to learners in England?
-                        </h1>
-                    </legend>
-                    @if (ViewData.ModelState["questionThree"]?.Errors?.Any() == true)
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h2 class="govuk-fieldset__heading">
+                    Do you intend to make qualifications available to learners in England?
+                </h2>
+            </legend>
+            <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
+                <form method="post">
+                    @if (ViewData.ModelState["Answer"]?.Errors?.Any() == true)
                     {
                         <span class="govuk-error-message">
-                            @ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage
+                            @ViewData.ModelState["Answer"]?.Errors.FirstOrDefault()?.ErrorMessage
                         </span>
                     }
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="yes" name="questionThree" type="radio" value="Yes" @(Model.QuestionThree == "Yes" ? "checked" : "")>
+                            <input class="govuk-radios__input" id="yes" name="Answer" type="radio" value="Yes"
+                                @(Model.Answer == "Yes" ? "checked" : "")>
                             <label class="govuk-label govuk-radios__label" for="yes">
                                 Yes
                             </label>
                         </div>
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="no" name="questionThree" type="radio" value="No" @(Model.QuestionThree == "No" ? "checked" : "")>
+                            <input class="govuk-radios__input" id="no" name="Answer" type="radio" value="No"
+                                @(Model.Answer == "No" ? "checked" : "")>
                             <label class="govuk-label govuk-radios__label" for="no">
                                 No
                             </label>
                         </div>
                     </div>
-                </fieldset>
-                <br />
-                @Html.AntiForgeryToken()
-                <button type="submit" class="govuk-button">Continue</button>
-            </form>
-        </div>
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="govuk-button govuk-!-margin-top-5">Continue</button>
+                </form>
+            </div>
+        </fieldset>
     </div>
 </div>

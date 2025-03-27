@@ -10,10 +10,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\Ofqual.Recognition.Frontend.Core\Ofqual.Recognition.Frontend.Core.csproj" />
-  </ItemGroup>
+	  <ProjectReference Include="..\Ofqual.Recognition.Frontend.Core\Ofqual.Recognition.Frontend.Core.csproj" />
+  </ItemGroup>	
 
 </Project>

@@ -1,146 +1,148 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
+using Ofqual.Recognition.Frontend.Web.Mappers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 [Route("eligibility")]
-public class EligibilityController : Controller
+public class EligibilityController(IEligibilityService eligibilityService, ISessionService sessionService) : Controller
 {
-    private readonly IEligibilityService _eligibilityService;
-    private readonly ILogger<EligibilityController> _logger;
-
-    public EligibilityController(IEligibilityService eligibilityService, ILogger<EligibilityController> logger)
-    {
-        _eligibilityService = eligibilityService;
-        _logger = logger;
-    }
+    private readonly IEligibilityService _eligibilityService = eligibilityService;
+    private readonly ISessionService _sessionService = sessionService;
 
     [HttpGet("start")]
-    public IActionResult Start() 
+    public IActionResult Start()
     {
         return View();
-    } 
+    }
 
     [HttpGet("question-one")]
-    public IActionResult QuestionOne(string? returnUrl = null)
+    public IActionResult QuestionOne(string? returnUrl)
     {
-        _logger.LogInformation("Getting answers for QuestionOne.");
+        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionOne);
 
-        ViewBag.ReturnUrl = returnUrl;
+        QuestionOneViewModel viewModel = EligibilityMapper.MapToQuestionOneViewModel(model);
+        viewModel.ReturnUrl = returnUrl;
 
-        return View(_eligibilityService.GetAnswers());
+        return View(viewModel);
     }
 
     [HttpPost("question-one")]
     [ValidateAntiForgeryToken]
-    public IActionResult QuestionOne(string questionOne, string returnUrl)
+    public IActionResult QuestionOne(QuestionOneViewModel model, string? returnUrl)
     {
-        if (string.IsNullOrWhiteSpace(questionOne))
+        if (!ModelState.IsValid)
         {
-            _logger.LogWarning("Invalid input: QuestionOne is empty.");
-            ModelState.AddModelError("", "You need to select an option to continue.");
-
-            return View(_eligibilityService.GetAnswers());
+            return View(model);
         }
 
-        _logger.LogInformation("Saving answer for QuestionOne: {questionOne}", questionOne);
-        _eligibilityService.SaveAnswers(questionOne, string.Empty, string.Empty);
+        _sessionService.SetInSession(SessionKeys.QuestionOne, model.Answer);
 
-        if (!string.IsNullOrEmpty(returnUrl))
-        {
-            return Redirect(returnUrl);
-        }
-
-        return RedirectToAction("QuestionTwo");
+        return !string.IsNullOrEmpty(returnUrl)
+            ? Redirect(returnUrl)
+            : RedirectToAction("QuestionTwo");
     }
 
     [HttpGet("question-two")]
-    public IActionResult QuestionTwo(string? returnUrl = null)
+    public IActionResult QuestionTwo(string? returnUrl)
     {
-        _logger.LogInformation("Getting answers for QuestionTwo.");
+        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionTwo);
 
-        ViewBag.ReturnUrl = returnUrl;
+        QuestionTwoViewModel viewModel = EligibilityMapper.MapToQuestionTwoViewModel(model);
+        viewModel.ReturnUrl = returnUrl;
 
-        return View(_eligibilityService.GetAnswers());
+        return View(viewModel);
     }
 
     [HttpPost("question-two")]
     [ValidateAntiForgeryToken]
-    public IActionResult QuestionTwo(string questionTwo, string returnUrl)
+    public IActionResult QuestionTwo(QuestionTwoViewModel model, string? returnUrl)
     {
-        if (string.IsNullOrWhiteSpace(questionTwo))
+        if (!ModelState.IsValid)
         {
-            _logger.LogWarning("Invalid input: QuestionTwo is empty.");
-            ModelState.AddModelError("", "You need to select an option to continue.");
-
-            return View(_eligibilityService.GetAnswers());
+            return View(model);
         }
 
-        _logger.LogInformation("Saving answer for QuestionTwo: {questionTwo}", questionTwo);
-        _eligibilityService.SaveAnswers(string.Empty, questionTwo, string.Empty);
+        _sessionService.SetInSession(SessionKeys.QuestionTwo, model.Answer);
 
-        if (!string.IsNullOrEmpty(returnUrl))
-        {
-            return Redirect(returnUrl);
-        }
-
-        return RedirectToAction("QuestionThree");
+        return !string.IsNullOrEmpty(returnUrl)
+            ? Redirect(returnUrl)
+            : RedirectToAction("QuestionThree");
     }
 
     [HttpGet("question-three")]
-    public IActionResult QuestionThree()
+    public IActionResult QuestionThree(string? returnUrl)
     {
-        _logger.LogInformation("Getting answers for QuestionThree.");
+        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionThree);
 
-        return View(_eligibilityService.GetAnswers());
+        QuestionThreeViewModel viewModel = EligibilityMapper.MapToQuestionThreeViewModel(model);
+        viewModel.ReturnUrl = returnUrl;
+
+        return View(viewModel);
     }
 
     [HttpPost("question-three")]
     [ValidateAntiForgeryToken]
-    public IActionResult QuestionThree(string questionThree)
+    public IActionResult QuestionThree(QuestionThreeViewModel model, string? returnUrl)
     {
-        if (string.IsNullOrWhiteSpace(questionThree))
+        if (!ModelState.IsValid)
         {
-            _logger.LogWarning("Invalid input: QuestionThree is empty.");
-            ModelState.AddModelError("", "You need to select an option to continue.");
-
-            return View(_eligibilityService.GetAnswers());
+            return View(model);
         }
 
-        _logger.LogInformation("Saving answer for QuestionThree: {questionThree}", questionThree);
-        _eligibilityService.SaveAnswers(string.Empty, string.Empty, questionThree);
+        _sessionService.SetInSession(SessionKeys.QuestionThree, model.Answer);
 
-        return RedirectToAction("QuestionCheck");
+        return !string.IsNullOrEmpty(returnUrl)
+            ? Redirect(returnUrl)
+            : RedirectToAction("QuestionReview");
     }
 
-    [HttpGet("check")]
-    public IActionResult QuestionCheck()
+    [HttpGet("question-review")]
+    public IActionResult QuestionReview()
     {
-        return View(_eligibilityService.GetAnswers());
+        Eligibility model = _eligibilityService.GetAnswers();
+
+        EligibilityViewModel viewModel = EligibilityMapper.MapToEligibilityViewModel(model);
+
+        return View(viewModel);
     }
 
     [HttpPost("submit")]
     public IActionResult QuestionSubmit()
     {
-        var model = _eligibilityService.GetAnswers();
+        Eligibility model = _eligibilityService.GetAnswers();
 
-        if (model.QuestionOne == "Yes" && model.QuestionTwo == "Yes" && model.QuestionThree == "Yes")
-        { 
-            return RedirectToAction("Eligible");
+        if (model.QuestionOne != "Yes" || model.QuestionTwo != "Yes" || model.QuestionThree != "Yes")
+        {
+            return RedirectToAction("NotEligible");
         }
 
-        return RedirectToAction("NotEligible");
+        return RedirectToAction("Eligible");
     }
 
     [HttpGet("eligible")]
-    public IActionResult Eligible() 
+    public IActionResult Eligible()
     {
+        Eligibility model = _eligibilityService.GetAnswers();
+
+        if (model.QuestionOne != "Yes" && model.QuestionTwo != "Yes" && model.QuestionThree != "Yes")
+        {
+            return RedirectToAction("Start");
+        }
+
         return View();
     }
 
     [HttpGet("not-eligible")]
-    public IActionResult NotEligible() 
+    public IActionResult NotEligible()
     {
-        return View(_eligibilityService.GetAnswers());
+        Eligibility model = _eligibilityService.GetAnswers();
+
+        EligibilityViewModel viewModel = EligibilityMapper.MapToEligibilityViewModel(model);
+
+        return View(viewModel);
     }
 }

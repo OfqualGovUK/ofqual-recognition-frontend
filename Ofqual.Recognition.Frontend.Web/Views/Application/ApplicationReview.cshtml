@@ -1,0 +1,719 @@
+﻿@using Ofqual.Recognition.Frontend.Core.Constants
+@using Ofqual.Recognition.Frontend.Core.Enums
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+
+@model TaskReviewViewModel
+
+@section BackLink {
+    <a href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)" class="govuk-back-link">Back</a>
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">
+            Review your application
+        </h1>
+        <h2 class="govuk-heading-m">
+            Terms and conditions
+        </h2>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Privacy policy
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Confirm you have read and understand the privacy policy
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Terms and conditions
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Confirm you have read and understand the terms and conditions
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <h2 class="govuk-heading-m">
+            Application details
+        </h2>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Contact details
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Full name
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Full
+                                    name</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Email address
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Email
+                                    address</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Phone number
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Phone
+                                    number</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Your role in the organisation
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Your role in the
+                                    organisation</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Organisation details
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Organisation name
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Organisation
+                                    name</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Organisation legal name
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Organisation legal
+                                    name</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Acronym
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Acronym</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Website
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Website</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Organisation address
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Address line 1
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Address line
+                                    1</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Address line 2
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Address line
+                                    2</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Address line 3
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Address line
+                                    3</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Town or city
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Town or
+                                    city</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Postcode
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Postcode</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Country
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Country</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Qualifications or end-point assessments
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            What qualifications or end-point assessments you wish to be regulated for?
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">What qualifications
+                                    or end-point assessments you wish to be regulated for?</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Ofqual recognition
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Why do you want to be regulated by Ofqual?
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Why do you want to
+                                    be regulated by Ofqual?</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <h2 class="govuk-heading-m">
+            Criteria A: Identity, constitution and governance
+        </h2>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria A.1, A.2 and A.3 - Identity and Constitution
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Details of your organisation's legal entity
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Details of your
+                                    organisation's legal entity</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Companies house number
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Companies house
+                                    number</span></a>
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet criteria A.1, A.2 and A.3 - Identity and Constitution
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you
+                                    meet criteria A.1, A.2 and A.3 - Identity and Constitution</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria A.4 - Organisation and governance
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet Criteria A.4 - Organisation and governance
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you
+                                    meet Criteria A.4 - Organisation and governance</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria A.5 - Conflicts of interest
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet Criteria A.5 - Conflicts of interest
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you
+                                    meet Criteria A.5 - Conflicts of interest</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria A.6 - Governing body oversight
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet Criteria A.5 - Conflicts of interest
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Governing body
+                                    oversight</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria A - Uploaded files
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list" id="file-listing" data-key="criteria-a-files">
+                    <div class="govuk-summary-list__row">
+                        <dd class="govuk-summary-list__value">
+
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <h2 class="govuk-heading-m">
+            Criteria B: Integrity
+        </h2>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria B.1 - Integrity of the applicant
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Declaration - integrity of the applicant
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Declaration -
+                                    integrity of the applicant</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria B.2 - Integrity of senior officers
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Declaration - integrity of senior officers
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Declaration -
+                                    integrity of senior officers</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria B information
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Provide information on how you meet Criteria B.1 and B.2 - Integrity
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Provide information
+                                    on how you meet Criteria B.1 and B.2 - Integrity</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria B - Uploaded files
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list" id="file-listing" data-key="criteria-b-files">
+                    <div class="govuk-summary-list__row">
+                        <dd class="govuk-summary-list__value">
+
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <h2 class="govuk-heading-m">
+            Criteria C: Resources and Financing
+        </h2>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criterion C.1 (a) - Systems, processes and resources
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet Criterion C.1 (a) - Systems, processes and resources
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you
+                                    meet Criterion C.1 (a) - Systems, processes and resources</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criterion C.1 (b) - Financial resources and facilities
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet Criterion C.1 (b) - Financial resources and facilities
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you
+                                    meet Criterion C.1 (b) - Financial resources and facilities</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria C - Uploaded files
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list" id="file-listing" data-key="criteria-c-files">
+                    <div class="govuk-summary-list__row">
+                        <dd class="govuk-summary-list__value">
+
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <h2 class="govuk-heading-m">
+            Criteria D: Competence
+        </h2>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criterion D.1 (a) - Development, delivery and awarding of qualifications
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet Criterion D.1 (a) - Development, delivery and awarding of
+                            qualifications
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you
+                                    meet Criterion D.1 (a) - Development, delivery and awarding of
+                                    qualifications</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criterion D.1 (b) - Validity, Reliability, Comparability, Manageability and Minimising Bias
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet Criterion D.1 (b) - Validity, Reliability, Comparability, Manageability
+                            and Minimising Bias
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you
+                                    meet Criterion D.1 (b) - Validity, Reliability, Comparability, Manageability and
+                                    Minimising Bias</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criterion D.1 (c) - Qualification compatibility with Equalities Law
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Explain how you meet Criterion D.1 (c) - Qualification compatibility with Equalities Law
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            Not provided
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Explain how you
+                                    meet Criterion D.1 (c) - Qualification compatibility with Equalities Law</span></a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    Criteria D - Uploaded files
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list" id="file-listing" data-key="criteria-d-files">
+                    <div class="govuk-summary-list__row">
+                        <dd class="govuk-summary-list__value">
+
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        <div class="govuk-form-group">
+            <form method="post" asp-action="taskreview">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                        <h2 class="govuk-fieldset__heading">
+                            Have you completed the review?
+                        </h2>
+                        <div id="changedName-hint" class="govuk-hint">
+                            Once you have completed the review you can make your declaration and submit your application
+                        </div>
+                    </legend>
+                    <div class="govuk-radios" data-module="govuk-radios">
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="yes" name="answer" type="radio"
+                                value="@( (int)TaskStatusEnum.Completed )">
+                            <label class="govuk-label govuk-radios__label" for="yes">
+                                Yes, I've completed this section
+                            </label>
+                        </div>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="no" name="answer" type="radio"
+                                value="@( (int)TaskStatusEnum.InProgress )">
+                            <label class="govuk-label govuk-radios__label" for="no">
+                                No, I'll come back to it later
+                            </label>
+                        </div>
+                    </div>
+                    @Html.AntiForgeryToken()
+                    <div class="govuk-button-group govuk-!-margin-top-5">
+                        <button type="submit" class="govuk-button">Save and continue</button>
+                        <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>

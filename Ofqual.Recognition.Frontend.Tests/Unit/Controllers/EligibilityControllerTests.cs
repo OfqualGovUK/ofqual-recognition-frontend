@@ -1,85 +1,315 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Controllers;
-using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class EligibilityControllerTests
 {
-    // Helper to create the controller with a mocked service
-    private EligibilityController GetController(IEligibilityService service)
+    private readonly Mock<IEligibilityService> _eligibilityServiceMock;
+    private readonly Mock<ISessionService> _sessionServiceMock;
+    private readonly EligibilityController _controller;
+
+    public EligibilityControllerTests()
     {
-        var mockLogger = new Mock<ILogger<EligibilityController>>();
-        return new EligibilityController(service, mockLogger.Object);
+        _eligibilityServiceMock = new Mock<IEligibilityService>();
+        _sessionServiceMock = new Mock<ISessionService>();
+        _controller = new EligibilityController(_eligibilityServiceMock.Object, _sessionServiceMock.Object);
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
+    public void Start_Get_ReturnsView()
+    {
+        // Act
+        var result = _controller.Start();
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void QuestionOne_Get_ReturnsViewWithModel()
     {
         // Arrange
-        var eligibilityServiceMock = new Mock<IEligibilityService>();
-        eligibilityServiceMock
-            .Setup(x => x.GetAnswers())
-            .Returns(new EligibilityModel
-            {
-                QuestionOne = "Yes",
-                QuestionTwo = string.Empty,
-                QuestionThree = string.Empty
-            });
-
-        var controller = GetController(eligibilityServiceMock.Object);
+        var question = new Question { Answer = "Some answer" };
+        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.QuestionOne))
+            .Returns(question);
 
         // Act
-        var result = controller.QuestionOne() as ViewResult;
+        var result = _controller.QuestionOne(It.IsAny<string>());
 
         // Assert
-        Assert.NotNull(result);
-        var model = result.Model as EligibilityModel;
-        Assert.NotNull(model);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<QuestionOneViewModel>(viewResult.Model);
+        Assert.Equal("Some answer", model.Answer);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void QuestionOne_Post_InvalidModelState_ReturnsSameView()
+    {
+        // Arrange
+        _controller.ModelState.AddModelError("Answer", "Required");
+        var viewModel = new QuestionOneViewModel();
+
+        // Act
+        var result = _controller.QuestionOne(viewModel, returnUrl: null);
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(viewModel, viewResult.Model);
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(null)]
+    [InlineData("/some-return-url")]
+    public void QuestionOne_Post_ValidModelState_RedirectsProperly(string? returnUrl)
+    {
+        // Arrange
+        var viewModel = new QuestionOneViewModel { Answer = "Yes" };
+
+        // Act
+        var result = _controller.QuestionOne(viewModel, returnUrl);
+
+        // Assert
+        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.QuestionOne, "Yes"), Times.Once);
+
+        if (string.IsNullOrEmpty(returnUrl))
+        {
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("QuestionTwo", redirectResult.ActionName);
+        }
+        else
+        {
+            var redirectResult = Assert.IsType<RedirectResult>(result);
+            Assert.Equal(returnUrl, redirectResult.Url);
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void QuestionTwo_Get_ReturnsViewWithModel()
+    {
+        // Arrange
+        var question = new Question { Answer = "Answer2" };
+        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.QuestionTwo))
+            .Returns(question);
+
+        // Act
+        var result = _controller.QuestionTwo(It.IsAny<string>());
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<QuestionTwoViewModel>(viewResult.Model);
+        Assert.Equal("Answer2", model.Answer);
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(null)]
+    [InlineData("/another-return-url")]
+    public void QuestionTwo_Post_ValidAndInvalidModelState(string? returnUrl)
+    {
+        // Invalid case
+        var invalidModel = new QuestionTwoViewModel();
+        _controller.ModelState.AddModelError("Answer", "Required");
+        var invalidResult = _controller.QuestionTwo(invalidModel, returnUrl);
+        var invalidView = Assert.IsType<ViewResult>(invalidResult);
+        Assert.Equal(invalidModel, invalidView.Model);
+
+        // Valid case
+        _controller.ModelState.Clear();
+        var validModel = new QuestionTwoViewModel { Answer = "Yes" };
+        var validResult = _controller.QuestionTwo(validModel, returnUrl);
+        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.QuestionTwo, "Yes"), Times.Once);
+
+        if (string.IsNullOrEmpty(returnUrl))
+        {
+            var redirectResult = Assert.IsType<RedirectToActionResult>(validResult);
+            Assert.Equal("QuestionThree", redirectResult.ActionName);
+        }
+        else
+        {
+            var redirectResult = Assert.IsType<RedirectResult>(validResult);
+            Assert.Equal(returnUrl, redirectResult.Url);
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void QuestionThree_Get_ReturnsViewWithModel()
+    {
+        // Arrange
+        var question = new Question { Answer = "Answer3" };
+
+        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.QuestionThree))
+            .Returns(question);
+
+        // Act
+        var result = _controller.QuestionThree(It.IsAny<string>());
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<QuestionThreeViewModel>(viewResult.Model);
+        Assert.Equal("Answer3", model.Answer);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void QuestionThree_Post_InvalidModelState_ReturnsSameView()
+    {
+        // Arrange
+        _controller.ModelState.AddModelError("Answer", "Required");
+        var viewModel = new QuestionThreeViewModel();
+
+        // Act
+        var result = _controller.QuestionThree(viewModel, It.IsAny<string>());
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(viewModel, viewResult.Model);
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(null)]
+    [InlineData("/another-return-url")]
+    public void QuestionThree_Post_ValidModelState_RedirectsBasedOnReturnUrl(string? returnUrl)
+    {
+        // Arrange
+        var viewModel = new QuestionThreeViewModel { Answer = "Yes" };
+
+        // Act
+        var result = _controller.QuestionThree(viewModel, returnUrl);
+
+        // Assert
+        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.QuestionThree, "Yes"), Times.Once);
+        
+        if (!string.IsNullOrEmpty(returnUrl))
+        {
+            var redirectResult = Assert.IsType<RedirectResult>(result);
+            Assert.Equal(returnUrl, redirectResult.Url);
+        }
+        else
+        {
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("QuestionReview", redirectResult.ActionName);
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void QuestionCheck_Get_ReturnsViewWithEligibilityModel()
+    {
+        // Arrange
+        var eligibility = new Eligibility
+        {
+            QuestionOne = "Yes",
+            QuestionTwo = "No",
+            QuestionThree = "Yes"
+        };
+
+        _eligibilityServiceMock.Setup(x => x.GetAnswers())
+            .Returns(eligibility);
+
+        // Act
+        var result = _controller.QuestionReview();
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<EligibilityViewModel>(viewResult.Model);
         Assert.Equal("Yes", model.QuestionOne);
+        Assert.Equal("No", model.QuestionTwo);
+        Assert.Equal("Yes", model.QuestionThree);
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData("No", "Yes", "Yes", "NotEligible")]
+    [InlineData("Yes", "Yes", "Yes", "Eligible")]
+    public void QuestionSubmit_Post_RedirectsBasedOnEligibility(string answer1, string answer2, string answer3, string expectedAction)
+    {
+        // Arrange
+        var eligibility = new Eligibility
+        {
+            QuestionOne = answer1,
+            QuestionTwo = answer2,
+            QuestionThree = answer3
+        };
+
+        _eligibilityServiceMock.Setup(x => x.GetAnswers())
+            .Returns(eligibility);
+
+        // Act
+        var result = _controller.QuestionSubmit();
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(expectedAction, redirectResult.ActionName);
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData("No", "No", "No", "Start")]
+    [InlineData("Yes", "Yes", "Yes", null)]
+    public void Eligible_Get_RedirectsOrReturnsView(string answer1, string answer2, string answer3, string? expectedRedirectAction)
+    {
+        // Arrange
+        var eligibility = new Eligibility
+        {
+            QuestionOne = answer1,
+            QuestionTwo = answer2,
+            QuestionThree = answer3
+        };
+
+        _eligibilityServiceMock.Setup(x => x.GetAnswers())
+            .Returns(eligibility);
+
+        // Act
+        var result = _controller.Eligible();
+
+        // Assert
+        if (!string.IsNullOrEmpty(expectedRedirectAction))
+        {
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal(expectedRedirectAction, redirectResult.ActionName);
+        }
+        else
+        {
+            Assert.IsType<ViewResult>(result);
+        }
     }
 
     [Fact]
-    public void QuestionOne_Post_InvalidInput_ReturnsViewWithModelError()
+    [Trait("Category", "Unit")]
+    public void NotEligible_Get_ReturnsViewWithEligibilityModel()
     {
         // Arrange
-        var eligibilityServiceMock = new Mock<IEligibilityService>();
-        eligibilityServiceMock
-            .Setup(x => x.GetAnswers())
-            .Returns(new EligibilityModel
-            {
-                QuestionOne = string.Empty,
-                QuestionTwo = string.Empty,
-                QuestionThree = string.Empty
-            });
+        var eligibility = new Eligibility
+        {
+            QuestionOne = "No",
+            QuestionTwo = "Yes",
+            QuestionThree = "No"
+        };
 
-        var controller = GetController(eligibilityServiceMock.Object);
+        _eligibilityServiceMock.Setup(x => x.GetAnswers())
+            .Returns(eligibility);
 
         // Act
-        var result = controller.QuestionOne("") as ViewResult;
+        var result = _controller.NotEligible();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.False(controller.ModelState.IsValid);
-        Assert.True(controller.ModelState.ErrorCount > 0);
-    }
-
-    [Fact]
-    public void QuestionOne_Post_ValidInput_RedirectsToQuestionTwo()
-    {
-        // Arrange
-        var eligibilityServiceMock = new Mock<IEligibilityService>();
-        var controller = GetController(eligibilityServiceMock.Object);
-
-        // Act
-        var result = controller.QuestionOne("Yes") as RedirectToActionResult;
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("QuestionTwo", result.ActionName);
-        eligibilityServiceMock.Verify(x => x.SaveAnswers("Yes", string.Empty, string.Empty), Times.Once);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<EligibilityViewModel>(viewResult.Model);
+        Assert.Equal("No", model.QuestionOne);
+        Assert.Equal("Yes", model.QuestionTwo);
+        Assert.Equal("No", model.QuestionThree);
     }
 }

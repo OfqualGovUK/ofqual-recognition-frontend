@@ -483,3 +483,5 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 appsettings*.json
+Buffer*.txt
+Buffer.bookmark

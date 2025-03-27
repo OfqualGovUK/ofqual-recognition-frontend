@@ -4,22 +4,14 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    public IActionResult Index()
     {
-        _logger = logger;
-    }
-
-    public async Task<IActionResult> Index()
-    {
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production")
-        {
-            return View();
-        }
-        else
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
         {
             return NotFound();
         }
+
+        return View();
     }
 }
+

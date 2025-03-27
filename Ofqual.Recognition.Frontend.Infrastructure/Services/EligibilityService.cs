@@ -1,40 +1,31 @@
-﻿using Microsoft.AspNetCore.Http;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
 public class EligibilityService : IEligibilityService
 {
-    private readonly ISession _session;
+    private readonly ISessionService _sessionService;
 
-    public EligibilityService(IHttpContextAccessor httpContextAccessor) => _session = httpContextAccessor!.HttpContext!.Session;
-
-    public void SaveAnswers(string? questionOne, string? questionTwo, string? questionThree)
+    public EligibilityService(ISessionService sessionService)
     {
-        if (!string.IsNullOrEmpty(questionOne))
-        {
-            _session.SetString("QuestionOne", questionOne);
-        }
-
-        if (!string.IsNullOrEmpty(questionTwo))
-        {
-            _session.SetString("QuestionTwo", questionTwo);
-        }
-
-        if (!string.IsNullOrEmpty(questionThree))
-        {
-            _session.SetString("QuestionThree", questionThree);
-        }
+        _sessionService = sessionService;
     }
 
-    public EligibilityModel GetAnswers()
+    public Eligibility GetAnswers()
     {
-        return new EligibilityModel
+        return new Eligibility
         {
-            QuestionOne = _session.GetString("QuestionOne") ?? string.Empty,
-            QuestionTwo = _session.GetString("QuestionTwo") ?? string.Empty,
-            QuestionThree = _session.GetString("QuestionThree") ?? string.Empty
+            QuestionOne = _sessionService.GetFromSession<string>(SessionKeys.QuestionOne) ?? string.Empty,
+            QuestionTwo = _sessionService.GetFromSession<string>(SessionKeys.QuestionTwo) ?? string.Empty,
+            QuestionThree = _sessionService.GetFromSession<string>(SessionKeys.QuestionThree) ?? string.Empty,
         };
+    }
+
+    public Question GetQuestion(string sessionKey)
+    {
+        var answer = _sessionService.GetFromSession<string>(sessionKey) ?? string.Empty;
+        return new Question { Answer = answer }; 
     }
 }

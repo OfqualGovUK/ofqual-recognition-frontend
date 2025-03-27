@@ -4,6 +4,6 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 public interface IEligibilityService
 {
-    public void SaveAnswers(string questionOne, string questionTwo, string questionThree);
-    public EligibilityModel GetAnswers();
+    public Eligibility GetAnswers();
+    public Question GetQuestion(string sessionKey);
 }

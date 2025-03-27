@@ -1,4 +1,5 @@
 ﻿using Microsoft.Playwright;
+using Ofqual.Recognition.Frontend.Playwright.Configs;
 
 namespace Ofqual.Recognition.Frontend.Playwright.Pages
 {
@@ -6,9 +7,11 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
     {
         protected readonly IPage _page;
         protected readonly ILocator _heading;
+        protected readonly string _baseUrl;
 
         protected BasePage(IPage page)
         {
+            _baseUrl = TestConfig.RecognitionBaseUrl;
             _page = page;
             _heading = page.Locator("h1");
         }

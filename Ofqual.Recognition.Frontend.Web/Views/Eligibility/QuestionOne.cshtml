@@ -1,15 +1,14 @@
-@model Ofqual.Recognition.Frontend.Core.Models.EligibilityModel
+@using Ofqual.Recognition.Frontend.Core.Constants
+@using Ofqual.Recognition.Frontend.Web.ViewModels
 
-@{
-    ViewData["Title"] = "Apply to have your qualifications recognised";
-    ViewData["HeaderTitle"] = "Apply to have your qualifications recognised";
-}
+@model QuestionOneViewModel
 
 <link rel="stylesheet" href="~/css/progress_bar.css" asp-append-version="true">
 
 @section BackLink {
-    <a href="start" class="govuk-back-link">Back</a>
+    <a href="@(Model.BackUrl)" class="govuk-back-link">Back</a>
 }
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <div class="progress">
@@ -23,9 +22,11 @@
             Qualifications we regulate
         </h1>
         <p class="govuk-body">
-            A qualification must have a result that is given based on the learner demonstrating knowledge, skills and understanding - rather than issuing certificates which reflect attendance at a training event or course.
+            A qualification must have a result that is given based on the learner demonstrating knowledge, skills and
+            understanding - rather than issuing certificates which reflect attendance at a training event or course.
             <br /><br />
-            We do not regulate courses that do not include an assessment of a learner's attainment related to the specific knowledge, skills and behaviours.
+            We do not regulate courses that do not include an assessment of a learner's attainment related to the
+            specific knowledge, skills and behaviours.
         </p>
         <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
             <form method="post">
@@ -35,30 +36,31 @@
                             Do you award or intend to award qualifications?
                         </h2>
                     </legend>
-                    @if (ViewData.ModelState["questionOne"]?.Errors?.Any() == true)
+                    @if (ViewData.ModelState["Answer"]?.Errors?.Any() == true)
                     {
                         <span class="govuk-error-message">
-                            @ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage
+                            @ViewData.ModelState["Answer"]?.Errors.FirstOrDefault()?.ErrorMessage
                         </span>
                     }
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="yes" name="questionOne" type="radio" value="Yes" @(Model.QuestionOne == "Yes" ? "checked" : "")>
+                            <input class="govuk-radios__input" id="yes" name="Answer" type="radio" value="Yes"
+                                @(Model.Answer == "Yes" ? "checked" : "")>
                             <label class="govuk-label govuk-radios__label" for="yes">
                                 Yes
                             </label>
                         </div>
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="no" name="questionOne" type="radio" value="No" @(Model.QuestionOne == "No" ? "checked" : "")>
+                            <input class="govuk-radios__input" id="no" name="Answer" type="radio" value="No"
+                                @(Model.Answer == "No" ? "checked" : "")>
                             <label class="govuk-label govuk-radios__label" for="no">
                                 No
                             </label>
                         </div>
                     </div>
                 </fieldset>
-                <br />
                 @Html.AntiForgeryToken()
-                <button type="submit" class="govuk-button">Continue</button>
+                <button type="submit" class="govuk-button govuk-!-margin-top-5">Continue</button>
             </form>
         </div>
     </div>
