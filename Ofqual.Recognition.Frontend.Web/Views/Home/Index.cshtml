@@ -21,9 +21,9 @@
 
         @if (User.Identity?.IsAuthenticated == true){
             <p>You didn't fuck up the auth!</p>
-            <a asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignOut" class="govuk-link">Sign Out Test</a>
+            <a asp-area="MicrosoftIdentity" asp-controller="OfqualAccount" asp-action="SignOut" class="govuk-link">Sign Out Test</a>
         } else {
-            <a asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignIn" class="govuk-link">Sign In Test</a>
+            <a asp-area="MicrosoftIdentity" asp-controller="OfqualAccount" asp-action="SignIn" class="govuk-link">Sign In Test</a>
         }
     </div>
 </div>

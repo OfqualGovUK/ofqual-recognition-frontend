@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
@@ -18,8 +19,12 @@ public class EligibilityController : Controller
 
     [Authorize]
     [HttpGet("start")]
-    public IActionResult Start() 
+    public async Task<IActionResult> StartAsync() 
     {
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        _logger.LogInformation("Access token: {accessToken}", accessToken);
+        var idToken = await HttpContext.GetTokenAsync("id_token");
+        _logger.LogInformation("Id token: {idToken}", idToken);
         return View();
     } 
 

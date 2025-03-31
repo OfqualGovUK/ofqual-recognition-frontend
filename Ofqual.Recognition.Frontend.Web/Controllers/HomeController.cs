@@ -22,4 +22,9 @@ public class HomeController : Controller
             return NotFound();
         }
     }
+
+    public async Task<IActionResult> SignedOut()
+    {
+        return View();
+    }
 }

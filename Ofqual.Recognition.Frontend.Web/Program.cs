@@ -7,8 +7,6 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +30,23 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 // Configuration to sign-in users with Azure AD B2C
-builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAdB2C");
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(options =>
+    {
+        builder.Configuration.Bind("AzureAdB2C", options);
+        options.Events ??= new OpenIdConnectEvents();
+        options.Events.OnRedirectToIdentityProvider = async context =>
+        {
+            var id_token_hint = context.Properties.Items.FirstOrDefault(x => x.Key == "id_token_hint").Value;
+            if (id_token_hint != null)
+            {
+                // Send parameter to authentication request
+                context.ProtocolMessage.SetParameter("id_token_hint", id_token_hint);
+            }
+            await Task.CompletedTask.ConfigureAwait(false);
+        };
+        options.SaveTokens = true;
+    });
 
 builder.Services.AddRazorPages();
 
@@ -87,3 +101,5 @@ app.UseEndpoints(endpoints =>
 });
 
 app.Run();
+
+
