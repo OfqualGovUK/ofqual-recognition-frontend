@@ -49,7 +49,7 @@ public class EligibilityQuestionsTest : PageTest
         var questionsAndAnswers = new List<(string Question, string ExpectedAnswer)>
         {
             ("Do you award or intend to award qualifications?", "Yes"),
-            ("Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state?", "Yes"),
+            ("Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state, or if not, does your organisation have a substantial presence in one of those territories?", "Yes"),
             ("Do you intend to make qualifications available to learners in England?", "Yes")
         };
 
@@ -103,7 +103,7 @@ public class EligibilityQuestionsTest : PageTest
         var questionsAndAnswers = new List<(string Question, string ExpectedAnswer)>
         {
             ("Do you award or intend to award qualifications?", "No"),
-            ("Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state?", "Yes"),
+            ("Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state, or if not, does your organisation have a substantial presence in one of those territories?", "Yes"),
             ("Do you intend to make qualifications available to learners in England?", "Yes")
         };
 

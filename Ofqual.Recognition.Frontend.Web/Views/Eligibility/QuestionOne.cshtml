@@ -31,7 +31,7 @@
         <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
             <form method="post">
                 <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m" data-test="legend">
                         Do you award or intend to award qualifications?
                     </legend>
                     @if (ViewData.ModelState["Answer"]?.Errors?.Any() == true)
