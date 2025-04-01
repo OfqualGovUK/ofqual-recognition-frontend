@@ -14,12 +14,14 @@ public class ApplicationController : Controller
     private readonly IApplicationService _applicationService;
     private readonly ITaskService _taskService;
     private readonly ISessionService _sessionService;
+    private readonly IQuestionService _questionService;
 
-    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService)
+    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService)
     {
         _applicationService = applicationService;
         _taskService = taskService;
         _sessionService = sessionService;
+        _questionService = questionService;
     }
 
     [HttpGet]
@@ -53,6 +55,27 @@ public class ApplicationController : Controller
         
         return View(viewModel);
     }
+
+    // parameter is a question url - for readability
+    [HttpGet("/questions/{taskName}/{questionName}")]
+    public async Task<IActionResult> QuestionDetails(string taskName, string questionName)
+    {
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page and not home page
+            return RedirectToAction("Home");
+        }
+
+        var questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        if (questionDetails == null)
+        {
+            return NotFound();
+        }
+
+        return PartialView($"~/Views/PartialViews/{questionDetails.QuestionTypeName}Parital.cshtml", questionDetails);
+    }
+
 
     [HttpGet("review-your-task-answers")]
     public IActionResult TaskReview()
