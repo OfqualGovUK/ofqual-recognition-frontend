@@ -26,15 +26,13 @@
             understanding - rather than issuing certificates which reflect attendance at a training event or course.
             <br /><br />
             We do not regulate courses that do not include an assessment of a learner's attainment related to the
-            specific knowledge, skills and behaviours.
+            specific knowledge, skills and understanding.
         </p>
         <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")">
             <form method="post">
                 <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                        <h2 class="govuk-fieldset__heading">
-                            Do you award or intend to award qualifications?
-                        </h2>
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m" data-test="legend">
+                        Do you award or intend to award qualifications?
                     </legend>
                     @if (ViewData.ModelState["Answer"]?.Errors?.Any() == true)
                     {

@@ -10,7 +10,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         public Question2Page(IPage page) : base(page)
         {
             _continueButton = page.Locator("button.govuk-button:has-text('Continue')");
-            _questionHeading = page.Locator("h2.govuk-fieldset__heading");
+            _questionHeading = page.Locator("[data-test='legend']");
         }
 
         public async Task ClickContinueButton()

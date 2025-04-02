@@ -34,7 +34,7 @@ public class EligibilityQuestionsTest : PageTest
         await question1Page.ClickContinueButton();
 
         //Is your organisation based in the UK, Gibraltar or a European Union page
-        await question2Page.CheckQuestionHeading("Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state, or if not, does your organisation have a substantial presence in one of those territories?");
+        await question2Page.CheckQuestionHeading("Is your organisation based in the UK, Gibraltar or a European Union or European Free Trade Association member state?");
         await question2Page.SelectRadioButtonByValue("Yes");
         await question2Page.ClickContinueButton();
 
