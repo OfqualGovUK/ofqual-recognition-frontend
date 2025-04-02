@@ -1,10 +1,16 @@
 ﻿@model Ofqual.Recognition.Frontend.Web.ViewModels.Question.QuestionViewModel
+
 @{
-    ViewData["Title"] = "TextBoxPartial";
+    ViewData["Title"] = "Text TextBoxPartial";
 }
 
-<div>
-    <h2>@Model.name</h2>
-    <p>@Model</p>
-    <!-- Add more task details here -->
-</div>
+<h2>@Model.QuestionContent.Title</h2>
+
+<form method="post" asp-action="SubmitText">
+    <div class="form-group">
+        <h3>@Model.QuestionContent.Hint</h3>
+        <label for="textInput">Enter your text (max 500 words):</label>
+        <textarea id="textInput" name="textInput" class="form-control" rows="10" maxlength="500">@Model.QuestionContent</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
