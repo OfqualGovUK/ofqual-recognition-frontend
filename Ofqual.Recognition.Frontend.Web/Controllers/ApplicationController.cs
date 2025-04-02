@@ -49,15 +49,14 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        var domainSections = await _taskService.GetApplicationTasks(application.ApplicationId);
+        var taskItemStatusSection = await _taskService.GetApplicationTasks(application.ApplicationId);
 
-        TaskListViewModel viewModel = TaskListMapper.MapToViewModel(domainSections);
+        TaskListViewModel taskListViewModel = TaskListMapper.MapToViewModel(taskItemStatusSection);
         
-        return View(viewModel);
+        return View(taskListViewModel);
     }
 
-    // parameter is a question url - for readability
-    [HttpGet("/questions/{taskName}/{questionName}")]
+    [HttpGet("{taskName}/{questionName}")]
     public async Task<IActionResult> QuestionDetails(string taskName, string questionName)
     {
         var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
@@ -67,15 +66,16 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        var questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        QuestionResponse? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
         if (questionDetails == null)
         {
             return NotFound();
         }
 
-        return PartialView($"~/Views/PartialViews/{questionDetails.QuestionTypeName}Parital.cshtml", questionDetails);
-    }
+        QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
 
+        return View(questionViewModel);
+    }
 
     [HttpGet("review-your-task-answers")]
     public IActionResult TaskReview()

@@ -1,0 +1,4 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model QuestionViewModel
+
+@await Html.PartialAsync($"~/Views/PartialViews/_{Model.QuestionTypeName}Partial.cshtml", Model)
