@@ -90,6 +90,7 @@ builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 #endregion
 

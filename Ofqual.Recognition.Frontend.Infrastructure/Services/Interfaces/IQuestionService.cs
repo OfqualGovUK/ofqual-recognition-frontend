@@ -1,9 +1,8 @@
 ﻿using Ofqual.Recognition.Frontend.Core.Models;
 
-namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces
+namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+
+public interface IQuestionService
 {
-    public interface IQuestionService
-    {
-        public Task<QuestionResponse>GetQuestionDetails(string taskName, string questionName);
-    }
+    public Task<QuestionResponse> GetQuestionDetails(string taskName, string questionName);
 }
