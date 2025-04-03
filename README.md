@@ -1,5 +1,7 @@
 # Ofqual Register of Recognised Qualifications Frontend
 
+[![Build Status](https://dev.azure.com/ofqual/Ofqual%20IM/_apis/build/status%2Fofqual-recognition-frontend?branchName=main)](https://dev.azure.com/ofqual/Ofqual%20IM/_build/latest?definitionId=393&branchName=main)
+
 The Ofqual Register of Recognised Qualifications Frontend allows users to:
 
 - Find out if a qualification can be recognised
@@ -35,14 +37,22 @@ The following configuration structure is used in `appsettings.json`. Each sectio
 
 #### Setting Descriptions
 
-- `RecognitionApi:BaseUrl`  
+- `RecognitionApi:BaseUrl`
+
   The base URL of the external Recognition API the application communicates with. This should point to the appropriate environment (e.g., local, development, production).
-- `LogzIo:Environment`  
+
+- `LogzIo:Environment`
+
   A label for identifying the current environment (e.g., DEV, PREPROD, PROD) in logs.
-- `LogzIo:Uri`  
+
+- `LogzIo:Uri`
+
   The endpoint URI for sending logs to Logz.io or another external logging service.
-- `FeatureFlag:Application`  
+
+- `FeatureFlag:Application`
+
    Used to enable or disable both the middleware URL redirection and the visibility of the application-related UI. When disabled, users will be redirected away from application routes and the button or link to access them will not be rendered.
+
 
 > These settings should be environment-specific and managed through `appsettings.{Environment}.json` or environment variables in production scenarios.
 
