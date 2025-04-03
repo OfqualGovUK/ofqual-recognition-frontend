@@ -129,7 +129,8 @@ public class SessionServiceTests
         {
             TaskId = taskId,
             TaskName = "Test Task",
-            Status = originalStatus
+            Status = originalStatus,
+            FirstQuestionURL = "/application-details/contact-details"
         };
 
         var section = new TaskItemStatusSection

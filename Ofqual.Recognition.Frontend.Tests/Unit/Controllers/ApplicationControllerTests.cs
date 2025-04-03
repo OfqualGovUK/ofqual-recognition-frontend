@@ -85,7 +85,8 @@ public class ApplicationControllerTests
                     {
                         TaskId = Guid.NewGuid(),
                         TaskName = "Your name",
-                        Status = TaskStatusEnum.NotStarted
+                        Status = TaskStatusEnum.NotStarted,
+                        FirstQuestionURL = "/application-details/contact-details"
                     }
                 }
             }
