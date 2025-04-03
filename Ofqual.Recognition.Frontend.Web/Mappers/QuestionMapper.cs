@@ -16,7 +16,8 @@ public static class QuestionMapper
             QuestionContent = new QuestionContent
             {
                 Title = json.Title,
-                Hint = json?.Hint
+                Hint = json?.Hint,
+                Label = json?.Label
             }
         };
         return questionViewModel;

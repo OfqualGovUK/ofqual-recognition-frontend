@@ -11,4 +11,5 @@ public class QuestionContent
 {
     public required string Title { get; set; }
     public string? Hint { get; set; }
+    public string? Label { get; set; }
 }
