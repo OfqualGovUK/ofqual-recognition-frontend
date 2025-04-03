@@ -7,6 +7,7 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,7 +47,10 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             await Task.CompletedTask.ConfigureAwait(false);
         };
         options.SaveTokens = true;
-    });
+    })
+   .EnableTokenAcquisitionToCallDownstreamApi()
+   .AddDownstreamWebApi("b2c-proof-of-concept-api", builder.Configuration.GetSection("PoCAPI"))
+   .AddInMemoryTokenCaches(); ;
 
 builder.Services.AddRazorPages();
 

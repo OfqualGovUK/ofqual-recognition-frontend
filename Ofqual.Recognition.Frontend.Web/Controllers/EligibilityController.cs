@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
@@ -10,11 +12,15 @@ public class EligibilityController : Controller
 {
     private readonly IEligibilityService _eligibilityService;
     private readonly ILogger<EligibilityController> _logger;
+    private IDownstreamApi _downstreamApi;
+    private const string ServiceName = "b2c-proof-of-concept-api";
 
-    public EligibilityController(IEligibilityService eligibilityService, ILogger<EligibilityController> logger)
+    public EligibilityController(IEligibilityService eligibilityService, ILogger<EligibilityController> logger, IDownstreamApi downstreamApi)
     {
         _eligibilityService = eligibilityService;
         _logger = logger;
+        _downstreamApi = downstreamApi;
+        
     }
 
     [Authorize]
@@ -25,6 +31,12 @@ public class EligibilityController : Controller
         _logger.LogInformation("Access token: {accessToken}", accessToken);
         var idToken = await HttpContext.GetTokenAsync("id_token");
         _logger.LogInformation("Id token: {idToken}", idToken);
+        var value = await _downstreamApi.CallApiForUserAsync(
+          ServiceName,
+          options =>
+          {
+              options.RelativePath = $"/questions/application-details/qualifications";
+          });
         return View();
     } 
 
