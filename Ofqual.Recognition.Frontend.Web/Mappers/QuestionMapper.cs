@@ -8,12 +8,12 @@ public static class QuestionMapper
 {
     public static QuestionViewModel MapToViewModel(QuestionResponse question)
     {
-        var json = JsonConvert.DeserializeObject<QuestionContent>(question.QuestionContent);
+        var json = JsonConvert.DeserializeObject<QuestionContentViewModel>(question.QuestionContent);
         var questionViewModel = new QuestionViewModel
         {
             QuestionTypeName = question.QuestionTypeName,
             QuestionId = question.QuestionId,
-            QuestionContent = new QuestionContent
+            QuestionContent = new QuestionContentViewModel
             {
                 Heading = json.Heading,
                 TextBox = json?.TextBox,

@@ -32,7 +32,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("../Home");
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
         return RedirectToAction("TaskList");
@@ -46,7 +46,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("../Home");
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
         var taskItemStatusSection = await _taskService.GetApplicationTasks(application.ApplicationId);
@@ -54,27 +54,6 @@ public class ApplicationController : Controller
         TaskListViewModel taskListViewModel = TaskListMapper.MapToViewModel(taskItemStatusSection);
 
         return View(taskListViewModel);
-    }
-
-    [HttpGet("{taskName}/{questionName}")]
-    public async Task<IActionResult> QuestionDetails(string taskName, string questionName)
-    {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-        if (application == null)
-        {
-            // TODO: Redirect to login page and not home page
-            return RedirectToAction("../Home");
-        }
-
-        QuestionResponse? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
-        if (questionDetails == null)
-        {
-            return View("../Error/NotFound");
-        }
-
-        QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-
-        return View(questionViewModel);
     }
 
     [HttpGet("review-your-task-answers")]
@@ -85,7 +64,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("../Home");
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
         return View();
@@ -100,7 +79,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("../Home");
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
         if (model.Answer != TaskStatusEnum.Completed && model.Answer != TaskStatusEnum.InProgress)
@@ -113,6 +92,27 @@ public class ApplicationController : Controller
         return RedirectToAction("TaskList");
     }
 
+    [HttpGet("{taskName}/{questionName}")]
+    public async Task<IActionResult> QuestionDetails(string taskName, string questionName)
+    {
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page and not home page
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+
+        QuestionResponse? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        if (questionDetails == null)
+        {
+            return NotFound();
+        }
+
+        QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
+
+        return View(questionViewModel);
+    }
+
     [HttpGet("review-your-application-answers")]
     public IActionResult ApplicationReview()
     {
@@ -121,7 +121,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("../Home");
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
         return View();

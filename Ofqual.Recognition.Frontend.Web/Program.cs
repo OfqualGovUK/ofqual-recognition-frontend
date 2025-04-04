@@ -108,6 +108,7 @@ if (!app.Environment.IsDevelopment())
 app.UseCorrelationId();
 app.UseSession();
 app.UseHttpsRedirection();
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
