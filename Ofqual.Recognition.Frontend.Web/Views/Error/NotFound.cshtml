@@ -1,0 +1,29 @@
+@{
+    var currentUrl = Context.Request.Path;
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-l">Page not found</h1>
+        <p class="govuk-body">
+            There is no page at <strong>@currentUrl</strong>
+        </p>
+
+        <p class="govuk-body">This might be because:</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>the web address was typed incorrectly</li>
+            <li>the link you followed is broken</li>
+            <li>there's an issue with a form on the site</li>
+            <li>the page hasn't been created yet</li>
+        </ul>
+
+        <!-- reword this for citizen recognition-->
+        <p class="govuk-body">
+            You can try and fix this yourself or <a class="govuk-link" 
+            href="https://prototype-kit.service.gov.uk/docs/support">contact the GOV.UK Prototype Kit team</a> if
+            you need help.
+        </p>
+
+    </div>
+</div>

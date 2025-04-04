@@ -1,35 +1,36 @@
-﻿@using Ofqual.Recognition.Frontend.Core.Constants
-@using Ofqual.Recognition.Frontend.Web.ViewModels
+﻿@using Ofqual.Recognition.Frontend.Web.ViewModels
 @model QuestionViewModel
 
-<form class="form" method="post">
-    <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxwords="500">
-        <h1 class="govuk-label-wrapper">
-            <label class="govuk-label govuk-label--l" for="qualifications">
-                @Model.QuestionContent.Title
-            </label>
-        </h1>
+@{
+    var textbox = Model?.QuestionContent?.TextBox;
+    var maxWords = textbox?.Validation?.MaxLength;
+    var infoId = $"{textbox?.Name}-info";
+}
 
-        <div id="qualifications-hint" class="govuk-hint">
-            @Model.QuestionContent.Hint
-        </div>
+@if (textbox is not null)
+{
+    <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxwords="@maxWords">
 
-        <label class="govuk-label govuk-label--m" for="criteria-a-4">
-            @Model.QuestionContent.Label
+        <label class="govuk-label govuk-label--@((Model.QuestionContent?.Heading != null ? "m" : "l"))" for="@textbox.Name">
+            @textbox.Label
         </label>
 
-        <textarea class="govuk-textarea govuk-js-character-count" id="qualifications" name="qualifications" rows="12"
-            spellcheck="true" aria-describedby="qualifications-info qualifications-hint"></textarea>
+        @if (!string.IsNullOrEmpty(textbox.Hint))
+        {
+            <div id="qualifications-hint" class="govuk-hint">
+                @textbox.Hint
+            </div>
+        }
 
-        <div id="qualifications-info" class="govuk-hint govuk-character-count__message">
-            You can enter up to 500 words
-        </div>
-    </div>
+        <textarea class="govuk-textarea govuk-js-character-count" id="@textbox.Name" name="@textbox.Name"
+            rows="@textbox.Rows" spellcheck="@textbox.SpellCheck?.ToString().ToLower()" aria-describedby="@infoId">
+            </textarea>
 
-    <div class="govuk-button-group">
-        <button type="submit" class="govuk-button" data-module="govuk-button">
-            Save and continue
-        </button>
-        <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
+        @if (maxWords.HasValue)
+        {
+            <div id="@infoId" class="govuk-hint govuk-character-count__message">
+                You can enter up to @maxWords words
+            </div>
+        }
     </div>
-</form>
+}

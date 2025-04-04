@@ -32,7 +32,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("Home");
+            return RedirectToAction("../Home");
         }
 
         return RedirectToAction("TaskList");
@@ -46,13 +46,13 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("Home");
+            return RedirectToAction("../Home");
         }
 
         var taskItemStatusSection = await _taskService.GetApplicationTasks(application.ApplicationId);
 
         TaskListViewModel taskListViewModel = TaskListMapper.MapToViewModel(taskItemStatusSection);
-        
+
         return View(taskListViewModel);
     }
 
@@ -63,13 +63,13 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("Home");
+            return RedirectToAction("../Home");
         }
 
         QuestionResponse? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
         if (questionDetails == null)
         {
-            return NotFound();
+            return View("../Error/NotFound");
         }
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
@@ -85,7 +85,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("Home");
+            return RedirectToAction("../Home");
         }
 
         return View();
@@ -100,7 +100,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("Home");
+            return RedirectToAction("../Home");
         }
 
         if (model.Answer != TaskStatusEnum.Completed && model.Answer != TaskStatusEnum.InProgress)
@@ -121,7 +121,7 @@ public class ApplicationController : Controller
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
-            return RedirectToAction("Home");
+            return RedirectToAction("../Home");
         }
 
         return View();

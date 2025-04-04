@@ -9,7 +9,7 @@ public class QuestionViewModel
 
 public class QuestionContent
 {
-    public required string Title { get; set; }
-    public string? Hint { get; set; }
-    public string? Label { get; set; }
+    public string? Heading { get; set; }
+    public List<HelpItemViewModel>? HelpBox { get; set; }
+    public TextBoxViewModel? TextBox { get; set; }
 }

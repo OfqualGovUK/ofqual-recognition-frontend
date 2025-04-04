@@ -15,9 +15,9 @@ public static class QuestionMapper
             QuestionId = question.QuestionId,
             QuestionContent = new QuestionContent
             {
-                Title = json.Title,
-                Hint = json?.Hint,
-                Label = json?.Label
+                Heading = json.Heading,
+                TextBox = json?.TextBox,
+                HelpBox = json?.HelpBox
             }
         };
         return questionViewModel;
