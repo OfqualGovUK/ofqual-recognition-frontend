@@ -73,4 +73,4 @@ These settings are used specifically for **Playwright-based end-to-end (E2E) and
 - **`TestSettings:BaseUrl`**  
   The base URL of the application under test. This should point to the environment where E2E or integration tests are executed (e.g., local dev server, test container, or staging instance).
 
-> This setting can be overridden in CI/CD pipelines using environment variables in the format: `TestSettings__BaseUrl`.
+> These settings support the test environment and can be overridden in CI/CD using environment variables (e.g., `TestSettings__BaseUrl`).
