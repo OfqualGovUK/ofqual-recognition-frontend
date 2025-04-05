@@ -2,8 +2,7 @@
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
-public interface IEligibilityService
+public interface IQuestionService
 {
-    Eligibility GetAnswers();
-    Question GetQuestion(string sessionKey);
+    Task<QuestionResponse?> GetQuestionDetails(string taskName, string questionName);
 }

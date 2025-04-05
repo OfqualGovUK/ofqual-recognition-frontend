@@ -17,9 +17,9 @@ public class EligibilityService : IEligibilityService
     {
         return new Eligibility
         {
-            QuestionOne = _sessionService.GetFromSession<string>(SessionKeys.QuestionOne) ?? string.Empty,
-            QuestionTwo = _sessionService.GetFromSession<string>(SessionKeys.QuestionTwo) ?? string.Empty,
-            QuestionThree = _sessionService.GetFromSession<string>(SessionKeys.QuestionThree) ?? string.Empty,
+            QuestionOne = _sessionService.GetFromSession<string>(SessionKeys.EligibilityQuestionOne) ?? string.Empty,
+            QuestionTwo = _sessionService.GetFromSession<string>(SessionKeys.EligibilityQuestionTwo) ?? string.Empty,
+            QuestionThree = _sessionService.GetFromSession<string>(SessionKeys.EligibilityQuestionThree) ?? string.Empty,
         };
     }
 

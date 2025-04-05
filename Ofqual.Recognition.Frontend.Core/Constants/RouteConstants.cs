@@ -27,6 +27,7 @@ public static class RouteConstants
 
     public static class ApplicationConstants
     {
+        public const string APPLICATION_PATH = "/application";
         public const string TASK_LIST_PATH = "/application/tasks";
         public const string REVIEW_YOUR_TASK_ANSWERS_PATH = "/application/review-your-task-answers";
         public const string REVIEW_YOUR_APPLICATION_ANSWERS_PATH = "/application/review-your-application-answers";

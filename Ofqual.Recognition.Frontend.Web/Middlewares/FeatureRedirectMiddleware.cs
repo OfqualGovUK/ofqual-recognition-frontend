@@ -17,12 +17,9 @@ public class FeatureRedirectMiddleware
         var featureFlagService = context.RequestServices.GetRequiredService<IFeatureFlagService>();
         var path = context.Request.Path.Value?.ToLowerInvariant();
 
-        if (!featureFlagService.IsFeatureEnabled("Application") &&
-            !string.IsNullOrWhiteSpace(path) &&
+        if (!featureFlagService.IsFeatureEnabled("Application") && !string.IsNullOrWhiteSpace(path) &&
             (
-                path.StartsWith(RouteConstants.ApplicationConstants.TASK_LIST_PATH) ||
-                path.StartsWith(RouteConstants.ApplicationConstants.REVIEW_YOUR_TASK_ANSWERS_PATH) ||
-                path.StartsWith(RouteConstants.ApplicationConstants.REVIEW_YOUR_APPLICATION_ANSWERS_PATH)
+                path.StartsWith(RouteConstants.ApplicationConstants.APPLICATION_PATH, StringComparison.OrdinalIgnoreCase)
             ))
         {
             context.Response.Redirect(RouteConstants.HomeConstants.HOME_PATH);

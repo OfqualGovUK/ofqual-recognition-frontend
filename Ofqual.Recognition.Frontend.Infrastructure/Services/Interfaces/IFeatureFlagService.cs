@@ -2,5 +2,5 @@
 
 public interface IFeatureFlagService
 {
-    public bool IsFeatureEnabled(string featureName);
+    bool IsFeatureEnabled(string featureName);
 }

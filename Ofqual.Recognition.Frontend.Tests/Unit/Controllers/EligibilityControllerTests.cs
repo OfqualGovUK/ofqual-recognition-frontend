@@ -38,7 +38,7 @@ public class EligibilityControllerTests
     {
         // Arrange
         var question = new Question { Answer = "Some answer" };
-        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.QuestionOne))
+        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.EligibilityQuestionOne))
             .Returns(question);
 
         // Act
@@ -79,7 +79,7 @@ public class EligibilityControllerTests
         var result = _controller.QuestionOne(viewModel, returnUrl);
 
         // Assert
-        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.QuestionOne, "Yes"), Times.Once);
+        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.EligibilityQuestionOne, "Yes"), Times.Once);
 
         if (string.IsNullOrEmpty(returnUrl))
         {
@@ -99,7 +99,7 @@ public class EligibilityControllerTests
     {
         // Arrange
         var question = new Question { Answer = "Answer2" };
-        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.QuestionTwo))
+        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.EligibilityQuestionTwo))
             .Returns(question);
 
         // Act
@@ -128,7 +128,7 @@ public class EligibilityControllerTests
         _controller.ModelState.Clear();
         var validModel = new QuestionTwoViewModel { Answer = "Yes" };
         var validResult = _controller.QuestionTwo(validModel, returnUrl);
-        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.QuestionTwo, "Yes"), Times.Once);
+        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.EligibilityQuestionTwo, "Yes"), Times.Once);
 
         if (string.IsNullOrEmpty(returnUrl))
         {
@@ -149,7 +149,7 @@ public class EligibilityControllerTests
         // Arrange
         var question = new Question { Answer = "Answer3" };
 
-        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.QuestionThree))
+        _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.EligibilityQuestionThree))
             .Returns(question);
 
         // Act
@@ -190,7 +190,7 @@ public class EligibilityControllerTests
         var result = _controller.QuestionThree(viewModel, returnUrl);
 
         // Assert
-        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.QuestionThree, "Yes"), Times.Once);
+        _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.EligibilityQuestionThree, "Yes"), Times.Once);
         
         if (!string.IsNullOrEmpty(returnUrl))
         {

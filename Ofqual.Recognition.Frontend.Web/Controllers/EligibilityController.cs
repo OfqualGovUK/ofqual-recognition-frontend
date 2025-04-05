@@ -22,7 +22,7 @@ public class EligibilityController(IEligibilityService eligibilityService, ISess
     [HttpGet("question-one")]
     public IActionResult QuestionOne(string? returnUrl)
     {
-        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionOne);
+        Question model = _eligibilityService.GetQuestion(SessionKeys.EligibilityQuestionOne);
 
         QuestionOneViewModel viewModel = EligibilityMapper.MapToQuestionOneViewModel(model);
         viewModel.ReturnUrl = returnUrl;
@@ -39,7 +39,7 @@ public class EligibilityController(IEligibilityService eligibilityService, ISess
             return View(model);
         }
 
-        _sessionService.SetInSession(SessionKeys.QuestionOne, model.Answer);
+        _sessionService.SetInSession(SessionKeys.EligibilityQuestionOne, model.Answer);
 
         return !string.IsNullOrEmpty(returnUrl)
             ? Redirect(returnUrl)
@@ -49,7 +49,7 @@ public class EligibilityController(IEligibilityService eligibilityService, ISess
     [HttpGet("question-two")]
     public IActionResult QuestionTwo(string? returnUrl)
     {
-        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionTwo);
+        Question model = _eligibilityService.GetQuestion(SessionKeys.EligibilityQuestionTwo);
 
         QuestionTwoViewModel viewModel = EligibilityMapper.MapToQuestionTwoViewModel(model);
         viewModel.ReturnUrl = returnUrl;
@@ -66,7 +66,7 @@ public class EligibilityController(IEligibilityService eligibilityService, ISess
             return View(model);
         }
 
-        _sessionService.SetInSession(SessionKeys.QuestionTwo, model.Answer);
+        _sessionService.SetInSession(SessionKeys.EligibilityQuestionTwo, model.Answer);
 
         return !string.IsNullOrEmpty(returnUrl)
             ? Redirect(returnUrl)
@@ -76,7 +76,7 @@ public class EligibilityController(IEligibilityService eligibilityService, ISess
     [HttpGet("question-three")]
     public IActionResult QuestionThree(string? returnUrl)
     {
-        Question model = _eligibilityService.GetQuestion(SessionKeys.QuestionThree);
+        Question model = _eligibilityService.GetQuestion(SessionKeys.EligibilityQuestionThree);
 
         QuestionThreeViewModel viewModel = EligibilityMapper.MapToQuestionThreeViewModel(model);
         viewModel.ReturnUrl = returnUrl;
@@ -93,7 +93,7 @@ public class EligibilityController(IEligibilityService eligibilityService, ISess
             return View(model);
         }
 
-        _sessionService.SetInSession(SessionKeys.QuestionThree, model.Answer);
+        _sessionService.SetInSession(SessionKeys.EligibilityQuestionThree, model.Answer);
 
         return !string.IsNullOrEmpty(returnUrl)
             ? Redirect(returnUrl)
