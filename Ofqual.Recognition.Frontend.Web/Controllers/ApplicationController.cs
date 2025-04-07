@@ -90,7 +90,7 @@ public class ApplicationController : Controller
         return RedirectToAction("TaskList");
     }
 
-    [HttpGet("review-your-application-answers")]
+    [HttpGet("review-your-application")]
     public IActionResult ApplicationReview()
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
