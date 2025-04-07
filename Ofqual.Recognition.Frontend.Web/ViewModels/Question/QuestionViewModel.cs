@@ -3,6 +3,6 @@
 public class QuestionViewModel
 {
     public Guid QuestionId { get; set; }
-    public string QuestionTypeName { get; set; }
-    public QuestionContentViewModel QuestionContent { get; set; }
+    public required string QuestionTypeName { get; set; }
+    public required QuestionContentViewModel QuestionContent { get; set; }
 }

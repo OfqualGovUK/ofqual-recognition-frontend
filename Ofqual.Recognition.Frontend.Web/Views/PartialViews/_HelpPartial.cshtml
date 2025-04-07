@@ -1,0 +1,39 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model QuestionViewModel
+
+@if (Model?.QuestionContent?.Help?.Any() == true)
+{
+    <div class="govuk-grid-column-one-third">
+        <div class="govuk-inset-text">
+            <h3 class="govuk-heading-s">Help with this section</h3>
+            @foreach (var helpItem in Model.QuestionContent.Help)
+            {
+
+                if (helpItem.Links != null && helpItem.Links.Any())
+                {
+                    foreach (var link in helpItem.Links)
+                    {
+                        <p class="govuk-body-s">
+                            <a href="@link.Url" target="_blank">@link.Text (opens in a new tab)</a>
+                        </p>
+                    }
+                }
+
+                if (helpItem.Content != null && helpItem.Content.Any())
+                {
+                    foreach (var block in helpItem.Content)
+                    {
+                        if (block.Type == "heading")
+                        {
+                            <h3 class="govuk-heading-s">@block.Text</h3>
+                        }
+                        else if (block.Type == "paragraph")
+                        {
+                            <p class="govuk-body-s">@block.Text</p>
+                        }
+                    }
+                }
+            }
+        </div>
+    </div>
+}

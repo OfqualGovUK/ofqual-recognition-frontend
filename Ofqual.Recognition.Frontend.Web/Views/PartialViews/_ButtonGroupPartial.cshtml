@@ -1,0 +1,25 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Constants
+@model QuestionViewModel
+
+@if ((@Model.QuestionContent.ButtonGroup?.Buttons?.Any() == true) || (@Model.QuestionContent.ButtonGroup?.Links?.Any() == true))
+{
+    <div class="govuk-button-group">
+
+        @foreach (var button in Model.QuestionContent.ButtonGroup.Buttons)
+        {
+            <button
+                type="@button.Type"
+                name="@button.Name"
+                class="govuk-button"
+                data-module="govuk-button">
+                @button.Text
+            </button>
+        }
+
+        @foreach (var link in @Model.QuestionContent.ButtonGroup.Links)
+        {
+            <a href="@link.Url" class="govuk-link">@link.Text</a>
+        }
+    </div>
+}

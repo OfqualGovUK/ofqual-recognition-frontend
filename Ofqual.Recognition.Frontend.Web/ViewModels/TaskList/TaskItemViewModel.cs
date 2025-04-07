@@ -8,7 +8,7 @@ public class TaskItemViewModel
     public Guid TaskId { get; set; }
     public string TaskName { get; set; } = string.Empty;
     public TaskStatusEnum Status { get; set; }
-    public required String FirstQuestionURL { get; set; }
+    public required string FirstQuestionURL { get; set; }
     public bool IsLink => Status != TaskStatusEnum.CannotStartYet;
     public string StatusDisplay => Status.GetDisplayName();
     public string TagClass => Status.GetTagClass();
