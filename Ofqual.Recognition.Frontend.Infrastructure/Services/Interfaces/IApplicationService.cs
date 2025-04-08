@@ -4,5 +4,5 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 public interface IApplicationService
 {
-    Task<Application?> SetUpApplication();
+    public Task<Application?> SetUpApplication();
 }

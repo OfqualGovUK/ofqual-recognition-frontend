@@ -4,6 +4,6 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 public interface IEligibilityService
 {
-    Eligibility GetAnswers();
-    Question GetQuestion(string sessionKey);
+    public Eligibility GetAnswers();
+    public Question GetQuestion(string sessionKey);
 }
