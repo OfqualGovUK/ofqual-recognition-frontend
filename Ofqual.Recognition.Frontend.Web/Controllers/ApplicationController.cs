@@ -96,6 +96,7 @@ public class ApplicationController : Controller
             return RedirectToAction($"{taskName}/{questionName}");
         }
 
+        // Temporary solution might need to be refactored in the future
         var jsonPayload = formdata
                 .Where(x => x.Key != "__RequestVerificationToken")
                 .ToDictionary(x => x.Key, x => (object)x.Value.ToString());

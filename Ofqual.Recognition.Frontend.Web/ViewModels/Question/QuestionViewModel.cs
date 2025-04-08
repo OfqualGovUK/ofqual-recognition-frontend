@@ -3,6 +3,7 @@
 public class QuestionViewModel
 {
     public Guid QuestionId { get; set; }
+    public Guid TaskId { get; set; }
     public required string QuestionTypeName { get; set; }
     public required QuestionContentViewModel QuestionContent { get; set; }
 }

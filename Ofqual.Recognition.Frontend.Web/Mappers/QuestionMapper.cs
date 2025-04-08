@@ -13,6 +13,7 @@ public static class QuestionMapper
         {
             QuestionTypeName = question.QuestionTypeName,
             QuestionId = question.QuestionId,
+            TaskId = question.TaskId,
             QuestionContent = new QuestionContentViewModel
             {
                 Title = json?.Title,
