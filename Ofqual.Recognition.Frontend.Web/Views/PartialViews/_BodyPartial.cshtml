@@ -1,9 +1,13 @@
 @using Ofqual.Recognition.Frontend.Web.ViewModels
 @model QuestionViewModel
 
-@if (Model?.QuestionContent?.Body?.Any() == true)
+@{
+    var body = Model?.QuestionContent?.Body;
+}
+
+@if (body?.Any() == true)
 {
-    @foreach (var item in Model.QuestionContent.Body)
+    @foreach (var item in body)
     {
         @switch (item.Type?.ToLower())
         {

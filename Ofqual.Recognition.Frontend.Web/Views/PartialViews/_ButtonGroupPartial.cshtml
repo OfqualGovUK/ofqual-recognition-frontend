@@ -2,24 +2,34 @@
 @using Ofqual.Recognition.Frontend.Core.Constants
 @model QuestionViewModel
 
-@if ((@Model.QuestionContent.ButtonGroup?.Buttons?.Any() == true) || (@Model.QuestionContent.ButtonGroup?.Links?.Any() == true))
+@{
+    var buttons = Model.QuestionContent.ButtonGroup?.Buttons;
+    var links = Model.QuestionContent.ButtonGroup?.Links;
+}
+
+@if ((buttons?.Any() == true) || (links?.Any() == true))
 {
     <div class="govuk-button-group">
-
-        @foreach (var button in Model.QuestionContent.ButtonGroup.Buttons)
+        @if (buttons?.Any() == true)
         {
-            <button
-                type="@button.Type"
-                name="@button.Name"
-                class="govuk-button"
-                data-module="govuk-button">
-                @button.Text
-            </button>
+            foreach (var button in buttons)
+            {
+                <button
+                    type="@button.Type"
+                    name="@button.Name"
+                    class="govuk-button @button.StyleClass"
+                    data-module="govuk-button">
+                    @button.Text
+                </button>
+            }
         }
-
-        @foreach (var link in @Model.QuestionContent.ButtonGroup.Links)
+        
+        @if (links?.Any() == true)
         {
-            <a href="@link.Url" class="govuk-link">@link.Text</a>
+            foreach (var link in links)
+            {
+                <a href="@link.Url" class="govuk-link">@link.Text</a>
+            }
         }
     </div>
 }

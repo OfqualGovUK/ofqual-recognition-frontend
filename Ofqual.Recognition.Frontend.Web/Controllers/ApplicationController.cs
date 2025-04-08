@@ -56,6 +56,27 @@ public class ApplicationController : Controller
         return View(taskListViewModel);
     }
 
+    [HttpGet("{taskName}/{questionName}")]
+    public async Task<IActionResult> QuestionDetails(string taskName, string questionName)
+    {
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page and not home page
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+
+        QuestionResponse? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        if (questionDetails == null)
+        {
+            return NotFound();
+        }
+
+        QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
+
+        return View(questionViewModel);
+    }
+
     [HttpGet("review-your-task-answers")]
     public IActionResult TaskReview()
     {
@@ -90,27 +111,6 @@ public class ApplicationController : Controller
         await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, model.Answer);
 
         return RedirectToAction("TaskList");
-    }
-
-    [HttpGet("{taskName}/{questionName}")]
-    public async Task<IActionResult> QuestionDetails(string taskName, string questionName)
-    {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-        if (application == null)
-        {
-            // TODO: Redirect to login page and not home page
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
-        }
-
-        QuestionResponse? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
-        if (questionDetails == null)
-        {
-            return NotFound();
-        }
-
-        QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-
-        return View(questionViewModel);
     }
 
     [HttpGet("review-your-application-answers")]

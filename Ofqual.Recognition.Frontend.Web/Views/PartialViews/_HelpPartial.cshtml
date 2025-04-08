@@ -1,12 +1,16 @@
 @using Ofqual.Recognition.Frontend.Web.ViewModels
 @model QuestionViewModel
 
-@if (Model?.QuestionContent?.Help?.Any() == true)
+@{
+    var help = Model?.QuestionContent?.Help;
+}
+
+@if (help?.Any() == true)
 {
     <div class="govuk-grid-column-one-third">
         <div class="govuk-inset-text">
             <h3 class="govuk-heading-s">Help with this section</h3>
-            @foreach (var helpItem in Model.QuestionContent.Help)
+            @foreach (var helpItem in help)
             {
 
                 if (helpItem.Links != null && helpItem.Links.Any())

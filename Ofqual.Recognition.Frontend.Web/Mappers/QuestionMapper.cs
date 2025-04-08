@@ -18,8 +18,8 @@ public static class QuestionMapper
                 Title = json?.Title,
                 ButtonGroup = json?.ButtonGroup,
                 Body = json?.Body,
-                TextBox = json?.TextBox,
-                Help = json?.Help
+                Help = json?.Help,
+                TextBox = json?.TextBox
             }
         };
         return questionViewModel;

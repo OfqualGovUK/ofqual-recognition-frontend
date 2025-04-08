@@ -21,4 +21,9 @@ public class ButtonViewModel
     /// The URL or path the form posts to when the button is clicked.
     /// </summary>
     public string? Action { get; set; }
+
+    /// <summary>
+    /// Additional CSS class for styling, such as 'govuk-button--secondary'.
+    /// </summary>
+    public string StyleClass { get; set; } = string.Empty;
 }
