@@ -1,0 +1,55 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model QuestionViewModel
+
+@{
+    var body = Model?.QuestionContent?.Body;
+}
+
+@if (body?.Any() == true)
+{
+    @foreach (var item in body)
+    {
+        @switch (item.Type?.ToLower())
+        {
+            case "heading":
+                <h2 class="govuk-heading-m">@item.Text</h2>
+                break;
+            
+            case "paragraph":
+                if (!string.IsNullOrWhiteSpace(item.Text))
+                {
+                    <p class="govuk-body">@item.Text</p>
+                }
+                else if (item.Link != null)
+                {
+                    <p class="govuk-body">
+                        @item.TextBeforeLink
+                        <a href="@item.Link.Url">@item.Link.Text</a>
+                        @item.TextAfterLink
+                    </p>
+                }
+                break;
+
+            case "list":
+                if (item.Items?.Any() == true)
+                {
+                    <ul class="govuk-list govuk-list--bullet">
+                        @foreach (var listItem in item.Items)
+                        {
+                            <li>@listItem</li>
+                        }
+                    </ul>
+                }
+                break;
+            
+            case "button":
+                <form method="post" action="@item.FormAction">
+                    <button type="@item.Type" name="@item.Name" class="govuk-button" data-module="govuk-button">
+                        @item.Text
+                    </button>
+                </form>
+     
+                break;
+        }
+    }
+}
