@@ -18,9 +18,14 @@ public class BodyItemViewModel
     public List<string>? Items { get; set; }
 
     /// <summary>
-    /// Button details, used when the type is button.
+    /// Name of the form field. Used in form elements such as input or button.
     /// </summary>
-    public ButtonViewModel? Button { get; set; }
+    public string? Name { get; set; }
+    
+    /// <summary>
+    /// Action URL for form submission. Used in form buttons.
+    /// </summary>
+    public string? FormAction { get; set; }
 
     /// <summary>
     /// Text shown before a link in a paragraph.

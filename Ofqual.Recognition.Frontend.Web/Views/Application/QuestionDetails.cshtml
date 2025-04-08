@@ -5,15 +5,19 @@
 <div class="govuk-grid-row">
 
     <div class="govuk-grid-column-two-thirds">
+        
         <h1 class="govuk-heading-l">@Model.QuestionContent.Title</h1>
 
         @await Html.PartialAsync($"~/Views/PartialViews/_BodyPartial.cshtml", Model)
 
-        <form class="form" method="post">
-            @await Html.PartialAsync($"~/Views/PartialViews/_{Model.QuestionTypeName}Partial.cshtml", Model)
-
-            @await Html.PartialAsync($"~/Views/PartialViews/_ButtonGroupPartial.cshtml", Model)        
-        </form>
+        @if (Model.QuestionContent.FormGroup != null)
+        {
+            <form class="form" method="post">
+                @await Html.PartialAsync($"~/Views/PartialViews/_{Model.QuestionTypeName}Partial.cshtml", Model)
+                @Html.AntiForgeryToken()
+                @await Html.PartialAsync($"~/Views/PartialViews/_ButtonGroupPartial.cshtml", Model)
+            </form>
+        }
     </div>
 
     @await Html.PartialAsync($"~/Views/PartialViews/_HelpPartial.cshtml", Model)

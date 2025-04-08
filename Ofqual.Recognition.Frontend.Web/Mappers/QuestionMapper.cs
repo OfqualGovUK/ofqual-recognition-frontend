@@ -16,10 +16,9 @@ public static class QuestionMapper
             QuestionContent = new QuestionContentViewModel
             {
                 Title = json?.Title,
-                ButtonGroup = json?.ButtonGroup,
                 Body = json?.Body,
                 Help = json?.Help,
-                TextBox = json?.TextBox
+                FormGroup = json?.FormGroup
             }
         };
         return questionViewModel;

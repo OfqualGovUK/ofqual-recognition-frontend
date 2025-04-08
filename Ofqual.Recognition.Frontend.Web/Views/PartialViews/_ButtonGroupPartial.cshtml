@@ -1,35 +1,8 @@
-@using Ofqual.Recognition.Frontend.Web.ViewModels
 @using Ofqual.Recognition.Frontend.Core.Constants
-@model QuestionViewModel
 
-@{
-    var buttons = Model.QuestionContent.ButtonGroup?.Buttons;
-    var links = Model.QuestionContent.ButtonGroup?.Links;
-}
-
-@if ((buttons?.Any() == true) || (links?.Any() == true))
-{
-    <div class="govuk-button-group">
-        @if (buttons?.Any() == true)
-        {
-            foreach (var button in buttons)
-            {
-                <button
-                    type="@button.Type"
-                    name="@button.Name"
-                    class="govuk-button @button.StyleClass"
-                    data-module="govuk-button">
-                    @button.Text
-                </button>
-            }
-        }
-        
-        @if (links?.Any() == true)
-        {
-            foreach (var link in links)
-            {
-                <a href="@link.Url" class="govuk-link">@link.Text</a>
-            }
-        }
-    </div>
-}
+<div class="govuk-button-group">
+    <button type="submit" class="govuk-button" data-module="govuk-button">
+        Save and continue
+    </button>
+    <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
+</div>

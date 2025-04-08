@@ -2,7 +2,7 @@
 @model QuestionViewModel
 
 @{
-    var textbox = Model?.QuestionContent?.TextBox;
+    var textbox = Model?.QuestionContent?.FormGroup?.TextBox;
     var maxWords = textbox?.Validation?.MaxLength;
     var infoId = $"{textbox?.Name}-info";
 }

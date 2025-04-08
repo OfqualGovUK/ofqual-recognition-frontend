@@ -43,14 +43,12 @@
                 break;
             
             case "button":
-                if (item.Button != null)
-                {
-                    <form method="post" action="@item.Button.Action">
-                        <button type="@item.Button.Type" name="@item.Button.Name" class="govuk-button" data-module="govuk-button">
-                            @item.Button.Text
-                        </button>
-                    </form>
-                }
+                <form method="post" action="@item.FormAction">
+                    <button type="@item.Type" name="@item.Name" class="govuk-button" data-module="govuk-button">
+                        @item.Text
+                    </button>
+                </form>
+     
                 break;
         }
     }
