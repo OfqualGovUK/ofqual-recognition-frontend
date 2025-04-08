@@ -5,6 +5,7 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Web.Mappers;
+using GovUk.Frontend.AspNetCore.TagHelpers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -47,7 +48,7 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        var domainSections = await _taskService.GetApplicationTasks(application.ApplicationId);
+        var domainItems = await _taskService.GetApplicationTasks(application.ApplicationId);
 
         TaskListViewModel viewModel = TaskListMapper.MapToViewModel(domainSections);
         
@@ -90,8 +91,8 @@ public class ApplicationController : Controller
         return RedirectToAction("TaskList");
     }
 
-    [HttpGet("review-your-application")]
-    public IActionResult ApplicationReview()
+    [HttpGet("review-submit/review-your-application")]
+    public async Task<IActionResult> ApplicationReview()
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -101,6 +102,92 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        return View();
+        var reviewModel = new TaskReviewViewModel()
+        {
+            Answer = TaskStatusEnum.InProgress,
+            
+            SectionHeadings =
+            [
+                new TaskReviewSectionViewModel
+                {
+                    Title = "Application Details",
+                    Items =
+                    [
+                        new TaskReviewItemViewModel
+                        {   Title = "Contact details",
+                            QuestionAnswers =
+                            [
+                                new TaskReviewQuestionAnswerViewModel(){ Question = "Full name" },
+                                new TaskReviewQuestionAnswerViewModel(){ Question = "Email address" },
+                                new TaskReviewQuestionAnswerViewModel(){ Question = "Phone number" },
+                                new TaskReviewQuestionAnswerViewModel(){ Question = "Your role in the organisation" }
+                            ]
+                        },
+                        new TaskReviewItemViewModel { Title = "Organisation details",
+                            QuestionAnswers =
+                            [
+                                new TaskReviewQuestionAnswerViewModel() { Question = "Organisation name" },
+                                new TaskReviewQuestionAnswerViewModel() { Question = "Organisation legal name" },
+                                new TaskReviewQuestionAnswerViewModel() { Question = "Acronym" },
+                                new TaskReviewQuestionAnswerViewModel() { Question = "Website" }
+                            ]
+                         },
+                        new TaskReviewItemViewModel { Title = "Organisation address" },
+                        new TaskReviewItemViewModel { Title = "Qualifications or end-point assessments" },
+                        new TaskReviewItemViewModel { Title = "Ofqual recognition",
+                            QuestionAnswers =
+                            [
+                                new TaskReviewQuestionAnswerViewModel { Question = "Why do you want to be regulated by Ofqual?" },
+                            ]
+                        },
+                    ]
+                },
+                new TaskReviewSectionViewModel
+                {
+                    Title = "Criteria A: Identity, constitution and governance",
+                    Items =
+                    [
+                        new TaskReviewItemViewModel { Title = "Criteria A.1, A.2 and A.3 - Identity and Constitution" },
+                        new TaskReviewItemViewModel { Title = "Criteria A.4 - Organisation and governance" },
+                        new TaskReviewItemViewModel { Title = "Criteria A.5 - Conflicts of interest" },
+                        new TaskReviewItemViewModel { Title = "Criteria A.6 - Governing body oversight" },
+                        new TaskReviewItemViewModel { Title = "Criteria A - Uploaded files" }
+                    ]
+                },
+                new TaskReviewSectionViewModel
+                {
+                    Title = "Criteria B: Integrity",
+                    Items = [
+                        new TaskReviewItemViewModel { Title = "Criteria B.1 - Integrity of the applicant" },
+                        new TaskReviewItemViewModel { Title = "Criteria B.2 - Integrity of senior officers" },
+                        new TaskReviewItemViewModel { Title = "Criteria B information" },
+                        new TaskReviewItemViewModel { Title = "Criteria B - Uploaded files" }
+                    ]
+                },
+                new TaskReviewSectionViewModel
+                {
+                    Title = "Criteria C: Resources and Financing",
+                    Items =
+                    [
+                        new TaskReviewItemViewModel { Title = "Criterion C.1(a) - Systems, processes and resources" },
+                        new TaskReviewItemViewModel { Title = "Criterion C.1(b) - Financial resources and facilities" },
+                        new TaskReviewItemViewModel { Title = "Criteria C - Uploaded files" }
+                    ]
+                },
+                new TaskReviewSectionViewModel
+                {
+                    Title = "Criteria D: Competence",
+                    Items =
+                    [
+                        new TaskReviewItemViewModel { Title = "Criterion D.1(a) - Development, delivery and awarding of qualifications" },
+                        new TaskReviewItemViewModel { Title = "Criterion D.1(b) - Validity, Reliability, Comparability, Manageability and Minimising Bias" },
+                        new TaskReviewItemViewModel { Title = "Criterion D.1(c) - Qualification compatibility with Equalities Law" },
+                        new TaskReviewItemViewModel { Title = "Criteria D - Uploaded files" }
+                    ]
+                }
+            ]               
+        };
+
+        return View(reviewModel);
     }
 }
