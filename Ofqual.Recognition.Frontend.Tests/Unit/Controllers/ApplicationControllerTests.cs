@@ -242,6 +242,7 @@ public class ApplicationControllerTests
         var mockQuestionResponse = new QuestionResponse
         {
             QuestionId = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
             QuestionTypeName = "Multiple Choice",
             QuestionContent = "{\"hint\":\"test.\"}",
         };
