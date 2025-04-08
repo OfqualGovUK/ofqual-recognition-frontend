@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Ofqual.Recognition.Frontend.Core.Constants;
@@ -181,12 +182,12 @@ public class ApplicationControllerTests
             .Returns(application);
 
         // Act
-        var result = await _controller.TaskReview(taskId, model);
+        var result = await _controller.SubmitTaskReview(taskId, model);
 
         // Assert
         _taskServiceMock.Verify(x => x.UpdateTaskStatus(application.ApplicationId, taskId, answer), Times.Once);
-        var redirect = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("TaskList", redirect.ActionName);
+        var redirect = Assert.IsType<RedirectResult>(result);
+        Assert.Equal(RouteConstants.ApplicationConstants.TASK_LIST_PATH, redirect.Url);
     }
 
     [Theory]
@@ -204,7 +205,7 @@ public class ApplicationControllerTests
             .Returns(application);
 
         // Act
-        var result = await _controller.TaskReview(taskId, model);
+        var result = await _controller.SubmitTaskReview(taskId, model);
 
         // Assert
         var redirect = Assert.IsType<RedirectToActionResult>(result);
@@ -222,38 +223,7 @@ public class ApplicationControllerTests
             .Returns((Application?)null);
 
         // Act
-        var result = await _controller.TaskReview(Guid.NewGuid(), model);
-
-        // Assert
-        var redirect = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public void ApplicationReview_ReturnsView_WhenApplicationIsInSession()
-    {
-        // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
-
-        // Act
-        var result = _controller.ApplicationReview();
-
-        // Assert
-        Assert.IsType<ViewResult>(result);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public void ApplicationReview_ReturnsRedirectToHome_WhenApplicationIsNull()
-    {
-        // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
-
-        // Act
-        var result = _controller.ApplicationReview();
+        var result = await _controller.SubmitTaskReview(Guid.NewGuid(), model);
 
         // Assert
         var redirect = Assert.IsType<RedirectResult>(result);
@@ -278,17 +248,17 @@ public class ApplicationControllerTests
 
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(It.IsAny<string>()))
             .Returns(mockApplication);
-        
+
         _questionServiceMock.Setup(q => q.GetQuestionDetails(taskName, questionName))
             .ReturnsAsync(mockQuestionResponse);
-        
+
         // Act
         var result = await _controller.QuestionDetails(taskName, questionName);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
-        
+
         Assert.Equal(mockQuestionResponse.QuestionTypeName, model.QuestionTypeName);
         Assert.Equal(mockQuestionResponse.QuestionId, model.QuestionId);
     }
@@ -326,5 +296,82 @@ public class ApplicationControllerTests
         {
             Assert.IsType<NotFoundResult>(result);
         }
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task SubmitAnswers_Should_Redirect_To_NextQuestionUrl_When_Valid()
+    {
+        // Arrange
+        var taskName = "criteria-a";
+        var questionName = "criteria-a6-2";
+        var applicationId = Guid.NewGuid();
+        var questionId = Guid.NewGuid();
+
+        var form = new FormCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>
+        {
+            { "someField", "someValue" },
+            { "__RequestVerificationToken", "token" }
+        });
+
+        var application = new Application { ApplicationId = applicationId };
+        var question = new QuestionResponse { QuestionId = questionId };
+        var nextUrl = "criteria-a/criteria-a6-3";
+        var answerResult = new QuestionAnswerResult { NextQuestionUrl = nextUrl };
+
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<QuestionResponse>($"{taskName}/{questionName}"))
+            .Returns(question);
+
+        _questionServiceMock
+            .Setup(q => q.SubmitQuestionAnswer(applicationId, questionId, It.IsAny<string>()))
+            .ReturnsAsync(answerResult);
+
+        // Act
+        var result = await _controller.SubmitAnswers(taskName, questionName, form);
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectResult>(result);
+        Assert.Equal($"/application/{nextUrl}", redirectResult.Url);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task SubmitAnswers_Should_Return_NotFound_When_Question_Is_Null()
+    {
+        // Arrange
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(new Application());
+
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<QuestionResponse>("criteria-a/criteria-a6-2"))
+            .Returns((QuestionResponse?)null);
+
+        // Act
+        var result = await _controller.SubmitAnswers("criteria-a", "criteria-a6-2", new FormCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>()));
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("criteria-a/criteria-a6-2", redirect.ActionName);
+    }
+
+    [Fact]
+    public async Task SubmitAnswers_Should_Redirect_To_Home_If_Application_Is_Null()
+    {
+        // Arrange
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns((Application?)null);
+        // Act
+        var result = await _controller.SubmitAnswers("criteria-a", "criteria-a6-2", new FormCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>()));
+
+        // Assert
+        var redirect = Assert.IsType<RedirectResult>(result);
+        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
     }
 }

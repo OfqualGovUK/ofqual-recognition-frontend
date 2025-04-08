@@ -44,4 +44,32 @@ public class QuestionService : IQuestionService
             return null;
         }
     }
+
+    public async Task<QuestionAnswerResult?> SubmitQuestionAnswer(Guid applicationId, Guid questionId, string answer)
+    {
+        try
+        {
+            var client = _client.GetClient();
+            var payload = new QuestionAnswer
+            {
+                Answer = answer
+            };
+
+            var response = await client.PostAsJsonAsync($"/applications/{applicationId}/questions/{questionId}", payload);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Log.Warning("Failed to submit answer for question {QuestionId} in application {ApplicationId}", questionId, applicationId);
+                return null;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<QuestionAnswerResult>();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while submitting answer for question {QuestionId} in application {ApplicationId}", questionId, applicationId);
+            return null;
+        }
+    }
 }

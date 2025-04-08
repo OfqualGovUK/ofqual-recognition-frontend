@@ -13,7 +13,7 @@
 
         @if (!string.IsNullOrEmpty(textbox.Label))
         {
-            <label class="govuk-label govuk-label--@((Model.QuestionContent?.Title != null ? "m" : "l"))" for="@textbox.Name">
+            <label class="govuk-label govuk-label--@((Model?.QuestionContent?.Title != null ? "m" : "l"))" for="@textbox.Name">
                 @textbox.Label
             </label>
         }
