@@ -5,7 +5,7 @@ public class RadioButtonViewModel
     /// <summary>
     /// The heading shown above the radio buttons.
     /// </summary>
-    public string? Heading { get; set; }
+    public TextWithSizeViewModel? Heading { get; set; }
 
     /// <summary>
     /// Hint text shown below the label.

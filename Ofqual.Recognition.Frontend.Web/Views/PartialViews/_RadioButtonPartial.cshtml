@@ -12,20 +12,20 @@
     <div class="govuk-form-group">
         <fieldset class="govuk-fieldset" aria-describedby="@hintId">
 
-            @if (!string.IsNullOrEmpty(radioButton?.Heading))
+            @if (!string.IsNullOrEmpty(radioButton?.Heading?.Text))
             {
-                var labelSize = Model?.QuestionContent?.Heading != null ? "m" : "l";
+                var labelSize = Model?.QuestionContent?.Heading != null ? radioButton.Heading.Size : "l";
 
                 if (Model?.QuestionContent?.Heading == null)
                 {
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--@labelSize">
-                        <h1 class="govuk-fieldset__heading">@radioButton.Heading</h1>
+                        <h1 class="govuk-fieldset__heading">@radioButton.Heading.Text</h1>
                     </legend>
                 }
                 else
                 {
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--@labelSize">
-                        @radioButton.Heading
+                        @radioButton.Heading.Text
                     </legend>
                 }
             }

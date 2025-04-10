@@ -12,27 +12,27 @@
 {
     <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength="@maxWords">
 
-        @if (!string.IsNullOrEmpty(textarea?.Label))
+        @if (!string.IsNullOrEmpty(textarea?.Label?.Text))
         {
-            var labelSize = Model?.QuestionContent?.Heading != null ? "m" : "l";
+            var labelSize = Model?.QuestionContent?.Heading != null ? textarea.Label.Size : "l";
             
             if (Model?.QuestionContent?.Heading == null)
             {
                 <h1 class="govuk-label-wrapper">
                     <label class="govuk-label govuk-label--@labelSize" for="@textarea.Name">
-                        @textarea.Label
+                        @textarea.Label.Text
                     </label>
                 </h1>
             }
             else
             {
                 <label class="govuk-label govuk-label--@labelSize" for="@textarea.Name">
-                    @textarea.Label
+                    @textarea.Label.Text
                 </label>
             }
         }
 
-        @if (!string.IsNullOrEmpty(textarea.Hint))
+        @if (!string.IsNullOrEmpty(textarea?.Hint))
         {
             <div id="@hintId" class="govuk-hint">
                 @textarea.Hint

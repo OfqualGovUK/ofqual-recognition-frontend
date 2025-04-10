@@ -5,7 +5,7 @@ public class TextareaViewModel
     /// <summary>
     /// The label shown above the text box.
     /// </summary>
-    public string? Label { get; set; }
+    public TextWithSizeViewModel? Label { get; set; }
 
     /// <summary>
     /// Hint text shown below the label.
