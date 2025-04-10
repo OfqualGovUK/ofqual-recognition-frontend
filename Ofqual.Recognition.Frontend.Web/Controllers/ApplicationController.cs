@@ -50,7 +50,7 @@ public class ApplicationController : Controller
 
         var domainItems = await _taskService.GetApplicationTasks(application.ApplicationId);
 
-        TaskListViewModel viewModel = TaskListMapper.MapToViewModel(domainSections);
+        TaskListViewModel viewModel = TaskListMapper.MapToViewModel(domainItems);
         
         return View(viewModel);
     }
@@ -104,8 +104,7 @@ public class ApplicationController : Controller
 
         var reviewModel = new TaskReviewViewModel()
         {
-            Answer = TaskStatusEnum.InProgress,
-            
+            Answer = TaskStatusEnum.InProgress,            
             SectionHeadings =
             [
                 new TaskReviewSectionViewModel
@@ -188,6 +187,6 @@ public class ApplicationController : Controller
             ]               
         };
 
-        return View(reviewModel);
+        return await Task.FromResult(View(reviewModel));
     }
 }
