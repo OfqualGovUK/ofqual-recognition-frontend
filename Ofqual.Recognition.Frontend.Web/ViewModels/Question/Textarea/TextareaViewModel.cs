@@ -1,6 +1,6 @@
 namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
-public class TextBoxViewModel
+public class TextareaViewModel
 {
     /// <summary>
     /// The label shown above the text box.
