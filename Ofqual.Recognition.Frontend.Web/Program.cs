@@ -90,6 +90,7 @@ builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 #endregion
 
@@ -107,6 +108,7 @@ if (!app.Environment.IsDevelopment())
 app.UseCorrelationId();
 app.UseSession();
 app.UseHttpsRedirection();
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
