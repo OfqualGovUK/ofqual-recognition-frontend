@@ -20,7 +20,7 @@ public class EligibilityQuestionsTest : PageTest
 
         //Homepage
         await homePage.GoToHomePage();
-        await homePage.CheckPageHeading("Apply to have your qualifications recognised");
+        await homePage.CheckPageHeading("Apply to have your qualifications regulated");
         await homePage.ClickEligibilityStartButton();
 
         //Check organisation eligibility page

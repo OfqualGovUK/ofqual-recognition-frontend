@@ -16,7 +16,7 @@ public static class QuestionMapper
             TaskId = question.TaskId,
             QuestionContent = new QuestionContentViewModel
             {
-                Title = json?.Title,
+                Heading = json?.Heading,
                 Body = json?.Body,
                 Help = json?.Help,
                 FormGroup = json?.FormGroup

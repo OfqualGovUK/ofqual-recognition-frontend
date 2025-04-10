@@ -2,5 +2,7 @@ namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
 public class FormGroupViewModel
 {
-    public TextBoxViewModel? TextBox { get; set; }
+    public TextareaViewModel? Textarea { get; set; }
+
+    public RadioButtonViewModel? RadioButton { get; set; }
 }
