@@ -10,7 +10,7 @@
 
 @if (textarea is not null)
 {
-    <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength="@maxWords">
+    <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxwords="@maxWords">
 
         @if (!string.IsNullOrEmpty(textarea?.Label?.Text))
         {

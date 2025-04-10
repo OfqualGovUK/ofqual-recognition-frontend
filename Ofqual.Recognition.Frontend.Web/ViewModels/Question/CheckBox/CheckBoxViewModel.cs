@@ -1,9 +1,9 @@
 namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
-public class RadioButtonViewModel
+public class CheckBoxViewModel
 {
     /// <summary>
-    /// The heading shown above the radio buttons.
+    /// The heading shown above the checkboxes.
     /// </summary>
     public TextWithSizeViewModel? Heading { get; set; }
 
@@ -13,22 +13,17 @@ public class RadioButtonViewModel
     public string? Hint { get; set; }
 
     /// <summary>
-    /// Paragraph text shown below the heading.
-    /// </summary>
-    public string? Paragraph { get; set; }
-
-    /// <summary>
-    /// A unique name used for the group of radio buttons.
+    /// A unique name used for the checkbox group.
     /// </summary>
     public string? Name { get; set; }
-
+    
     /// <summary>
-    /// Validation rules applied to the radio buttons group.
+    /// Validation rules applied to the checkbox group.
     /// </summary>
     public ValidationRuleViewModel? Validation { get; set; }
 
     /// <summary>
-    /// A list of individual radio button items to render.
+    /// A list of individual checkbox items to render.
     /// </summary>
-    public required List<RadioButtonItem> Radios { get; set; }
+    public required List<CheckBoxItemViewModel> CheckBoxes { get; set; }
 }

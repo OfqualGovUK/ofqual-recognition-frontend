@@ -1,0 +1,139 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model QuestionViewModel
+
+@{
+    var checkbox = Model?.QuestionContent?.FormGroup?.CheckBox;
+    var checkboxes = checkbox?.CheckBoxes;
+}
+
+@if (checkboxes != null && checkboxes.Any())
+{
+    <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset" aria-describedby="checkbox-hint">
+
+            @if (!string.IsNullOrEmpty(checkbox?.Heading?.Text))
+            {
+                var labelSize = Model?.QuestionContent?.Heading != null ? checkbox.Heading.Size : "l";
+
+                if (Model?.QuestionContent?.Heading == null)
+                {
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--@labelSize">
+                        <h1 class="govuk-fieldset__heading">@checkbox.Heading.Text</h1>
+                    </legend>
+                }
+                else
+                {
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--@labelSize">
+                        @checkbox.Heading.Text
+                    </legend>
+                }
+            }
+
+            @if (!string.IsNullOrEmpty(checkbox?.Hint))
+            {
+                <div id="checkbox-hint" class="govuk-hint">
+                    @checkbox.Hint
+                </div>
+            }
+            
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                @for (int i = 0; i < checkboxes.Count; i++)
+                {
+                    var item = checkboxes[i];
+                    var checkboxId = $"{checkbox.Name ?? "checkbox"}-{i}";
+                    var checkboxName = checkbox.Name ?? "checkbox";
+                    var hasConditional = (item.ConditionalInputs != null && item.ConditionalInputs.Any()) ||
+                                        (item.ConditionalSelects != null && item.ConditionalSelects.Any());
+                    var conditionalId = $"{checkboxId}-conditional";
+
+                    <div class="govuk-checkboxes__item">
+
+                        <input class="govuk-checkboxes__input"
+                            id="@checkboxId"
+                            name="@checkboxName"
+                            type="checkbox"
+                            value="@item.Value"
+                            data-aria-controls="@(hasConditional ? conditionalId : null)" />
+                        
+                        <label class="govuk-label govuk-checkboxes__label" for="@checkboxId">
+                            @item.Label
+                        </label>
+
+                        @if (hasConditional)
+                        {
+                            <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="@conditionalId">
+                                <div class="govuk-form-group">
+
+                                    @if (item.ConditionalInputs != null)
+                                    {
+                                        foreach (var input in item.ConditionalInputs)
+                                        {
+                                            <div class="govuk-form-group">
+
+                                                @if (!string.IsNullOrEmpty(input.Label))
+                                                {
+                                                    <label class="govuk-label" for="@input.Name">
+                                                        @input.Label
+                                                    </label>
+                                                }
+
+                                                @if (!string.IsNullOrEmpty(input.Hint))
+                                                {
+                                                    <div class="govuk-hint">
+                                                        @input.Hint
+                                                    </div>
+                                                }
+
+                                                <input class="govuk-input"
+                                                    id="@input.Name"
+                                                    name="@input.Name"
+                                                    type="@input.InputType"
+                                                    disabled="@input.Disabled" />
+                                            </div>
+                                        }
+                                    }
+
+                                    @if (item.ConditionalSelects != null)
+                                    {
+                                        foreach (var select in item.ConditionalSelects)
+                                        {
+                                            <div class="govuk-form-group">
+
+                                                @if (!string.IsNullOrEmpty(select.Label))
+                                                {
+                                                    <label class="govuk-label" for="@select.Name">
+                                                        @select.Label
+                                                    </label>
+                                                }
+
+                                                @if (!string.IsNullOrEmpty(select.Hint))
+                                                {
+                                                    <div class="govuk-hint">
+                                                        @select.Hint
+                                                    </div>
+                                                }
+
+                                                <select class="govuk-select"
+                                                        id="@select.Name"
+                                                        name="@select.Name"
+                                                        disabled="@select.Disabled">
+                                                    
+                                                    @foreach (var option in select.Options)
+                                                    {
+                                                        var selected = option.Selected ? "selected" : null;
+                                                        <option value="@option.Value" selected="@selected">@option.Label</option>
+                                                    }
+
+                                                </select>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </fieldset>
+    </div>
+}
