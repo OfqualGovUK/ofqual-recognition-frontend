@@ -142,12 +142,12 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        if (model.Answer != TaskStatusEnum.Completed && model.Answer != TaskStatusEnum.InProgress)
+        if (model.ApplicationTaskStatus != TaskStatusEnum.Completed && model.ApplicationTaskStatus != TaskStatusEnum.InProgress)
         {
             return RedirectToAction("TaskReview");
         }
 
-        await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, model.Answer);
+        await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, model.ApplicationTaskStatus);
 
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
     }
@@ -163,8 +163,9 @@ public class ApplicationController : Controller
             return RedirectToAction("Home");
         }
 
-        var reviewModel = ApplicationMapper.MapToViewModel();
+        var sections = await _taskService.GetApplicationTasks(application.ApplicationId);
+        var reviewModel = TaskListMapper.MapToReviewViewModel(sections);
 
-        return await Task.FromResult(View(reviewModel));
+        return View(reviewModel);
     }
 }

@@ -5,20 +5,20 @@ namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
 public class TaskReviewViewModel
 {
-    public TaskReviewSectionViewModel[] SectionHeadings { get; set; } = Array.Empty<TaskReviewSectionViewModel>();
+    public TaskReviewSectionHeadingViewModel[] SectionHeadings { get; set; } = Array.Empty<TaskReviewSectionHeadingViewModel>();
 
     [ValidEnumValue(typeof(TaskStatusEnum), ErrorMessage = "The status provided is not valid.")]
 
-    public TaskStatusEnum Answer { get; set; }
+    public TaskStatusEnum ApplicationTaskStatus { get; set; }
 }
 
-public class TaskReviewSectionViewModel
+public class TaskReviewSectionHeadingViewModel
 {
     public string Title { get; set; } = string.Empty;
-    public TaskReviewItemViewModel[] Items { set; get; } = Array.Empty<TaskReviewItemViewModel>();
+    public TaskReviewSectionItemViewModel[] Items { set; get; } = Array.Empty<TaskReviewSectionItemViewModel>();
 }
 
-public class TaskReviewItemViewModel
+public class TaskReviewSectionItemViewModel
 {
     public string Title { get; set; } = string.Empty;
    
