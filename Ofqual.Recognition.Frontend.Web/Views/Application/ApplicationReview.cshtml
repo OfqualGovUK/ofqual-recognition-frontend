@@ -13,7 +13,7 @@
         <h1 class="govuk-heading-l">
             Review your application
         </h1>
-          
+
         @if (Model.SectionHeadings.Any())
         {
             @foreach (var SectionHeading in Model.SectionHeadings)
@@ -31,7 +31,7 @@
                         </div>
                         <div class="govuk-summary-card__content">
                             <dl class="govuk-summary-list">
-                                
+
                                 @foreach (var AnswerItem in Section.QuestionAnswers)
                                 {
                                     <div class="govuk-summary-list__row">
@@ -42,7 +42,7 @@
                                             @AnswerItem.Answer
                                         </dd>
                                         <dd class="govuk-summary-list__actions">
-                                            <a class="govuk-link" href=@AnswerItem.QuestionURL>
+                                            <a class="govuk-link" href="/application/@AnswerItem.QuestionURL">
                                                 Change<span class="govuk-visually-hidden">
                                                     @AnswerItem.Question
                                                 </span>
