@@ -1,7 +1,6 @@
 @using Ofqual.Recognition.Frontend.Core.Constants
 @using Ofqual.Recognition.Frontend.Core.Enums
 @using Ofqual.Recognition.Frontend.Web.ViewModels
-
 @model TaskReviewViewModel
 
 @section BackLink {
@@ -11,31 +10,26 @@
 <h1 class="govuk-heading-l">
     Check your answers
 </h1>
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                    Question Placeholder 1
-                </dt>
-                <dd class="govuk-summary-list__value govuk-!-width-one-quarter" style="text-align: center">
-                    Value Placeholder 1
-                </dd>
-                <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
-                    <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Placeholder 1</span></a>
-                </dd>
-            </div>
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                    Question Placeholder 1
-                </dt>
-                <dd class="govuk-summary-list__value govuk-!-width-one-quarter" style="text-align: center">
-                    Value Placeholder 1
-                </dd>
-                <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
-                    <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden">Placeholder 2</span></a>
-                </dd>
-            </div>
+            @foreach (var question in Model.questionAnswers)
+            {
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                        @question.QuestionText
+                    </dt>
+                    <dd class="govuk-summary-list__value govuk-!-width-one-quarter">
+                        @question.AnswerValue
+                    </dd>
+                    <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
+                        <a class="govuk-link" href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
+                            Change<span class="govuk-visually-hidden">@question.QuestionText</span>
+                        </a>
+                    </dd>
+                </div>
+            }
         </dl>
         <div class="govuk-form-group">
             <form method="post">
@@ -61,11 +55,13 @@
                             </label>
                         </div>
                     </div>
+
                     @Html.AntiForgeryToken()
                     <div class="govuk-button-group govuk-!-margin-top-5">
                         <button type="submit" class="govuk-button">Save and continue</button>
                         <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
                     </div>
+
                 </fieldset>
             </form>
         </div>

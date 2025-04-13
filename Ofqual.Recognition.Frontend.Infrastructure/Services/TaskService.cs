@@ -1,12 +1,12 @@
-using System.Net.Http.Json;
-using Newtonsoft.Json;
-using System.Text;
-using Serilog;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
+using System.Net.Http.Json;
+using Newtonsoft.Json;
+using System.Text;
+using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 {
@@ -25,9 +25,9 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
         {
             try
             {
-                if (_sessionService.HasInSession(SessionKeys.TaskList))
+                if (_sessionService.HasInSession(SessionKeys.ApplicationTaskList))
                 {
-                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(SessionKeys.TaskList) ?? new List<TaskItemStatusSection>();
+                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(SessionKeys.ApplicationTaskList) ?? new List<TaskItemStatusSection>();
                 }
 
                 var client = _client.GetClient();
@@ -39,7 +39,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                     result = new List<TaskItemStatusSection>();
                 }
 
-                _sessionService.SetInSession(SessionKeys.TaskList, result);
+                _sessionService.SetInSession(SessionKeys.ApplicationTaskList, result);
                 return result;
             }
             catch (Exception ex)
@@ -58,6 +58,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                 {
                     Status = status
                 };
+                
                 var jsonContent = new StringContent(JsonConvert.SerializeObject(newTaskStatus), Encoding.UTF8, "application/json");
                 var response = await client.PostAsync($"/applications/{applicationId}/tasks/{taskId}", jsonContent);
 

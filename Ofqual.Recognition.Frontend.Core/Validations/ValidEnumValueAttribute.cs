@@ -15,7 +15,9 @@ public class ValidEnumValueAttribute : ValidationAttribute
     public override bool IsValid(object? value)
     {
         if (value == null)
+        {
             return true;
+        }
         
         return Enum.IsDefined(_enumType, value);
     }
