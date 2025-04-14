@@ -3,8 +3,14 @@
 @using Ofqual.Recognition.Frontend.Web.ViewModels
 @model TaskReviewViewModel
 
+@{
+    var backLinkUrl = Model.IsCompletedStatus
+        ? RouteConstants.ApplicationConstants.TASK_LIST_PATH
+        : $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.LastQuestionUrl}";
+}
+
 @section BackLink {
-    <a href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)" class="govuk-back-link">Back</a>
+    <a href="@backLinkUrl" class="govuk-back-link">Back</a>
 }
 
 <h1 class="govuk-heading-l">
@@ -14,17 +20,24 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <dl class="govuk-summary-list">
-            @foreach (var question in Model.questionAnswers)
+            @foreach (var question in Model.QuestionAnswers)
             {
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                    <dt class="govuk-summary-list__key">
                         @question.QuestionText
                     </dt>
-                    <dd class="govuk-summary-list__value govuk-!-width-one-quarter">
-                        @question.AnswerValue
+                    <dd class="govuk-summary-list__value">
+                        @if (question.AnswerValue != null && question.AnswerValue.Any())
+                        {
+                            foreach (var answer in question.AnswerValue)
+                            {
+                                <div>@answer</div>
+                            }
+                        }
                     </dd>
-                    <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
-                        <a class="govuk-link" href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link"
+                            href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
                             Change<span class="govuk-visually-hidden">@question.QuestionText</span>
                         </a>
                     </dd>

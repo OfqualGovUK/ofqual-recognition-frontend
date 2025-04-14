@@ -318,14 +318,14 @@ public class ApplicationControllerTests
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns(new Application { ApplicationId = Guid.NewGuid() });
-        
+
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
-        
+
         _questionServiceMock.Setup(x =>
             x.SubmitQuestionAnswer(It.IsAny<Guid>(), question.TaskId, question.QuestionId, It.IsAny<string>()))
             .ReturnsAsync((QuestionAnswerSubmissionResponse?)null);
-        
+
         // Act
         var result = await _controller.SubmitAnswers("task", "question", new FormCollection(new()));
 
@@ -350,14 +350,14 @@ public class ApplicationControllerTests
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns(new Application { ApplicationId = Guid.NewGuid() });
-        
+
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
-        
+
         _questionServiceMock.Setup(x =>
             x.SubmitQuestionAnswer(It.IsAny<Guid>(), question.TaskId, question.QuestionId, It.IsAny<string>()))
             .ReturnsAsync(new QuestionAnswerSubmissionResponse { NextQuestionUrl = "" });
-        
+
         // Act
         var result = await _controller.SubmitAnswers("task", "question", new FormCollection(new()));
 
@@ -453,7 +453,7 @@ public class ApplicationControllerTests
 
         var answers = new List<QuestionAnswerReview>
         {
-            new() { QuestionText = "What is your name?", AnswerValue = "Test", QuestionUrl = "task/q1" }
+            new() { QuestionText = "What is your name?", AnswerValue = ["Test"], QuestionUrl = "task/q1" }
         };
 
         _questionServiceMock.Setup(x => x.GetTaskQuestionAnswers(application.ApplicationId, taskId))

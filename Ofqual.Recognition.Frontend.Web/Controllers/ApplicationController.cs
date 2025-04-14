@@ -69,7 +69,7 @@ public class ApplicationController : Controller
         }
 
         QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
-        
+
         if (questionDetails == null)
         {
             return NotFound();
@@ -97,7 +97,7 @@ public class ApplicationController : Controller
     public async Task<IActionResult> SubmitAnswers(string taskName, string questionName, [FromForm] IFormCollection formdata)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-        
+
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
@@ -169,7 +169,12 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
+        var lastQuestionUrl = reviewAnswers.LastOrDefault()?.QuestionUrl;
+        var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
+
         TaskReviewViewModel taskReview = QuestionMapper.MapToViewModel(reviewAnswers);
+        taskReview.LastQuestionUrl = lastQuestionUrl;
+        taskReview.IsCompletedStatus = status == TaskStatusEnum.Completed;
 
         return View(taskReview);
     }

@@ -31,7 +31,7 @@ public static class QuestionMapper
     {
         return new TaskReviewViewModel
         {
-            questionAnswers = questionAnswers.Select(q => new QuestionAnswerReviewViewModel
+            QuestionAnswers = questionAnswers.Select(q => new QuestionAnswerReviewViewModel
             {
                 QuestionText = q.QuestionText,
                 QuestionUrl = q.QuestionUrl,
