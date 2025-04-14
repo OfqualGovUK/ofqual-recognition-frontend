@@ -23,6 +23,11 @@ public class RadioButtonViewModel
     public string? Name { get; set; }
 
     /// <summary>
+    /// The display name for the section shown on the review page.
+    /// </summary>
+    public string? SectionName { get; set; }
+
+    /// <summary>
     /// Validation rules applied to the radio buttons group.
     /// </summary>
     public ValidationRuleViewModel? Validation { get; set; }

@@ -27,15 +27,19 @@ public static class QuestionMapper
         return questionViewModel;
     }
 
-    public static TaskReviewViewModel MapToViewModel(List<QuestionAnswerReview> questionAnswers)
+    public static TaskReviewViewModel MapToViewModel(List<QuestionAnswerSection> sections)
     {
         return new TaskReviewViewModel
         {
-            QuestionAnswers = questionAnswers.Select(q => new QuestionAnswerReviewViewModel
+            QuestionAnswerSections = sections.Select(section => new QuestionAnswerSectionViewModel
             {
-                QuestionText = q.QuestionText,
-                QuestionUrl = q.QuestionUrl,
-                AnswerValue = q.AnswerValue
+                SectionHeading = section.SectionHeading,
+                QuestionAnswers = section.QuestionAnswers.Select(q => new QuestionAnswerReviewViewModel
+                {
+                    QuestionText = q.QuestionText,
+                    QuestionUrl = q.QuestionUrl,
+                    AnswerValue = q.AnswerValue
+                }).ToList()
             }).ToList()
         };
     }

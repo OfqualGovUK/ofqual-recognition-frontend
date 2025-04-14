@@ -5,8 +5,8 @@
 
 @{
     var backLinkUrl = Model.IsCompletedStatus
-        ? RouteConstants.ApplicationConstants.TASK_LIST_PATH
-        : $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.LastQuestionUrl}";
+    ? RouteConstants.ApplicationConstants.TASK_LIST_PATH
+    : $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.LastQuestionUrl}";
 }
 
 @section BackLink {
@@ -19,31 +19,60 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        <dl class="govuk-summary-list">
-            @foreach (var question in Model.QuestionAnswers)
-            {
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        @question.QuestionText
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        @if (question.AnswerValue != null && question.AnswerValue.Any())
-                        {
-                            foreach (var answer in question.AnswerValue)
+
+        @if (Model.QuestionAnswerSections.Any(s => string.IsNullOrWhiteSpace(s.SectionHeading)))
+        {
+            <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                @foreach (var section in Model.QuestionAnswerSections.Where(s =>
+                            string.IsNullOrWhiteSpace(s.SectionHeading)))
+                {
+                    foreach (var question in section.QuestionAnswers)
+                    {
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">@question.QuestionText</dt>
+                            <dd class="govuk-summary-list__value">
+                                @foreach (var answer in question.AnswerValue)
+                                {
+                                    <div>@answer</div>
+                                }
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link"
+                                    href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
+                                    Change<span class="govuk-visually-hidden">@question.QuestionText</span>
+                                </a>
+                            </dd>
+                        </div>
+                    }
+                }
+            </dl>
+        }
+
+        @foreach (var sectionItem in Model.QuestionAnswerSections.Where(s => !string.IsNullOrWhiteSpace(s.SectionHeading)))
+        {
+            <h2 class="govuk-heading-m">@sectionItem.SectionHeading</h2>
+            <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                @foreach (var question in sectionItem.QuestionAnswers)
+                {
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">@question.QuestionText</dt>
+                        <dd class="govuk-summary-list__value">
+                            @foreach (var answer in question.AnswerValue)
                             {
                                 <div>@answer</div>
                             }
-                        }
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
-                            Change<span class="govuk-visually-hidden">@question.QuestionText</span>
-                        </a>
-                    </dd>
-                </div>
-            }
-        </dl>
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link"
+                                href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
+                                Change<span class="govuk-visually-hidden">@question.QuestionText</span>
+                            </a>
+                        </dd>
+                    </div>
+                }
+            </dl>
+        }
+
         <div class="govuk-form-group">
             <form method="post">
                 <fieldset class="govuk-fieldset">

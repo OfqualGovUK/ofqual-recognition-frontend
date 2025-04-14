@@ -77,18 +77,18 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<List<QuestionAnswerReview>?> GetTaskQuestionAnswers(Guid applicationId, Guid taskId)
+    public async Task<List<QuestionAnswerSection>?> GetTaskQuestionAnswers(Guid applicationId, Guid taskId)
     {
         try
         {
 
             if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}"))
             {
-                return _sessionService.GetFromSession<List<QuestionAnswerReview>>($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}");
+                return _sessionService.GetFromSession<List<QuestionAnswerSection>>($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}");
             }
 
             var client = _client.GetClient();
-            var result = await client.GetFromJsonAsync<List<QuestionAnswerReview>>($"/applications/{applicationId}/tasks/{taskId}/questions/answers");
+            var result = await client.GetFromJsonAsync<List<QuestionAnswerSection>>($"/applications/{applicationId}/tasks/{taskId}/questions/answers");
 
             if (result == null)
             {

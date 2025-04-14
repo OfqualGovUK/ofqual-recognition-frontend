@@ -451,11 +451,22 @@ public class ApplicationControllerTests
                 CurrentQuestionUrl = "task/question"
             });
 
-        var answers = new List<QuestionAnswerReview>
+        var answers = new List<QuestionAnswerSection>
         {
-            new() { QuestionText = "What is your name?", AnswerValue = ["Test"], QuestionUrl = "task/q1" }
+            new()
+            {
+                SectionHeading = "test",
+                QuestionAnswers = new List<QuestionAnswerReview>
+                {
+                    new QuestionAnswerReview
+                    {
+                        QuestionText = "What is your name?",
+                        AnswerValue = new List<string> { "Test" },
+                        QuestionUrl = "task/q1"
+                    }
+                }
+            }
         };
-
         _questionServiceMock.Setup(x => x.GetTaskQuestionAnswers(application.ApplicationId, taskId))
             .ReturnsAsync(answers);
 
@@ -522,7 +533,7 @@ public class ApplicationControllerTests
             });
 
         _questionServiceMock.Setup(x => x.GetTaskQuestionAnswers(app.ApplicationId, It.IsAny<Guid>()))
-            .ReturnsAsync(new List<QuestionAnswerReview>());
+            .ReturnsAsync(new List<QuestionAnswerSection>());
 
         // Act
         var result = await _controller.TaskReview("task-name", "question-name");

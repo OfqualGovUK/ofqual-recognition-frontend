@@ -20,5 +20,5 @@ public class CheckBoxItemViewModel
     /// <summary>
     /// A list of text inputs that appear when this checkbox is selected.
     /// </summary>
-    public List<TextInputViewModel>? ConditionalInputs { get; set; }
+    public List<TextInputItemViewModel>? ConditionalInputs { get; set; }
 }

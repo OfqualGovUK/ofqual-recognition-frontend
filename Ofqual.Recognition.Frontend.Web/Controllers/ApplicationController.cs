@@ -144,7 +144,7 @@ public class ApplicationController : Controller
         });
     }
 
-    [HttpGet("{taskName}/{questionName}/review-your-task-answers")]
+    [HttpGet("{taskName}/{questionName}/review-your-answers")]
     public async Task<IActionResult> TaskReview(string taskName, string questionName)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
@@ -169,7 +169,9 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        var lastQuestionUrl = reviewAnswers.LastOrDefault()?.QuestionUrl;
+        var lastQuestionUrl = reviewAnswers.LastOrDefault()?
+            .QuestionAnswers.LastOrDefault()?
+            .QuestionUrl;
         var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
 
         TaskReviewViewModel taskReview = QuestionMapper.MapToViewModel(reviewAnswers);
@@ -179,7 +181,7 @@ public class ApplicationController : Controller
         return View(taskReview);
     }
 
-    [HttpPost("{taskName}/{questionName}/review-your-task-answers")]
+    [HttpPost("{taskName}/{questionName}/review-your-answers")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitTaskReview(string taskName, string questionName, [FromForm] TaskReviewViewModel formdata)
     {
