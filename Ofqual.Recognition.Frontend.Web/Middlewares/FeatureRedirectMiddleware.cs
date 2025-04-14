@@ -1,5 +1,5 @@
-using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Constants;
 
 namespace Ofqual.Recognition.Frontend.Web.Middlewares;
 

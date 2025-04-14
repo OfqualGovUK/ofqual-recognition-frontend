@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Helpers;
+using Ofqual.Recognition.Frontend.Web.Mappers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Web.ViewModels;
-using Ofqual.Recognition.Frontend.Web.Mappers;
-using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -36,7 +36,7 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        return RedirectToAction("TaskList");
+        return RedirectToAction(nameof(TaskList));
     }
 
     [HttpGet("tasks")]
@@ -58,22 +58,36 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("{taskName}/{questionName}")]
-    public async Task<IActionResult> QuestionDetails(string taskName, string questionName)
+    public async Task<IActionResult> QuestionDetails(string taskName, string questionName, bool fromReview = false)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        QuestionResponse? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+
         if (questionDetails == null)
         {
             return NotFound();
         }
 
+        var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
+
+        if (status == TaskStatusEnum.Completed && !fromReview)
+        {
+            return RedirectToAction(nameof(TaskReview), new
+            {
+                taskName,
+                questionName
+            });
+        }
+
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
+        questionViewModel.FromReview = fromReview;
 
         return View(questionViewModel);
     }
@@ -83,41 +97,55 @@ public class ApplicationController : Controller
     public async Task<IActionResult> SubmitAnswers(string taskName, string questionName, [FromForm] IFormCollection formdata)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        QuestionResponse? questionDetails = _sessionService.GetFromSession<QuestionResponse>($"{taskName}/{questionName}");
+        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
 
         if (questionDetails == null)
         {
-            return RedirectToAction($"{taskName}/{questionName}");
+            return NotFound();
         }
 
         // Temporary solution might need to be refactored in the future
-        var jsonPayload = formdata
-                .Where(x => x.Key != "__RequestVerificationToken")
-                .ToDictionary(x => x.Key, x => (object)x.Value.ToString());
-        string jsonAnswer = JsonSerializer.Serialize(jsonPayload);
+        string jsonAnswer = FormDataHelper.ConvertToJson(formdata);
 
-        QuestionAnswerResult? questionAnswerResult = await _questionService.SubmitQuestionAnswer(
+        QuestionAnswerSubmissionResponse? questionAnswerResult = await _questionService.SubmitQuestionAnswer(
             application.ApplicationId,
+            questionDetails.TaskId,
             questionDetails.QuestionId,
             jsonAnswer
         );
 
         if (questionAnswerResult == null || questionAnswerResult.NextQuestionUrl == null)
         {
-            return RedirectToAction("TaskReview");
+            return RedirectToAction(nameof(TaskReview), new
+            {
+                taskName,
+                questionName
+            });
         }
 
-        return Redirect($"/application/{questionAnswerResult.NextQuestionUrl}");
+        var parsedUrl = QuestionUrlHelper.Parse(questionAnswerResult.NextQuestionUrl);
+
+        if (parsedUrl == null)
+        {
+            return NotFound();
+        }
+
+        return RedirectToAction(nameof(QuestionDetails), new
+        {
+            parsedUrl.Value.taskName,
+            parsedUrl.Value.questionName
+        });
     }
 
-    [HttpGet("review-your-task-answers")]
-    public IActionResult TaskReview()
+    [HttpGet("{taskName}/{questionName}/review-your-answers")]
+    public async Task<IActionResult> TaskReview(string taskName, string questionName)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -127,12 +155,35 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        return View();
+        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+
+        if (questionDetails == null)
+        {
+            return NotFound();
+        }
+
+        var reviewAnswers = await _questionService.GetTaskQuestionAnswers(application.ApplicationId, questionDetails.TaskId);
+
+        if (reviewAnswers == null || reviewAnswers.Count == 0)
+        {
+            return NotFound();
+        }
+
+        var lastQuestionUrl = reviewAnswers.LastOrDefault()?
+            .QuestionAnswers.LastOrDefault()?
+            .QuestionUrl;
+        var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
+
+        TaskReviewViewModel taskReview = QuestionMapper.MapToViewModel(reviewAnswers);
+        taskReview.LastQuestionUrl = lastQuestionUrl;
+        taskReview.IsCompletedStatus = status == TaskStatusEnum.Completed;
+
+        return View(taskReview);
     }
 
-    [HttpPost("review-your-task-answers")]
+    [HttpPost("{taskName}/{questionName}/review-your-answers")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SubmitTaskReview(Guid taskId, TaskReviewViewModel model)
+    public async Task<IActionResult> SubmitTaskReview(string taskName, string questionName, [FromForm] TaskReviewViewModel formdata)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -142,12 +193,24 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        if (model.Answer != TaskStatusEnum.Completed && model.Answer != TaskStatusEnum.InProgress)
+        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+
+        if (questionDetails == null)
         {
-            return RedirectToAction("TaskReview");
+            return NotFound();
         }
 
-        await _taskService.UpdateTaskStatus(application.ApplicationId, taskId, model.Answer);
+        if (formdata.Answer != TaskStatusEnum.Completed && formdata.Answer != TaskStatusEnum.InProgress)
+        {
+            return BadRequest();
+        }
+
+        bool hasTaskStatusUpdated = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, formdata.Answer);
+
+        if (!hasTaskStatusUpdated)
+        {
+            return BadRequest();
+        }
 
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
     }

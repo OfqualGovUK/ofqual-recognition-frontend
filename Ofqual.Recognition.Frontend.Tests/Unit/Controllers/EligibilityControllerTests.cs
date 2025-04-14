@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Controllers;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
@@ -37,7 +37,7 @@ public class EligibilityControllerTests
     public void QuestionOne_Get_ReturnsViewWithModel()
     {
         // Arrange
-        var question = new Question { Answer = "Some answer" };
+        var question = new EligibilityQuestion { Answer = "Some answer" };
         _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.EligibilityQuestionOne))
             .Returns(question);
 
@@ -98,7 +98,7 @@ public class EligibilityControllerTests
     public void QuestionTwo_Get_ReturnsViewWithModel()
     {
         // Arrange
-        var question = new Question { Answer = "Answer2" };
+        var question = new EligibilityQuestion { Answer = "Answer2" };
         _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.EligibilityQuestionTwo))
             .Returns(question);
 
@@ -147,7 +147,7 @@ public class EligibilityControllerTests
     public void QuestionThree_Get_ReturnsViewWithModel()
     {
         // Arrange
-        var question = new Question { Answer = "Answer3" };
+        var question = new EligibilityQuestion { Answer = "Answer3" };
 
         _eligibilityServiceMock.Setup(x => x.GetQuestion(SessionKeys.EligibilityQuestionThree))
             .Returns(question);

@@ -16,6 +16,11 @@ public class CheckBoxViewModel
     /// A unique name used for the checkbox group.
     /// </summary>
     public string? Name { get; set; }
+
+    /// <summary>
+    /// The display name for the section shown on the review page.
+    /// </summary>
+    public string? SectionName { get; set; }
     
     /// <summary>
     /// Validation rules applied to the checkbox group.

@@ -1,5 +1,5 @@
-﻿using Microsoft.Playwright;
-using Ofqual.Recognition.Frontend.Playwright.Configs;
+﻿using Ofqual.Recognition.Frontend.Playwright.Configs;
+using Microsoft.Playwright;
 
 namespace Ofqual.Recognition.Frontend.Playwright.Pages
 {

@@ -1,6 +1,6 @@
 namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
-public class TextInputViewModel
+public class TextInputItemViewModel
 {
     /// <summary>
     /// The label shown above the input field.

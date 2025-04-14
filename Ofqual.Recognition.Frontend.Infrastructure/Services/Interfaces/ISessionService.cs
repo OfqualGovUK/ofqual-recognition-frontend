@@ -9,4 +9,5 @@ public interface ISessionService
     public bool HasInSession(string key);
     public void ClearFromSession(string key);
     public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus);
+    public TaskStatusEnum? GetTaskStatusFromSession(Guid taskId);
 }

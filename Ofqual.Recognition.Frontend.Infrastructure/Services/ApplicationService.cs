@@ -1,7 +1,7 @@
-﻿using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
 using Serilog;
 
@@ -29,7 +29,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 
                 var client = _client.GetClient();
                 var response = await client.PostAsync("/applications", null);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     Log.Warning("API request to create application failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);

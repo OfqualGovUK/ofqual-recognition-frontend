@@ -1,6 +1,6 @@
 ﻿namespace Ofqual.Recognition.Frontend.Core.Models;
 
-public class Question
+public class EligibilityQuestion
 {
     public string Answer { get; set; } = string.Empty;
 }

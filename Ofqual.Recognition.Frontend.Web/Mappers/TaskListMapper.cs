@@ -1,5 +1,5 @@
-using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
+using Ofqual.Recognition.Frontend.Core.Models;
 
 namespace Ofqual.Recognition.Frontend.Web.Mappers;
 

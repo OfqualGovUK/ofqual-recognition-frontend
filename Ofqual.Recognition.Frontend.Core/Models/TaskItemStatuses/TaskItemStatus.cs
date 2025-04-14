@@ -10,5 +10,5 @@ public class TaskItemStatus
     public Guid TaskId { get; set; }
     public required string TaskName { get; set; }
     public TaskStatusEnum Status { get; set; }
-    public required String FirstQuestionURL { get; set; }
+    public required string FirstQuestionURL { get; set; }
 }

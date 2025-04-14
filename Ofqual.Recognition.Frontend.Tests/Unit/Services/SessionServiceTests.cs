@@ -1,12 +1,12 @@
-using System.Text;
-using Microsoft.AspNetCore.Http;
-using Moq;
-using Newtonsoft.Json;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Enums;
-using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Tests.TestData;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.Enums;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System.Text;
+using Moq;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Services;
 
@@ -89,7 +89,7 @@ public class SessionServiceTests
     {
         // Arrange
         byte[] dummy = Encoding.UTF8.GetBytes("some value");
-        
+
         _sessionMock.Setup(s => s.TryGetValue(key, out dummy))
                     .Returns(exists);
 
@@ -106,7 +106,7 @@ public class SessionServiceTests
     {
         // Arrange
         var key = "keyToRemove";
-        
+
         _sessionMock.Setup(s => s.Remove(key))
             .Verifiable();
 
@@ -119,17 +119,63 @@ public class SessionServiceTests
 
     [Theory]
     [Trait("Category", "Unit")]
-    [MemberData(nameof(SessionServiceTestCases.TaskStatusUpdateCases), MemberType = typeof(SessionServiceTestCases))]
+    [InlineData(TaskStatusEnum.CannotStartYet, TaskStatusEnum.Completed)]
+    [InlineData(TaskStatusEnum.InProgress, TaskStatusEnum.CannotStartYet)]
     public void UpdateTaskStatusInSession_ShouldUpdateStatus_WhenTaskExists(TaskStatusEnum originalStatus, TaskStatusEnum newStatus)
     {
         // Arrange
         var taskId = Guid.NewGuid();
-
+        
         var task = new TaskItemStatus
         {
             TaskId = taskId,
             TaskName = "Test Task",
             Status = originalStatus,
+            FirstQuestionURL = "/application-details/contact-details"
+        };
+        
+        var section = new TaskItemStatusSection
+        {
+            SectionId = Guid.NewGuid(),
+            SectionName = "Section A",
+            Tasks = new List<TaskItemStatus> { task }
+        };
+
+        var taskSections = new List<TaskItemStatusSection> { section };
+        var serialized = JsonConvert.SerializeObject(taskSections);
+        var sessionBytes = Encoding.UTF8.GetBytes(serialized);
+
+        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.ApplicationTaskList, out sessionBytes))
+            .Returns(true);
+        
+        byte[]? updatedBytes = null;
+        _sessionMock.Setup(s => s.Set(SessionKeys.ApplicationTaskList, It.IsAny<byte[]>()))
+            .Callback<string, byte[]>((_, bytes) => updatedBytes = bytes);
+        
+        // Act
+        _sessionService.UpdateTaskStatusInSession(taskId, newStatus);
+
+        // Assert
+        Assert.NotNull(updatedBytes);
+
+        var updatedSections = JsonConvert.DeserializeObject<List<TaskItemStatusSection>>(Encoding.UTF8.GetString(updatedBytes!));
+        var updatedTask = updatedSections!.SelectMany(s => s.Tasks).First(t => t.TaskId == taskId);
+        Assert.Equal(newStatus, updatedTask.Status);
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(TaskStatusEnum.Completed)]
+    [InlineData(TaskStatusEnum.InProgress)]
+    public void GetTaskStatusFromSession_ShouldReturnCorrectStatus_WhenTaskExists(TaskStatusEnum expectedStatus)
+    {
+        // Arrange
+        var taskId = Guid.NewGuid();
+        var task = new TaskItemStatus
+        {
+            TaskId = taskId,
+            TaskName = "Test Task",
+            Status = expectedStatus,
             FirstQuestionURL = "/application-details/contact-details"
         };
 
@@ -144,19 +190,78 @@ public class SessionServiceTests
         var serialized = JsonConvert.SerializeObject(taskSections);
         var sessionBytes = Encoding.UTF8.GetBytes(serialized);
 
-        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.TaskList, out sessionBytes)).Returns(true);
-
-        byte[]? updatedBytes = null;
-        _sessionMock.Setup(s => s.Set(SessionKeys.TaskList, It.IsAny<byte[]>()))
-            .Callback<string, byte[]>((_, bytes) => updatedBytes = bytes);
+        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.ApplicationTaskList, out sessionBytes))
+            .Returns(true);
 
         // Act
-        _sessionService.UpdateTaskStatusInSession(taskId, newStatus);
+        var result = _sessionService.GetTaskStatusFromSession(taskId);
 
         // Assert
-        Assert.NotNull(updatedBytes);
-        var updatedSections = JsonConvert.DeserializeObject<List<TaskItemStatusSection>>(Encoding.UTF8.GetString(updatedBytes!));
-        var updatedTask = updatedSections!.SelectMany(s => s.Tasks).First(t => t.TaskId == taskId);
-        Assert.Equal(newStatus, updatedTask.Status);
+        Assert.NotNull(result);
+        Assert.Equal(expectedStatus, result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GetTaskStatusFromSession_ShouldReturnNull_WhenSessionIsNull()
+    {
+        // Arrange
+        _httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext)null!);
+
+        // Act
+        var result = _sessionService.GetTaskStatusFromSession(Guid.NewGuid());
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GetTaskStatusFromSession_ShouldReturnNull_WhenKeyIsMissing()
+    {
+        // Arrange
+        byte[]? dummy = null;
+
+        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.ApplicationTaskList, out dummy))
+            .Returns(false);
+
+        // Act
+        var result = _sessionService.GetTaskStatusFromSession(Guid.NewGuid());
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GetTaskStatusFromSession_ShouldReturnNull_WhenTaskIdNotFound()
+    {
+        // Arrange
+        var unrelatedTask = new TaskItemStatus
+        {
+            TaskId = Guid.NewGuid(),
+            TaskName = "Another Task",
+            Status = TaskStatusEnum.NotStarted,
+            FirstQuestionURL = "/something"
+        };
+
+        var section = new TaskItemStatusSection
+        {
+            SectionId = Guid.NewGuid(),
+            SectionName = "Section X",
+            Tasks = new List<TaskItemStatus> { unrelatedTask }
+        };
+
+        var taskSections = new List<TaskItemStatusSection> { section };
+        var serialized = JsonConvert.SerializeObject(taskSections);
+        var sessionBytes = Encoding.UTF8.GetBytes(serialized);
+        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.ApplicationTaskList, out sessionBytes))
+            .Returns(true);
+
+        // Act
+        var result = _sessionService.GetTaskStatusFromSession(Guid.NewGuid());
+
+        // Assert
+        Assert.Null(result);
     }
 }

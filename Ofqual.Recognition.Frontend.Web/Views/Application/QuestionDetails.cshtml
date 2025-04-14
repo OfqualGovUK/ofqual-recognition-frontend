@@ -2,8 +2,16 @@
 @using Ofqual.Recognition.Frontend.Core.Constants
 @model QuestionViewModel
 
+@{
+    var backLinkUrl = Model.FromReview
+        ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.CurrentQuestionUrl}/review-your-answers"
+        : (Model.PreviousQuestionUrl != null
+            ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.PreviousQuestionUrl}"
+            : RouteConstants.ApplicationConstants.TASK_LIST_PATH);
+}
+
 @section BackLink {
-    <a href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)" class="govuk-back-link">Back</a>
+    <a href="@backLinkUrl" class="govuk-back-link">Back</a>
 }
 
 <div class="govuk-grid-row">

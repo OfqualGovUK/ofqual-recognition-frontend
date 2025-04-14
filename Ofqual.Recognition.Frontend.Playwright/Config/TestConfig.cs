@@ -1,4 +1,3 @@
-
 using Microsoft.Extensions.Configuration;
 
 namespace Ofqual.Recognition.Frontend.Playwright.Configs;

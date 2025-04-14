@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System.Text;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -23,9 +23,15 @@ public class SessionService : ISessionService
     public T? GetFromSession<T>(string key) where T : class
     {
         var session = _httpContextAccessor.HttpContext?.Session;
-        if (session == null) return null;
+        if (session == null)
+        {
+            return null;
+        }
 
-        if (!session.TryGetValue(key, out var data)) return null;
+        if (!session.TryGetValue(key, out var data))
+        {
+            return null;
+        }
 
         var jsonData = Encoding.UTF8.GetString(data);
         return JsonConvert.DeserializeObject<T>(jsonData);
@@ -37,7 +43,11 @@ public class SessionService : ISessionService
     public void SetInSession<T>(string key, T data) where T : class
     {
         var session = _httpContextAccessor.HttpContext?.Session;
-        if (session == null) return;
+        if (session == null)
+        {
+            return;
+        }
+
         var jsonData = JsonConvert.SerializeObject(data);
         session.SetString(key, jsonData);
     }
@@ -48,7 +58,10 @@ public class SessionService : ISessionService
     public bool HasInSession(string key)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
-        if (session == null) return false;
+        if (session == null)
+        {
+            return false;
+        }
 
         return session.TryGetValue(key, out var value) && value?.Length > 0;
     }
@@ -70,14 +83,27 @@ public class SessionService : ISessionService
     public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
-        if (session == null) return;
-        
-        if (!session.TryGetValue(SessionKeys.TaskList, out var data)) return;
+        if (session == null)
+        {
+            return;
+        }
+
+        if (!session.TryGetValue(SessionKeys.ApplicationTaskList, out var data))
+        {
+            return;
+        }
+
         var serializedTasks = Encoding.UTF8.GetString(data);
-        if (string.IsNullOrEmpty(serializedTasks)) return;
+        if (string.IsNullOrEmpty(serializedTasks))
+        {
+            return;
+        }
 
         var taskSections = JsonConvert.DeserializeObject<List<TaskItemStatusSection>>(serializedTasks);
-        if (taskSections == null) return;
+        if (taskSections == null)
+        {
+            return;
+        }
 
         foreach (var section in taskSections)
         {
@@ -88,10 +114,50 @@ public class SessionService : ISessionService
                 break;
             }
         }
-        
+
         var updatedData = JsonConvert.SerializeObject(taskSections);
-        session.Set(SessionKeys.TaskList, Encoding.UTF8.GetBytes(updatedData));
+        session.Set(SessionKeys.ApplicationTaskList, Encoding.UTF8.GetBytes(updatedData));
+    }
+
+    /// <summary>
+    /// Retrieves the status of a specific task from the session.
+    /// </summary>
+    /// <param name="taskId">The ID of the task to retrieve.</param>
+    /// <returns>The task status, or null if not found.</returns>
+    public TaskStatusEnum? GetTaskStatusFromSession(Guid taskId)
+    {
+        var session = _httpContextAccessor.HttpContext?.Session;
+        if (session == null)
+        {
+            return null;
+        }
+
+        if (!session.TryGetValue(SessionKeys.ApplicationTaskList, out var data))
+        {
+            return null;
+        }
+
+        var serializedTasks = Encoding.UTF8.GetString(data);
+        if (string.IsNullOrEmpty(serializedTasks))
+        {
+            return null;
+        }
+
+        var taskSections = JsonConvert.DeserializeObject<List<TaskItemStatusSection>>(serializedTasks);
+        if (taskSections == null)
+        {
+            return null;
+        }
+
+        foreach (var section in taskSections)
+        {
+            var task = section.Tasks.FirstOrDefault(t => t.TaskId == taskId);
+            if (task != null)
+            {
+                return task.Status;
+            }
+        }
+
+        return null;
     }
 }
-
-

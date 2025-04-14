@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Web.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 

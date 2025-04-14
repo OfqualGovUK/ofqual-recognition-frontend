@@ -16,6 +16,11 @@ public class TextareaViewModel
     /// The name of the field
     /// </summary>
     public required string Name { get; set; }
+
+    /// <summary>
+    /// The display name for the section shown on the review page.
+    /// </summary>
+    public string? SectionName { get; set; }
     
     /// <summary>
     /// The number of rows shown in the text area.

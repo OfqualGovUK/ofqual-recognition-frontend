@@ -1,6 +1,3 @@
-
-using Ofqual.Recognition.Frontend.Core.Enums;
-
 namespace Ofqual.Recognition.Frontend.Tests.TestData;
 
 public static class SessionServiceTestCases
@@ -25,11 +22,5 @@ public static class SessionServiceTestCases
         yield return new object[] { "key3", new TestData { Name = null }, false };
         yield return new object[] { "key4", null, false };
         yield return new object[] { "key5", null, true };
-    }
-
-    public static IEnumerable<object[]> TaskStatusUpdateCases()
-    {
-        yield return new object[] { TaskStatusEnum.CannotStartYet, TaskStatusEnum.Completed };
-        yield return new object[] { TaskStatusEnum.InProgress, TaskStatusEnum.CannotStartYet };
     }
 }
