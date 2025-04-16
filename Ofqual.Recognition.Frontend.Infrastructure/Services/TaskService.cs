@@ -78,17 +78,17 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             }
         }
 
-        public async Task<TaskItem?> GetTaskDetailsByTaskNameUrl(string taskNameUrl)
+        public async Task<TaskDetails?> GetTaskDetailsByTaskNameUrl(string taskNameUrl)
         {
             try
             {
                 if (_sessionService.HasInSession($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}"))
                 {
-                    return _sessionService.GetFromSession<TaskItem>($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}");
+                    return _sessionService.GetFromSession<TaskDetails>($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}");
                 }
 
                 var client = _client.GetClient();
-                var result = await client.GetFromJsonAsync<TaskItem>($"/tasks/{taskNameUrl}");
+                var result = await client.GetFromJsonAsync<TaskDetails>($"/tasks/{taskNameUrl}");
 
                 if (result == null)
                 {

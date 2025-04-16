@@ -147,7 +147,7 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        TaskItem? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
+        TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
 
         if (taskDetails == null)
         {
@@ -185,7 +185,7 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        TaskItem? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
+        TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
 
         if (taskDetails == null)
         {

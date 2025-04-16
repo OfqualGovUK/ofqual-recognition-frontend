@@ -1,7 +1,7 @@
 
 namespace Ofqual.Recognition.Frontend.Core.Models;
 
-public class TaskItem
+public class TaskDetails
 {
     public Guid TaskId { get; set; }
     public required string TaskName { get; set; }
