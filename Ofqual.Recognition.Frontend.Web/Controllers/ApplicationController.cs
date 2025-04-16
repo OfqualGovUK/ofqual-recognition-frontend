@@ -121,7 +121,7 @@ public class ApplicationController : Controller
             jsonAnswer
         );
 
-        if (questionAnswerResult == null)
+        if (questionAnswerResult == null || questionAnswerResult.NextQuestionNameUrl == null || questionAnswerResult.NextTaskNameUrl == null)
         {
             return RedirectToAction(nameof(TaskReview), new
             {
