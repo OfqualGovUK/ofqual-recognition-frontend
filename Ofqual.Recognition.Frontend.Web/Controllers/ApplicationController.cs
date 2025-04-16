@@ -57,8 +57,8 @@ public class ApplicationController : Controller
         return View(taskListViewModel);
     }
 
-    [HttpGet("{taskName}/{questionName}")]
-    public async Task<IActionResult> QuestionDetails(string taskName, string questionName, bool fromReview = false)
+    [HttpGet("{taskNameUrl}/{questionNameUrl}")]
+    public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -68,7 +68,7 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
 
         if (questionDetails == null)
         {
@@ -81,8 +81,8 @@ public class ApplicationController : Controller
         {
             return RedirectToAction(nameof(TaskReview), new
             {
-                taskName,
-                questionName
+                taskNameUrl,
+                questionNameUrl
             });
         }
 
@@ -92,9 +92,9 @@ public class ApplicationController : Controller
         return View(questionViewModel);
     }
 
-    [HttpPost("{taskName}/{questionName}")]
+    [HttpPost("{taskNameUrl}/{questionNameUrl}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SubmitAnswers(string taskName, string questionName, [FromForm] IFormCollection formdata)
+    public async Task<IActionResult> SubmitAnswers(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -104,7 +104,7 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
 
         if (questionDetails == null)
         {
@@ -121,31 +121,23 @@ public class ApplicationController : Controller
             jsonAnswer
         );
 
-        if (questionAnswerResult == null || questionAnswerResult.NextQuestionUrl == null)
+        if (questionAnswerResult == null)
         {
             return RedirectToAction(nameof(TaskReview), new
             {
-                taskName,
-                questionName
+                taskNameUrl
             });
-        }
-
-        var parsedUrl = QuestionUrlHelper.Parse(questionAnswerResult.NextQuestionUrl);
-
-        if (parsedUrl == null)
-        {
-            return NotFound();
         }
 
         return RedirectToAction(nameof(QuestionDetails), new
         {
-            parsedUrl.Value.taskName,
-            parsedUrl.Value.questionName
+            taskNameUrl = questionAnswerResult.NextTaskNameUrl,
+            questionNameUrl = questionAnswerResult.NextQuestionNameUrl
         });
     }
 
-    [HttpGet("{taskName}/{questionName}/review-your-answers")]
-    public async Task<IActionResult> TaskReview(string taskName, string questionName)
+    [HttpGet("{taskNameUrl}/review-your-answers")]
+    public async Task<IActionResult> TaskReview(string taskNameUrl)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -155,14 +147,14 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        TaskItem? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
 
-        if (questionDetails == null)
+        if (taskDetails == null)
         {
             return NotFound();
         }
 
-        var reviewAnswers = await _questionService.GetTaskQuestionAnswers(application.ApplicationId, questionDetails.TaskId);
+        var reviewAnswers = await _questionService.GetTaskQuestionAnswers(application.ApplicationId, taskDetails.TaskId);
 
         if (reviewAnswers == null || reviewAnswers.Count == 0)
         {
@@ -172,7 +164,7 @@ public class ApplicationController : Controller
         var lastQuestionUrl = reviewAnswers.LastOrDefault()?
             .QuestionAnswers.LastOrDefault()?
             .QuestionUrl;
-        var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
+        var status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
 
         TaskReviewViewModel taskReview = QuestionMapper.MapToViewModel(reviewAnswers);
         taskReview.LastQuestionUrl = lastQuestionUrl;
@@ -181,9 +173,9 @@ public class ApplicationController : Controller
         return View(taskReview);
     }
 
-    [HttpPost("{taskName}/{questionName}/review-your-answers")]
+    [HttpPost("{taskNameUrl}/review-your-answers")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SubmitTaskReview(string taskName, string questionName, [FromForm] TaskReviewViewModel formdata)
+    public async Task<IActionResult> SubmitTaskReview(string taskNameUrl, [FromForm] TaskReviewViewModel formdata)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -193,9 +185,9 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskName, questionName);
+        TaskItem? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
 
-        if (questionDetails == null)
+        if (taskDetails == null)
         {
             return NotFound();
         }
@@ -205,7 +197,7 @@ public class ApplicationController : Controller
             return BadRequest();
         }
 
-        bool hasTaskStatusUpdated = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, formdata.Answer);
+        bool hasTaskStatusUpdated = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, formdata.Answer);
 
         if (!hasTaskStatusUpdated)
         {

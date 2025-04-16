@@ -356,37 +356,7 @@ public class ApplicationControllerTests
 
         _questionServiceMock.Setup(x =>
             x.SubmitQuestionAnswer(It.IsAny<Guid>(), question.TaskId, question.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync(new QuestionAnswerSubmissionResponse { NextQuestionUrl = "" });
-
-        // Act
-        var result = await _controller.SubmitAnswers("task", "question", new FormCollection(new()));
-
-        // Assert
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public async Task SubmitAnswers_Should_ReturnNotFound_WhenNextUrlCannotBeParsed()
-    {
-        // Arrange
-        var question = new QuestionDetails
-        {
-            QuestionId = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
-            QuestionContent = "{}",
-            CurrentQuestionUrl = "task/question"
-        };
-
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application { ApplicationId = Guid.NewGuid() });
-
-        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
-            .ReturnsAsync(question);
-
-        _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(It.IsAny<Guid>(), question.TaskId, question.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync(new QuestionAnswerSubmissionResponse { NextQuestionUrl = "invalid-url-without-slash" });
+            .ReturnsAsync(new QuestionAnswerSubmissionResponse { NextQuestionNameUrl = "", NextTaskNameUrl = "" });
 
         // Act
         var result = await _controller.SubmitAnswers("task", "question", new FormCollection(new()));
@@ -401,7 +371,8 @@ public class ApplicationControllerTests
     {
         // Arrange
         var applicationId = Guid.NewGuid();
-        var nextQuestionUrl = "task2/question2";
+        var nextTaskUrl = "task2";
+        var nextQuestionUrl = "question2";
         var question = new QuestionDetails
         {
             QuestionId = Guid.NewGuid(),
@@ -418,7 +389,7 @@ public class ApplicationControllerTests
             .ReturnsAsync(question);
 
         _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(applicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync(new QuestionAnswerSubmissionResponse { NextQuestionUrl = nextQuestionUrl });
+            .ReturnsAsync(new QuestionAnswerSubmissionResponse { NextQuestionNameUrl = nextQuestionUrl, NextTaskNameUrl = nextTaskUrl });
 
         // Act
         var result = await _controller.SubmitAnswers("task", "question", new FormCollection(new()));
@@ -471,7 +442,7 @@ public class ApplicationControllerTests
             .ReturnsAsync(answers);
 
         // Act
-        var result = await _controller.TaskReview("task-name", "question-name");
+        var result = await _controller.TaskReview("task-name");
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -487,7 +458,7 @@ public class ApplicationControllerTests
             .Returns((Application?)null);
 
         // Act
-        var result = await _controller.TaskReview("task-name", "question-name");
+        var result = await _controller.TaskReview("task-name");
 
         // Assert
         var redirect = Assert.IsType<RedirectResult>(result);
@@ -506,7 +477,7 @@ public class ApplicationControllerTests
             .ReturnsAsync((QuestionDetails?)null);
 
         // Act
-        var result = await _controller.TaskReview("task-name", "question-name");
+        var result = await _controller.TaskReview("task-name");
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -536,7 +507,7 @@ public class ApplicationControllerTests
             .ReturnsAsync(new List<QuestionAnswerSection>());
 
         // Act
-        var result = await _controller.TaskReview("task-name", "question-name");
+        var result = await _controller.TaskReview("task-name");
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -553,7 +524,7 @@ public class ApplicationControllerTests
         var model = new TaskReviewViewModel { Answer = TaskStatusEnum.Completed };
 
         // Act
-        var result = await _controller.SubmitTaskReview("task", "question", model);
+        var result = await _controller.SubmitTaskReview("task", model);
 
         // Assert
         var redirect = Assert.IsType<RedirectResult>(result);
@@ -584,7 +555,7 @@ public class ApplicationControllerTests
         var model = new TaskReviewViewModel { Answer = answer };
 
         // Act
-        var result = await _controller.SubmitTaskReview("task", "question", model);
+        var result = await _controller.SubmitTaskReview("task", model);
 
         // Assert
         Assert.IsType<BadRequestResult>(result);
@@ -616,7 +587,7 @@ public class ApplicationControllerTests
         var model = new TaskReviewViewModel { Answer = TaskStatusEnum.Completed };
 
         // Act
-        var result = await _controller.SubmitTaskReview("task", "question", model);
+        var result = await _controller.SubmitTaskReview("task", model);
 
         // Assert
         Assert.IsType<BadRequestResult>(result);
@@ -651,7 +622,7 @@ public class ApplicationControllerTests
         var model = new TaskReviewViewModel { Answer = answer };
 
         // Act
-        var result = await _controller.SubmitTaskReview("task", "question", model);
+        var result = await _controller.SubmitTaskReview("task", model);
 
         // Assert
         _taskServiceMock.Verify(x => x.UpdateTaskStatus(application.ApplicationId, taskId, answer), Times.Once);

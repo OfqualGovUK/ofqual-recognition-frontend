@@ -7,4 +7,5 @@ public interface ITaskService
 {
     public Task<List<TaskItemStatusSection>> GetApplicationTasks(Guid applicationId);
     public Task<bool> UpdateTaskStatus(Guid applicationId, Guid taskId, TaskStatusEnum status);
+    public Task<TaskItem?> GetTaskDetailsByTaskNameUrl(string taskNameUrl);
 }
