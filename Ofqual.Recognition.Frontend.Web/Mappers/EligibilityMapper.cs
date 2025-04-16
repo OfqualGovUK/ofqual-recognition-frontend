@@ -1,11 +1,11 @@
-using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
+using Ofqual.Recognition.Frontend.Core.Models;
 
 namespace Ofqual.Recognition.Frontend.Web.Mappers;
 
 public static class EligibilityMapper
 {
-    public static QuestionOneViewModel MapToQuestionOneViewModel(Question question)
+    public static QuestionOneViewModel MapToQuestionOneViewModel(EligibilityQuestion question)
     {
         return new QuestionOneViewModel
         {
@@ -13,7 +13,7 @@ public static class EligibilityMapper
         };
     }
 
-    public static QuestionTwoViewModel MapToQuestionTwoViewModel(Question question)
+    public static QuestionTwoViewModel MapToQuestionTwoViewModel(EligibilityQuestion question)
     {
         return new QuestionTwoViewModel
         {
@@ -21,7 +21,7 @@ public static class EligibilityMapper
         };
     }
 
-    public static QuestionThreeViewModel MapToQuestionThreeViewModel(Question question)
+    public static QuestionThreeViewModel MapToQuestionThreeViewModel(EligibilityQuestion question)
     {
         return new QuestionThreeViewModel
         {

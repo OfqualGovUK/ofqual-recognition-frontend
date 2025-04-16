@@ -1,11 +1,11 @@
 namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
-public class TextBoxViewModel
+public class TextareaViewModel
 {
     /// <summary>
     /// The label shown above the text box.
     /// </summary>
-    public string? Label { get; set; }
+    public TextWithSizeViewModel? Label { get; set; }
 
     /// <summary>
     /// Hint text shown below the label.
@@ -16,6 +16,11 @@ public class TextBoxViewModel
     /// The name of the field
     /// </summary>
     public required string Name { get; set; }
+
+    /// <summary>
+    /// The display name for the section shown on the review page.
+    /// </summary>
+    public string? SectionName { get; set; }
     
     /// <summary>
     /// The number of rows shown in the text area.

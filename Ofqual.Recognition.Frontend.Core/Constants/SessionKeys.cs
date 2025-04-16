@@ -6,5 +6,7 @@ public static class SessionKeys
     public const string EligibilityQuestionTwo = "EligibilityQuestionTwo";
     public const string EligibilityQuestionThree = "EligibilityQuestionThree";
     public const string Application = "Application";
-    public const string TaskList = "TaskList";
+    public const string ApplicationTaskList = "ApplicationTaskList";
+    public const string ApplicationQuestionDetails = "ApplicationQuestionDetails";
+    public const string ApplicationQuestionReview = "ApplicationQuestionReview";
 }

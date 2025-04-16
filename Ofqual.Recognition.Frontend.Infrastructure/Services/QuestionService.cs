@@ -1,8 +1,10 @@
-﻿using Ofqual.Recognition.Frontend.Core.Models;
+﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Serilog;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Enums;
+using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
+using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -17,17 +19,17 @@ public class QuestionService : IQuestionService
         _sessionService = sessionService;
     }
 
-    public async Task<QuestionResponse?> GetQuestionDetails(string taskName, string questionName)
+    public async Task<QuestionDetails?> GetQuestionDetails(string taskName, string questionName)
     {
         try
         {
-            if (_sessionService.HasInSession($"{taskName}/{questionName}"))
+            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionDetails}-{taskName}/{questionName}"))
             {
-                return _sessionService.GetFromSession<QuestionResponse>($"{taskName}/{questionName}");
+                return _sessionService.GetFromSession<QuestionDetails>($"{SessionKeys.ApplicationQuestionDetails}-{taskName}/{questionName}");
             }
 
             var client = _client.GetClient();
-            var result = await client.GetFromJsonAsync<QuestionResponse>($"/questions/{taskName}/{questionName}");
+            var result = await client.GetFromJsonAsync<QuestionDetails>($"/questions/{taskName}/{questionName}");
 
             if (result == null)
             {
@@ -35,7 +37,7 @@ public class QuestionService : IQuestionService
                 return result;
             }
 
-            _sessionService.SetInSession($"{taskName}/{questionName}", result);
+            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionDetails}-{taskName}/{questionName}", result);
             return result;
         }
         catch (Exception ex)
@@ -45,30 +47,61 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<QuestionAnswerResult?> SubmitQuestionAnswer(Guid applicationId, Guid questionId, string answer)
+    public async Task<QuestionAnswerSubmissionResponse?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
     {
         try
         {
             var client = _client.GetClient();
-            var payload = new QuestionAnswer
+            var payload = new QuestionAnswerSubmission
             {
                 Answer = answer
             };
 
-            var response = await client.PostAsJsonAsync($"/applications/{applicationId}/questions/{questionId}", payload);
+            var response = await client.PostAsJsonAsync($"/applications/{applicationId}/tasks/{taskId}/questions/{questionId}", payload);
 
             if (!response.IsSuccessStatusCode)
             {
-                Log.Warning("Failed to submit answer for question {QuestionId} in application {ApplicationId}", questionId, applicationId);
+                Log.Warning("Failed to submit answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
                 return null;
             }
 
-            var result = await response.Content.ReadFromJsonAsync<QuestionAnswerResult>();
+            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
+            
+            var result = await response.Content.ReadFromJsonAsync<QuestionAnswerSubmissionResponse>();
             return result;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while submitting answer for question {QuestionId} in application {ApplicationId}", questionId, applicationId);
+            Log.Error(ex, "An error occurred while submitting answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
+            return null;
+        }
+    }
+
+    public async Task<List<QuestionAnswerSection>?> GetTaskQuestionAnswers(Guid applicationId, Guid taskId)
+    {
+        try
+        {
+
+            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}"))
+            {
+                return _sessionService.GetFromSession<List<QuestionAnswerSection>>($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}");
+            }
+
+            var client = _client.GetClient();
+            var result = await client.GetFromJsonAsync<List<QuestionAnswerSection>>($"/applications/{applicationId}/tasks/{taskId}/questions/answers");
+
+            if (result == null)
+            {
+                Log.Warning("No question answers found for TaskId: {TaskId} in ApplicationId: {ApplicationId}", taskId, applicationId);
+                return null;
+            }
+
+            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}", result);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while retrieving question answers for TaskId: {TaskId} in ApplicationId: {ApplicationId}", taskId, applicationId);
             return null;
         }
     }

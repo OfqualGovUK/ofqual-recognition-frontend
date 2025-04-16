@@ -1,0 +1,57 @@
+﻿@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model QuestionViewModel
+
+@{
+    var textarea = Model?.QuestionContent?.FormGroup?.Textarea;
+    var maxWords = textarea?.Validation?.MaxLength;
+    var infoId = $"{textarea?.Name}-info";
+    var hintId = $"{textarea?.Name}-hint";
+}
+
+@if (textarea is not null)
+{
+    <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxwords="@maxWords">
+
+        @if (!string.IsNullOrEmpty(textarea?.Label?.Text))
+        {
+            var labelSize = Model?.QuestionContent?.Heading != null ? textarea.Label.Size : "l";
+            
+            if (Model?.QuestionContent?.Heading == null)
+            {
+                <h1 class="govuk-label-wrapper">
+                    <label class="govuk-label govuk-label--@labelSize" for="@textarea.Name">
+                        @textarea.Label.Text
+                    </label>
+                </h1>
+            }
+            else
+            {
+                <label class="govuk-label govuk-label--@labelSize" for="@textarea.Name">
+                    @textarea.Label.Text
+                </label>
+            }
+        }
+
+        @if (!string.IsNullOrEmpty(textarea?.Hint))
+        {
+            <div id="@hintId" class="govuk-hint">
+                @textarea.Hint
+            </div>
+        }
+
+        <textarea class="govuk-textarea govuk-js-character-count" 
+            id="@textarea.Name" 
+            name="@textarea.Name"
+            spellcheck="@textarea.SpellCheck?.ToString().ToLower()" 
+            rows="@textarea.Rows"
+            aria-describedby="@infoId @hintId"></textarea>
+
+        @if (maxWords.HasValue)
+        {
+            <div id="@infoId" class="govuk-hint govuk-character-count__message">
+                You can enter up to @maxWords words
+            </div>
+        }
+
+    </div>
+}

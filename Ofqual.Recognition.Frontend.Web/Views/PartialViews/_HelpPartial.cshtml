@@ -9,7 +9,9 @@
 {
     <div class="govuk-grid-column-one-third">
         <div class="govuk-inset-text">
+            
             <h3 class="govuk-heading-s">Help with this section</h3>
+
             @foreach (var helpItem in help)
             {
 
@@ -18,7 +20,7 @@
                     foreach (var link in helpItem.Links)
                     {
                         <p class="govuk-body-s">
-                            <a href="@link.Url" target="_blank">@link.Text (opens in a new tab)</a>
+                            <a href="@link.Url" class="govuk-link" target="_blank">@link.Text (opens in a new tab)</a>
                         </p>
                     }
                 }

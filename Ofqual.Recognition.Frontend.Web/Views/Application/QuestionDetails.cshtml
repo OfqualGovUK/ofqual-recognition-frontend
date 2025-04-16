@@ -2,20 +2,38 @@
 @using Ofqual.Recognition.Frontend.Core.Constants
 @model QuestionViewModel
 
+@{
+    var backLinkUrl = Model.FromReview
+        ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.CurrentQuestionUrl}/review-your-answers"
+        : (Model.PreviousQuestionUrl != null
+            ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.PreviousQuestionUrl}"
+            : RouteConstants.ApplicationConstants.TASK_LIST_PATH);
+}
+
+@section BackLink {
+    <a href="@backLinkUrl" class="govuk-back-link">Back</a>
+}
+
 <div class="govuk-grid-row">
 
     <div class="govuk-grid-column-two-thirds">
-        
-        <h1 class="govuk-heading-l">@Model.QuestionContent.Title</h1>
+
+        @if (!string.IsNullOrEmpty(Model.QuestionContent.Heading))
+        {
+            <h1 class="govuk-heading-l">@Model.QuestionContent.Heading</h1>
+        }
 
         @await Html.PartialAsync($"~/Views/PartialViews/_BodyPartial.cshtml", Model)
 
         @if (Model.QuestionContent.FormGroup != null)
         {
             <form class="form" method="post">
+
                 @await Html.PartialAsync($"~/Views/PartialViews/_{Model.QuestionTypeName}Partial.cshtml", Model)
+
                 @Html.AntiForgeryToken()
                 @await Html.PartialAsync($"~/Views/PartialViews/_ButtonGroupPartial.cshtml", Model)
+
             </form>
         }
     </div>
