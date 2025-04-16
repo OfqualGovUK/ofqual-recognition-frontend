@@ -16,4 +16,9 @@ public class ValidationRuleViewModel
     /// True if the input is required.
     /// </summary>
     public bool Required { get; set; }
+
+    /// <summary>
+    /// A regex pattern for validating the input.
+    /// </summary>
+    public string? Pattern { get; set; }
 }

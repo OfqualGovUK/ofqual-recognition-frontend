@@ -1,0 +1,21 @@
+﻿@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model QuestionViewModel
+
+@foreach (var textField in Model?.QuestionContent?.FormGroup?.TextFields)
+{
+    <div class="govuk-form-group">
+        <label class="govuk-label" for="@textField.Name">@textField.Label</label>
+        @if (!string.IsNullOrEmpty(textField.Hint))
+        {
+            <span class="govuk-hint">@textField.Hint</span>
+        }
+        <input class="govuk-input"
+               id="@textField.Name"
+               name="@textField.Name"
+               type="text"
+        @(textField.Disabled ? "disabled" : "")
+               maxlength="@textField.Validation?.MaxLength"
+               minlength="@textField.Validation?.MinLength"
+               pattern="@textField.Validation?.Pattern" />
+    </div>
+}
