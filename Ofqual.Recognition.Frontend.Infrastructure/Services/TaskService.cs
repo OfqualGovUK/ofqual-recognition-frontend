@@ -58,7 +58,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                 {
                     Status = status
                 };
-                
+
                 var jsonContent = new StringContent(JsonConvert.SerializeObject(newTaskStatus), Encoding.UTF8, "application/json");
                 var response = await client.PostAsync($"/applications/{applicationId}/tasks/{taskId}", jsonContent);
 
@@ -75,6 +75,34 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             {
                 Log.Error(ex, "An error occurred while updating task {TaskId} for Application ID {ApplicationId}", taskId, applicationId);
                 return false;
+            }
+        }
+
+        public async Task<TaskDetails?> GetTaskDetailsByTaskNameUrl(string taskNameUrl)
+        {
+            try
+            {
+                if (_sessionService.HasInSession($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}"))
+                {
+                    return _sessionService.GetFromSession<TaskDetails>($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}");
+                }
+
+                var client = _client.GetClient();
+                var result = await client.GetFromJsonAsync<TaskDetails>($"/tasks/{taskNameUrl}");
+
+                if (result == null)
+                {
+                    Log.Warning("No task details found for TaskNameUrl '{TaskNameUrl}'", taskNameUrl);
+                    return result;
+                }
+                
+                _sessionService.SetInSession($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}", result);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while retrieving task details for TaskNameUrl '{TaskNameUrl}'", taskNameUrl);
+                return null;
             }
         }
     }

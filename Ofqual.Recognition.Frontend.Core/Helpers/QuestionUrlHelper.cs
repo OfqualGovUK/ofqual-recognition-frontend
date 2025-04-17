@@ -2,7 +2,7 @@ namespace Ofqual.Recognition.Frontend.Core.Helpers;
 
 public static class QuestionUrlHelper
 {
-    public static (string taskName, string questionName)? Parse(string? url)
+    public static (string taskNameUrl, string questionNameUrl)? Parse(string? url)
     {
         if (string.IsNullOrWhiteSpace(url))
         {

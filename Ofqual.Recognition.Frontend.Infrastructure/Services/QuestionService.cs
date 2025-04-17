@@ -23,9 +23,9 @@ public class QuestionService : IQuestionService
     {
         try
         {
-            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionDetails}-{taskName}/{questionName}"))
+            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}"))
             {
-                return _sessionService.GetFromSession<QuestionDetails>($"{SessionKeys.ApplicationQuestionDetails}-{taskName}/{questionName}");
+                return _sessionService.GetFromSession<QuestionDetails>($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}");
             }
 
             var client = _client.GetClient();
@@ -37,7 +37,7 @@ public class QuestionService : IQuestionService
                 return result;
             }
 
-            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionDetails}-{taskName}/{questionName}", result);
+            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}", result);
             return result;
         }
         catch (Exception ex)
@@ -82,9 +82,9 @@ public class QuestionService : IQuestionService
         try
         {
 
-            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}"))
+            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}"))
             {
-                return _sessionService.GetFromSession<List<QuestionAnswerSection>>($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}");
+                return _sessionService.GetFromSession<List<QuestionAnswerSection>>($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
             }
 
             var client = _client.GetClient();
@@ -96,7 +96,7 @@ public class QuestionService : IQuestionService
                 return null;
             }
 
-            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionReview}-{applicationId}/{taskId}", result);
+            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}", result);
             return result;
         }
         catch (Exception ex)
