@@ -81,8 +81,7 @@ public class ApplicationController : Controller
         {
             return RedirectToAction(nameof(TaskReview), new
             {
-                taskNameUrl,
-                questionNameUrl
+                taskNameUrl
             });
         }
 
