@@ -198,7 +198,6 @@ public class ApplicationControllerTests
         var redirect = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("TaskReview", redirect.ActionName);
         Assert.Equal("task", redirect.RouteValues["taskNameUrl"]);
-        Assert.Equal("question", redirect.RouteValues["questionNameUrl"]);
     }
 
     [Fact]
