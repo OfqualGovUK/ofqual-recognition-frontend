@@ -8,7 +8,6 @@
 
 @if (textInputs != null && textInputs.Any())
 {
-
     <fieldset class="govuk-fieldset">
 
         @if (!string.IsNullOrEmpty(textInput?.Heading?.Text))
@@ -52,6 +51,5 @@
                        pattern="@item.Validation?.Pattern" />
             </div>
         }
-
     </fieldset>
 }
