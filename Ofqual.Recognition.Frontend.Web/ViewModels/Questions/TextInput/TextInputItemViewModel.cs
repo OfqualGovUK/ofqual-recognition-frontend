@@ -26,4 +26,9 @@ public class TextInputItemViewModel
     /// The input type, such as text, number or email.
     /// </summary>
     public string InputType { get; set; } = "text";
+
+    /// <summary>
+    /// Validation rules applied to the text input.
+    /// </summary>
+    public ValidationRuleViewModel? Validation { get; set; }
 }
