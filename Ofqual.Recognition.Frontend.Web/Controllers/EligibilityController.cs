@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Client;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Resource;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 [Route("eligibility")]
+[Authorize]
 public class EligibilityController : Controller
 {
     private readonly IEligibilityService _eligibilityService;
@@ -23,7 +25,7 @@ public class EligibilityController : Controller
         
     }
 
-    [Authorize]
+    [AuthorizeForScopes(ScopeKeySection = "DownstreamApis:b2c-proof-of-concept-api:Scopes")]
     [HttpGet("start")]
     public async Task<IActionResult> StartAsync() 
     {

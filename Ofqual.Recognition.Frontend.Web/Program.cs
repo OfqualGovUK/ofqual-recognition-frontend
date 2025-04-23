@@ -7,8 +7,6 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Abstractions;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +28,8 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.HandleSameSiteCookieCompatibility();
 });
 
+IEnumerable<string>? initialScopes = builder.Configuration.GetSection("DownstreamApis:RecognitionCitizenApi:Scopes").Get<IEnumerable<string>>();
+
 // Configuration to sign-in users with Azure AD B2C
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
@@ -48,9 +48,10 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         };
         options.SaveTokens = true;
     })
-   .EnableTokenAcquisitionToCallDownstreamApi()
-   .AddDownstreamWebApi("b2c-proof-of-concept-api", builder.Configuration.GetSection("PoCAPI"))
-   .AddInMemoryTokenCaches(); ;
+    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+    .AddInMemoryTokenCaches();
+
+builder.Services.AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
 
 builder.Services.AddRazorPages();
 
@@ -93,6 +94,8 @@ app.UseRouting();
 // Add the ASP.NET Core authentication service
 app.UseAuthentication();
 app.UseAuthorization();
+
+
 
 app.UseEndpoints(endpoints =>
 {
