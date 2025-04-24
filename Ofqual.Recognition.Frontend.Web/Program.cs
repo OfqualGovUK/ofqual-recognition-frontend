@@ -78,11 +78,10 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         builder.Configuration.Bind("AzureAdB2C", options);
         options.Events ??= new OpenIdConnectEvents();
         options.Events.OnRedirectToIdentityProvider += async (context) =>
-        {
-            const string ID_TOKEN_HINT = "id_token_hint";
-            var token = context.Properties.Items.FirstOrDefault(x => x.Key == ID_TOKEN_HINT).Value;
+        {            
+            var token = context.Properties.Items.FirstOrDefault(x => x.Key == AuthConstants.TokenHintIdentifier).Value;
             if (token != null)
-                context.ProtocolMessage.SetParameter(ID_TOKEN_HINT, token);
+                context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);
             await Task.CompletedTask.ConfigureAwait(false);
         };
         options.SaveTokens = true;
