@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using System.Net.Http.Headers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -14,31 +16,32 @@ public class EligibilityController : Controller
 {
     private readonly IEligibilityService _eligibilityService;
     private readonly ILogger<EligibilityController> _logger;
-    private IDownstreamApi _downstreamApi;
-    private const string ServiceName = "b2c-proof-of-concept-api";
+    private readonly ITokenAcquisition _tokenAcquisition;
+    private readonly IConfiguration _configuration;
+    private const string ServiceName = "CitizenAPI";
 
-    public EligibilityController(IEligibilityService eligibilityService, ILogger<EligibilityController> logger, IDownstreamApi downstreamApi)
+    public EligibilityController(IEligibilityService eligibilityService, ILogger<EligibilityController> logger, ITokenAcquisition tokenAcquisition, IConfiguration configuration)
     {
         _eligibilityService = eligibilityService;
         _logger = logger;
-        _downstreamApi = downstreamApi;
-        
+        _tokenAcquisition = tokenAcquisition;
+        _configuration = configuration;
     }
 
-    [AuthorizeForScopes(ScopeKeySection = "DownstreamApis:b2c-proof-of-concept-api:Scopes")]
+    [AuthorizeForScopes(ScopeKeySection = "DownstreamApis:CitizenAPI:Scopes")]
     [HttpGet("start")]
     public async Task<IActionResult> StartAsync() 
     {
-        var accessToken = await HttpContext.GetTokenAsync("access_token");
-        _logger.LogInformation("Access token: {accessToken}", accessToken);
-        var idToken = await HttpContext.GetTokenAsync("id_token");
-        _logger.LogInformation("Id token: {idToken}", idToken);
-        var value = await _downstreamApi.CallApiForUserAsync(
-          ServiceName,
-          options =>
-          {
-              options.RelativePath = $"/questions/application-details/qualifications";
-          });
+        var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(_configuration.GetSection("DownstreamApis:CitizenAPI:Scopes").Get<IEnumerable<string>>());
+        _logger.LogInformation("Access token: {accessToken}", accessToken); // Not for production!
+
+        using (HttpClient client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            HttpResponseMessage response = await client.GetAsync("https://localhost:7037/questions/application-details/qualifications");
+        }
+
         return View();
     } 
 

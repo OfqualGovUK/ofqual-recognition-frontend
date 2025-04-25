@@ -28,7 +28,8 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.HandleSameSiteCookieCompatibility();
 });
 
-IEnumerable<string>? initialScopes = builder.Configuration.GetSection("DownstreamApis:RecognitionCitizenApi:Scopes").Get<IEnumerable<string>>();
+// This needs to be a list of *direct urls* to scopes and not just the names of the scopes!
+IEnumerable<string>? initialScopes = builder.Configuration.GetSection("DownstreamApis:CitizenAPI:Scopes").Get<IEnumerable<string>>();
 
 // Configuration to sign-in users with Azure AD B2C
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
@@ -49,9 +50,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         options.SaveTokens = true;
     })
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-    .AddInMemoryTokenCaches();
-
-builder.Services.AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
+    .AddDistributedTokenCaches();
 
 builder.Services.AddRazorPages();
 
