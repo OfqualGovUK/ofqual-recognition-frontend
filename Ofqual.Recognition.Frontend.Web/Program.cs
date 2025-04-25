@@ -15,6 +15,7 @@ using Ofqual.Recognition.Frontend.Infrastructure.Client;
 using Ofqual.Recognition.Frontend.Web.Middlewares;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,8 +75,17 @@ builder.Services.Configure<OpenIdConnectOptions>(builder.Configuration.GetSectio
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
-    {
+    {        
         builder.Configuration.Bind("AzureAdB2C", options);
+
+        if (builder.Configuration.GetSection("AzureAdB2C").GetValue<bool?>("UseAutomationPolicies") ?? false)
+        {
+            options.SignUpSignInPolicyId = builder.Configuration
+                .GetSection("AzureAdB2C")
+                .GetValue<string>("SignUpSignInPolicyForAutomationId");
+        }
+
+
         options.Events ??= new OpenIdConnectEvents();
         options.Events.OnRedirectToIdentityProvider += async (context) =>
         {            
