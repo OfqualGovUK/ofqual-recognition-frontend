@@ -14,12 +14,10 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
     [Route("[Area]/[Controller]/[Action]")]
     public class OfqualAccountController : Controller
     {
-
-        private IOptionsMonitor<MicrosoftIdentityOptions> _optionsMonitor;
-        public OfqualAccountController(IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor) 
-        { 
-            _optionsMonitor = optionsMonitor;
-        
+        private readonly IOptionsMonitor<MicrosoftIdentityOptions> _optionsMonitor;
+        public OfqualAccountController(IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor)
+        {
+            _optionsMonitor = optionsMonitor;        
         }
 
         [HttpGet("{scheme?}")]
