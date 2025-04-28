@@ -51,29 +51,29 @@ The main application settings are defined in `appsettings.json` and can be tailo
 
 ### Setting Details
 
--**`AzureAdB2C:Instance`**
+- **`AzureAdB2C:Instance`**
     The URL of the B2C service used to authenticate.
 
--**`AzureAdB2C:ClientId`**
+- **`AzureAdB2C:ClientId`**
     The Application ID of the service we will be running .
 
--**`AzureAdB2C:Domain`**
+- **`AzureAdB2C:Domain`**
     The domain we will be authenticating under.
 
--**`AzureAdB2C:SignUpSignInPolicyId`**
+- **`AzureAdB2C:SignUpSignInPolicyId`**
     The policy name for the typical Sign up/Sign in flow.
 
--**`AzureAdB2C:SignUpSignInPolicyForAutomationId`**
+- **`AzureAdB2C:SignUpSignInPolicyForAutomationId`**
     The policy name for the automated Sign up/Sign in flow, this should not be set in production environments.
 
--**`AzureAdB2C:UseAutomationPolicies`**
+- **`AzureAdB2C:UseAutomationPolicies`**
     This flag is used in development to determine if the application uses the typical or automated Sign up/Sign in flow.
     This should only be set to `true` when using automated testing.
 
--**`AzureAdB2C:CallBackPath`**
+- **`AzureAdB2C:CallBackPath`**
     The callback path when signing in to Azure B2C, typically set to `/signin-oidc`
 
--**`AzureAdB2C:AzureAdB2CSignedOutCallbackPath`**
+- **`AzureAdB2C:AzureAdB2CSignedOutCallbackPath`**
     The callback path when signing out of Azure B2c, typically set to `/signout-callback-oidc`
     
 - **`RecognitionApi:BaseUrl`**  
