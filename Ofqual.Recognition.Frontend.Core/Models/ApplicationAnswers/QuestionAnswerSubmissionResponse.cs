@@ -5,5 +5,6 @@ namespace Ofqual.Recognition.Frontend.Core.Models;
 /// </summary>
 public class QuestionAnswerSubmissionResponse
 {
-    public string? NextQuestionUrl { get; set; }
+    public required string NextTaskNameUrl { get; set; }
+    public required string NextQuestionNameUrl { get; set; }
 }
