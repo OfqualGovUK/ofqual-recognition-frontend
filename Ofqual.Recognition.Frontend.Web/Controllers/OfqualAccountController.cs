@@ -26,7 +26,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items["policy"] = Environment.GetEnvironmentVariable("AzureAdB2C__SignUpSignInPolicyId");
+            properties.Items["policy"] = _optionsMonitor.CurrentValue.SignUpSignInPolicyId;
             return Challenge(properties, scheme);
         }
 

@@ -55,7 +55,7 @@ The main application settings are defined in `appsettings.json` and can be tailo
     The URL of the B2C service used to authenticate.
 
 - **`AzureAdB2C:ClientId`**
-    The Application ID of the service we will be running .
+    The Application ID of the service we will be running.
 
 - **`AzureAdB2C:Domain`**
     The domain we will be authenticating under.

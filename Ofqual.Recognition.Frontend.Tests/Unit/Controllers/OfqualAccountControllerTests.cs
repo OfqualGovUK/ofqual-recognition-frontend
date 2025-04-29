@@ -24,7 +24,11 @@ public class OfqualAccountControllerTests
         _contextMock = new Mock<IHttpContextAccessor>();
 
         const string scheme = "test_scheme";
-        
+
+        _optionsMock
+            .Setup(x => x.CurrentValue)
+            .Returns(() => new MicrosoftIdentityOptions { SignUpSignInPolicyId = "B2C_Test_SUSI" });
+
         _urlHelperMock
             .Setup(x => x.Content(It.IsAny<string?>()))
             .Returns<string?>(_ => "http://localhost/home/index");
