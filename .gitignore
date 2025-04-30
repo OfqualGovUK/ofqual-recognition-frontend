@@ -486,3 +486,4 @@ appsettings*.json
 Buffer*.txt
 Buffer.bookmark
 /Ofqual.Recognition.Frontend.Playwright/Fixtures/PlaywrightFixture.cs
+/Ofqual.Recognition.Frontend.Playwright/appsettings.Test.json
