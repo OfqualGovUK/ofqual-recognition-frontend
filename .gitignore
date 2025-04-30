@@ -487,3 +487,8 @@ Buffer*.txt
 Buffer.bookmark
 /Ofqual.Recognition.Frontend.Playwright/Fixtures/PlaywrightFixture.cs
 /Ofqual.Recognition.Frontend.Playwright/appsettings.Test.json
+/Ofqual.Recognition.Frontend.Playwright/package-lock.json
+/Ofqual.Recognition.Frontend.Playwright/test.runsettings
+/Ofqual.Recognition.Frontend.Web/appsettings.json
+/Ofqual.Recognition.Frontend.Web/package-lock.json
+/package-lock.json
