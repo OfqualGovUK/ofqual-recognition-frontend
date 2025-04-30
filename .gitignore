@@ -485,3 +485,4 @@ $RECYCLE.BIN/
 appsettings*.json
 Buffer*.txt
 Buffer.bookmark
+/Ofqual.Recognition.Frontend.Playwright/Fixtures/PlaywrightFixture.cs
