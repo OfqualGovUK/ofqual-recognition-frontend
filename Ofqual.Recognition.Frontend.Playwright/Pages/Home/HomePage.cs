@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Playwright;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Ofqual.Recognition.Frontend.Playwright.Configs;
-using System.Diagnostics;
-using System.Net.Http;
+﻿using Microsoft.Playwright;
 
 namespace Ofqual.Recognition.Frontend.Playwright.Pages
 {
@@ -15,7 +10,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
 
         public HomePage(IPage page) : base(page)
         {
-            _basePath = Path.Join("/home");
+            _basePath = "/home";
             _eligibilityStartButton = page.Locator("[data-test='eligibility-start']");
             _applicationStartButton = page.Locator("[data-test='application-start']");
         }
