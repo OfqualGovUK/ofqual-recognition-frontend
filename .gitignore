@@ -492,3 +492,4 @@ Buffer.bookmark
 /Ofqual.Recognition.Frontend.Web/appsettings.json
 /Ofqual.Recognition.Frontend.Web/package-lock.json
 /package-lock.json
+/Ofqual.Recognition.Frontend.Playwright/appsettings.Test.Development.json
