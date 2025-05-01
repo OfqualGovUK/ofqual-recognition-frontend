@@ -4,13 +4,26 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 public class HomeController : Controller
 {
+    private readonly ILogger _logger;
+    public HomeController(ILogger logger)
+    {
+        _logger = logger;
+    }
+
     public IActionResult Index()
     {
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+        try
         {
-            return NotFound();
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+            {
+                return NotFound();
+            }                      
         }
-
+        catch (Exception ex)
+        {
+            _logger.LogError("Error loading home: {Message}\r\nStackTrace: {StackTrace}",
+                ex.Message, ex.StackTrace);
+        }
         return View();
     }
 }
