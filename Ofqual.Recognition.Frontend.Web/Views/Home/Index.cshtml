@@ -15,5 +15,19 @@
             <h2 class="govuk-heading-m">Application:</h2>
             <a asp-controller="application" data-test="application-start" class="govuk-button govuk-button--start">Start now</a>
         }
+        @if (!(User.Identity?.IsAuthenticated ?? false))
+        {
+            <h2 class="govuk-heading-m">Sign in:</h2>
+            <a asp-area="MicrosoftIdentity" asp-controller="OfqualAccount" asp-action="SignIn" class="govuk-button govuk-button--start">Sign In</a>
+        }
+        else
+        {
+            <h2 class="govuk-heading-m">Account information:</h2>
+            <p class="govuk-body">
+               Signed in as @User.Identity.Name
+            </p>
+            <a asp-area="MicrosoftIdentity" asp-controller="OfqualAccount" asp-action="SignOut" class="govuk-button govuk-button--start">Sign Out</a>
+        }
+
     </div>
 </div>
