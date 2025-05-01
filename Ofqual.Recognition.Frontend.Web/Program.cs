@@ -16,10 +16,13 @@ using Ofqual.Recognition.Frontend.Web.Middlewares;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Extensions.Configuration;
+using Elastic.CommonSchema;
 
 var builder = WebApplication.CreateBuilder(args);
 
 #region Services
+
+
 
 // Add GovUK frontend
 builder.Services.AddGovUkFrontend();
@@ -56,7 +59,8 @@ builder.Host.UseSerilog((ctx, svc, cfg) => cfg
         bufferRollingInterval: BufferRollingInterval.Hour,
         bufferFileSizeLimitBytes: 524288000L,
         retainedBufferFileCountLimit: 12
-    )
+)
+
 );
 
 // Add Correlation ID service for tracking requests across logs

@@ -1,5 +1,8 @@
 using Ofqual.Recognition.Frontend.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
@@ -9,7 +12,7 @@ public class HomeControllerTests
 
     public HomeControllerTests()
     {
-        _controller = new HomeController();
+        _controller = new HomeController(new Mock<ILogger<HomeController>>().Object);
     }
 
     [Theory]
