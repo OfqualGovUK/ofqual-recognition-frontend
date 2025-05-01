@@ -219,6 +219,18 @@ stages:
             dotnet run --project Ofqual.Recognition.Frontend.Web/Ofqual.Recognition.Frontend.Web.csproj --urls "$(TestSettings__BaseUrl)" &
             sleep 10
           displayName: 'Start Application Server for E2E Tests'
+          env:
+            FeatureFlag__Application: '$(FeatureFlag__Application)'
+            RecognitionApi__BaseUrl: '$(RecognitionApi__BaseUrl)'
+            TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
+            AzureAdB2C__Instance: '$(AzureAdB2C__Instance)'
+            AzureAdB2C__ClientId: '$(AzureAdB2C__ClientId)'
+            AzureAdB2C__Domain: '$(AzureAdB2C__Domain)'
+            AzureAdB2C__SignUpSignInPolicyId: '$(AzureAdB2C__SignUpSignInPolicyId)'
+            AzureAdB2C__SignUpSignInPolicyForAutomationId: '$(AzureAdB2C__SignUpSignInPolicyForAutomationId)'
+            AzureAdB2C__UseAutomationPolicies: '$(AzureAdB2C__UseAutomationPolicies)'
+            AzureAdB2C__CallBackPath: '$(AzureAdB2C__CallBackPath)'
+            AzureAdB2C__AzureAdB2CSignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)' 
         # Step 6: Run Playwright E2E tests
         - task: DotNetCoreCLI@2
           displayName: 'Run Playwright End-to-End Tests'
@@ -230,7 +242,7 @@ stages:
             FeatureFlag__Application: '$(FeatureFlag__Application)'
             RecognitionApi__BaseUrl: '$(RecognitionApi__BaseUrl)'
             TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
-
+            
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
 - stage: Build
   displayName: Build and Push Stage
