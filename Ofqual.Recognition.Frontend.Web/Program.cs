@@ -13,6 +13,9 @@ using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Infrastructure.Client;
 using Ofqual.Recognition.Frontend.Web.Middlewares;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +69,34 @@ builder.Services.AddCorrelationId(opt =>
 // Enable Correlation ID tracking for incoming requests
 builder.Services.AddCorrelationId();
 
+//Add B2C Login
+builder.Services.AddOptions();
+builder.Services.Configure<OpenIdConnectOptions>(builder.Configuration.GetSection("AzureAdB2C"));
+
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(options =>
+    {        
+        builder.Configuration.Bind("AzureAdB2C", options);
+
+        if (builder.Configuration.GetSection("AzureAdB2C").GetValue<bool?>("UseAutomationPolicies") ?? false)
+        {
+            options.SignUpSignInPolicyId = builder.Configuration
+                .GetSection("AzureAdB2C")
+                .GetValue<string>("SignUpSignInPolicyForAutomationId");
+        }
+
+
+        options.Events ??= new OpenIdConnectEvents();
+        options.Events.OnRedirectToIdentityProvider += async (context) =>
+        {            
+            var token = context.Properties.Items.FirstOrDefault(x => x.Key == AuthConstants.TokenHintIdentifier).Value;
+            if (token != null)
+                context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);
+            await Task.CompletedTask.ConfigureAwait(false);
+        };
+        options.SaveTokens = true;
+    });
+
 // Configure HttpClient for API calls
 builder.Services.AddHttpClient("RecognitionCitizen", client =>
 {
@@ -111,6 +142,10 @@ app.UseHttpsRedirection();
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseCookiePolicy();
+app.UseAuthentication();
+
 app.UseAuthorization();
 app.UseMiddleware<FeatureRedirectMiddleware>();
 
