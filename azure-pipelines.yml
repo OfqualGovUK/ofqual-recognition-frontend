@@ -228,7 +228,7 @@ stages:
             AzureAdB2C__Domain: '$(AzureAdB2C__Domain)'
             AzureAdB2C__SignUpSignInPolicyId: '$(AzureAdB2C__SignUpSignInPolicyId)'
             AzureAdB2C__SignUpSignInPolicyForAutomationId: '$(AzureAdB2C__SignUpSignInPolicyForAutomationId)'
-            AzureAdB2C__AzureAdB2CSignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)' 
+            AzureAdB2C__BaseUriForRedirect: '$(AzureAdB2C__BaseUriForRedirect)' 
             AzureAdB2C__UseAutomationPolicies: '$(AzureAdB2C__UseAutomationPolicies)'
             AzureAdB2C__CallBackPath: '$(AzureAdB2C__CallBackPath)'
             AzureAdB2C__AzureAdB2CSignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)' 
