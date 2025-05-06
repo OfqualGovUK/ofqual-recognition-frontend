@@ -78,20 +78,22 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     {        
         builder.Configuration.Bind("AzureAdB2C", options);
 
-        if (builder.Configuration.GetSection("AzureAdB2C").GetValue<bool?>("UseAutomationPolicies") ?? false)
-        {
-            options.SignUpSignInPolicyId = builder.Configuration
-                .GetSection("AzureAdB2C")
-                .GetValue<string>("SignUpSignInPolicyForAutomationId");
+        if (builder.Configuration.GetValue<bool?>("AzureAdB2C:UseAutomationPolicies") ?? false)
+        {            
+            options.SignUpSignInPolicyId = builder.Configuration                
+                .GetValue<string>("AzureAdB2C:SignUpSignInPolicyForAutomationId");
         }
-
-
-        options.Events ??= new OpenIdConnectEvents();
+               
         options.Events.OnRedirectToIdentityProvider += async (context) =>
         {            
             var token = context.Properties.Items.FirstOrDefault(x => x.Key == AuthConstants.TokenHintIdentifier).Value;
             if (token != null)
                 context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);
+
+            var redirectUri = builder.Configuration.GetValue<string>("AzureAdB2C:RedirectUri");
+            if (!string.IsNullOrEmpty(redirectUri))
+                context.ProtocolMessage.RedirectUri = redirectUri;
+
             await Task.CompletedTask.ConfigureAwait(false);
         };
         options.SaveTokens = true;
@@ -145,6 +147,10 @@ app.UseRouting();
 
 app.UseCookiePolicy();
 app.UseAuthentication();
+app.UseForwardedHeaders(new ForwardedHeadersOptions 
+{ 
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
 
 app.UseAuthorization();
 app.UseMiddleware<FeatureRedirectMiddleware>();
