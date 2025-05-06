@@ -28,8 +28,8 @@ public class OfqualAccountController : Controller
     {
         scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
         var properties = new AuthenticationProperties
-        { 
-            RedirectUri = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/"
+        {
+            RedirectUri = Url.Content("~/")
         };
         properties.Items["policy"] = _optionsMonitor.CurrentValue.SignUpSignInPolicyId;
         return Challenge(properties, scheme);
@@ -45,7 +45,7 @@ public class OfqualAccountController : Controller
         // send the id_token value to the authentication middleware
         var properties = new AuthenticationProperties
         {
-            RedirectUri = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/"
+            RedirectUri = Url.Content("~/")
         };
         properties.Items[AuthConstants.TokenHintIdentifier] = idToken;
 

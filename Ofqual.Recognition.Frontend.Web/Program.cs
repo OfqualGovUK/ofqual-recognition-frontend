@@ -92,7 +92,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         {            
             var token = context.Properties.Items.FirstOrDefault(x => x.Key == AuthConstants.TokenHintIdentifier).Value;
             if (token != null)
-                context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);           
+                context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);
             await Task.CompletedTask.ConfigureAwait(false);
         };
         options.SaveTokens = true;
@@ -146,6 +146,10 @@ app.UseRouting();
 
 app.UseCookiePolicy();
 app.UseAuthentication();
+app.UseForwardedHeaders(new ForwardedHeadersOptions 
+{ 
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
 
 app.UseAuthorization();
 app.UseMiddleware<FeatureRedirectMiddleware>();
