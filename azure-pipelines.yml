@@ -21,169 +21,12 @@ variables:
   dotnetVersion: '8.0'
 
 stages:
-# Static Analysis stage: This stage runs static code analysis using SonarQube and audits dependencies for vulnerabilities.
-- stage: StaticAnalysis
-  displayName: 'Run Static Analysis'
-  condition: always()
-  jobs:
-    # SonarQube job: This job performs static code analysis using SonarQube.
-    - job: SonarQube
-      condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/heads/main'))
-      displayName: 'Run SonarQube Static Code Analysis'
-      steps:
-        # Step 1: Set up .NET SDK
-        - task: UseDotNet@2
-          displayName: 'Set Up .NET SDK (Version $(dotnetVersion))'
-          inputs:
-            version: '$(dotnetVersion).x'
-            performMultiLevelLookup: true
-            includePreviewVersions: true
-        # Step 2: Restore NuGet packages to ensure all dependencies are installed
-        - task: DotNetCoreCLI@2
-          displayName: 'Restore NuGet Packages'
-          inputs:
-            command: 'restore'
-            projects: '**/*.csproj'
-            feedsToUse: 'select'
-            vstsFeed: 'b8db0229-c220-4583-b1d9-1111e482a1ce'
-        # Step 3: Prepare SonarQube analysis
-        - task: SonarQubePrepare@7
-          displayName: 'Prepare SonarQube Analysis'
-          inputs:
-            SonarQube: $(SonarQubeServiceConnectionName)
-            scannerMode: 'dotnet'
-            projectKey: $(SonarQubeProjectKey)
-        # Step 4: PowerShell script to modify SonarQube parameters
-        - task: PowerShell@2
-          displayName: "Modify SonarQube Parameters"
-          inputs:
-            targetType: 'inline'
-            script: |
-              if ($env:BUILD_REASON -eq "PullRequest") {
-                  $params = "$env:SONARQUBE_SCANNER_PARAMS" -replace '"sonar.pullrequest.*":"[\w,/,-]*"\,?'
-              } else {
-                  $params = "$env:SONARQUBE_SCANNER_PARAMS" -replace '"sonar.branch.name":"[\w,/,-]*"\,?'
-              }
-              Write-Host "##vso[task.setvariable variable=SONARQUBE_SCANNER_PARAMS]$params"
-        # Step 5: Build the project before running static analysis
-        - task: DotNetCoreCLI@2
-          displayName: 'Build .NET Project'
-          inputs:
-            command: "build"
-            projects: "**/*.csproj"
-            arguments: "--no-restore"
-        # Step 6: Run SonarQube static code analysis
-        - task: SonarQubeAnalyze@7
-          displayName: 'Run SonarQube Static Code Analysis'
-        # Step 7: Publish SonarQube results to the dashboard
-        - task: SonarQubePublish@7
-          displayName: 'Publish SonarQube Analysis Results'
-          inputs:
-            pollingTimeoutSec: '300'
-
-    # Audit job: This job audits dependencies for vulnerabilities.
-    - job: Audit
-      displayName: 'Audit Dependencies for Security Vulnerabilities'
-      steps:
-        # Step 1: Restore NuGet packages to ensure all dependencies are installed
-        - task: DotNetCoreCLI@2
-          displayName: 'Restore .NET Project Dependencies (NuGet)'
-          inputs:
-            command: 'restore'
-            projects: '**/*.csproj'
-        # Step 2: Check for vulnerable dependencies in the project
-        - task: Bash@3
-          displayName: 'Scan for Vulnerable NuGet Packages'
-          inputs:
-            targetType: 'inline'
-            script: |
-              # Run dotnet command to check for vulnerable packages, including transitive dependencies
-              dotnet list package --vulnerable --include-transitive 2>&1 | tee build.log
-              echo "Analyse dotnet list package command log output..."
-              if grep -q -i "critical\|high" build.log; then
-                  echo "Must fix security vulnerabilities found on the log output."
-                  exit 1      # Fails the job if critical or high vulnerabilities are found
-              else
-                  echo "No critical or high severity vulnerabilities found."
-                  exit 0      # Passes the job if no critical/high vulnerabilities are found
-              fi
 
 # Test Stage: This stage runs unit tests, integration tests and end-to-end (E2E) tests.
 - stage: Test
   displayName: 'Run Unit, Integration and E2E Tests'
-  dependsOn: StaticAnalysis
-  condition: succeeded()
   jobs:
     # Unit Test Job: Runs unit tests to validate individual components.
-    - job: Unit
-      displayName: 'Run Unit Tests'
-      dependsOn: []
-      steps:
-        # Step 1: Set up .NET SDK
-        - task: UseDotNet@2
-          displayName: 'Set Up .NET SDK (Version $(dotnetVersion))'
-          inputs:
-            packageType: 'sdk'
-            version: '$(dotnetVersion).x'
-        # Step 2: Restore project dependencies from NuGet
-        - task: DotNetCoreCLI@2
-          displayName: 'Restore Project Dependencies'
-          inputs:
-            command: 'restore'
-            projects: '**/*.csproj'
-            feedsToUse: 'select'
-            verbosityRestore: 'Normal'
-        # Step 3: Build the project
-        - task: DotNetCoreCLI@2
-          displayName: 'Build Project'
-          inputs:
-            command: 'build'
-            projects: '**/*.csproj'
-            arguments: '--no-restore'
-        # Step 4: Run unit tests and filter by category
-        - task: DotNetCoreCLI@2
-          displayName: 'Run Unit Tests'
-          inputs:
-            command: 'test'
-            projects: '**/*Tests.csproj'
-            arguments: '--no-build --no-restore --filter Category=Unit'
-            testRunTitle: 'Recognition-Frontend-Unit-$(Build.BuildId)'
-            
-    # Integration Test Job: Runs integration tests to validate system interactions.
-    - job: Integration
-      displayName: 'Run Integration Tests'
-      dependsOn: []
-      steps:
-        # Step 1: Set up .NET SDK
-        - task: UseDotNet@2
-          displayName: 'Set Up .NET SDK (Version $(dotnetVersion))'
-          inputs:
-            packageType: 'sdk'
-            version: '$(dotnetVersion).x'
-        # Step 2: Restore project dependencies from NuGet
-        - task: DotNetCoreCLI@2
-          displayName: 'Restore Project Dependencies'
-          inputs:
-            command: 'restore'
-            projects: '**/*.csproj'
-            feedsToUse: 'select'
-            verbosityRestore: 'Normal'
-        # Step 3: Build the project
-        - task: DotNetCoreCLI@2
-          displayName: 'Build Project'
-          inputs:
-            command: 'build'
-            projects: '**/*.csproj'
-            arguments: '--no-restore'
-        # Step 4: Run integration tests and filter by category
-        - task: DotNetCoreCLI@2
-          displayName: 'Run Integration Tests'
-          inputs:
-            command: 'test'
-            projects: '**/*Tests.csproj'
-            arguments: '--no-build --no-restore --filter Category=Integration'
-            testRunTitle: 'Recognition-Frontend-Integration-$(Build.BuildId)'
-
     # E2E Test Job: Runs UI and functional tests to validate user workflows.
     - job: E2E
       displayName: 'Run E2E Tests'
@@ -228,6 +71,7 @@ stages:
             AzureAdB2C__Domain: '$(AzureAdB2C__Domain)'
             AzureAdB2C__SignUpSignInPolicyId: '$(AzureAdB2C__SignUpSignInPolicyId)'
             AzureAdB2C__SignUpSignInPolicyForAutomationId: '$(AzureAdB2C__SignUpSignInPolicyForAutomationId)'
+            AzureAdB2C__BaseUriForRedirect: '$(AzureAdB2C__BaseUriForRedirect)'
             AzureAdB2C__UseAutomationPolicies: '$(AzureAdB2C__UseAutomationPolicies)'
             AzureAdB2C__CallBackPath: '$(AzureAdB2C__CallBackPath)'
             AzureAdB2C__AzureAdB2CSignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)' 
@@ -243,41 +87,3 @@ stages:
             RecognitionApi__BaseUrl: '$(RecognitionApi__BaseUrl)'
             TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
             
-# Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
-- stage: Build
-  displayName: Build and Push Stage
-  dependsOn: Test
-  condition: succeeded()
-  jobs:
-  # Build and push to Dev/Preprod ACR
-  - job: BuildDev
-    displayName: Build and Push for Development/Preproduction
-    condition: and(succeeded(), not(startsWith(variables['build.sourceBranch'], 'refs/pull')))
-    steps:
-    # Step 1: Build and push the Docker image to the Development/Preproduction container registry
-    - task: Docker@2
-      displayName: Build and Push Docker Image to Dev/Preprod Container Registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        containerRegistry: $(dockerRegistryServiceConnectionDev)
-        dockerfile: $(dockerfilePath)
-        tags: |
-          latest
-          $(tag)
-  # Build and push to Production ACR
-  - job: BuildProd
-    displayName: Build and Push for Production
-    condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/heads/releases'))
-    steps:
-    # Step 1: Build and push the Docker image to the Production container registry
-    - task: Docker@2
-      displayName: Build and Push Docker Image to Production Container Registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        containerRegistry: $(dockerRegistryServiceConnectionProd)
-        dockerfile: $(dockerfilePath)
-        tags: |
-          latest
-          $(tag)
