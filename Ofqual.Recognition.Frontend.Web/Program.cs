@@ -92,13 +92,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         {            
             var token = context.Properties.Items.FirstOrDefault(x => x.Key == AuthConstants.TokenHintIdentifier).Value;
             if (token != null)
-                context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);
-            
-            var baseUriForRedirect = builder.Configuration
-                .GetSection("AzureAdB2C")
-                .GetValue<string>("BaseUriForRedirect");
-            if (baseUriForRedirect != null)
-                context.ProtocolMessage.RedirectUri = $"{baseUriForRedirect}{options.CallbackPath}";
+                context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);           
             await Task.CompletedTask.ConfigureAwait(false);
         };
         options.SaveTokens = true;
