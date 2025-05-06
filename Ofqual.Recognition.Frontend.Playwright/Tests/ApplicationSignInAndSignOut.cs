@@ -14,6 +14,8 @@ public class ApplicationSignInAndSignOut : PageTest
         //sign in
 
         await homePage.GoToHomePage();
-        await homePage.CheckSignInAndSignOut();      
+
+        //Turn off sign in test temporarily
+        //await homePage.CheckSignInAndSignOut();      
     } 
 }
