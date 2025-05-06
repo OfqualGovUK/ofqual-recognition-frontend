@@ -105,4 +105,32 @@ public class QuestionService : IQuestionService
             return null;
         }
     }
+
+    public async Task<QuestionAnswerDto> GetQuestionAnswer(Guid applicationId, Guid questionId)
+    {
+        try
+        {
+            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionDetails}/{questionId}/answer"))
+            {
+                return _sessionService.GetFromSession<QuestionDetails>($"{SessionKeys.ApplicationQuestionDetails}/{questionId}/answer");
+            }
+
+            var client = _client.GetClient();
+            var result = await client.GetFromJsonAsync<List<QuestionAnswerSection>>($"/applications/{applicationId}/questions/{questionId}/answers");
+
+            if (result == null)
+            { 
+                Log.Warning("No question answer found for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
+                return null;
+            }
+
+            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionDetails}/{questionId}/answer", result);
+            return result;
+        } 
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while retrieving answers for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
+            return null;
+        }
+    }
 }
