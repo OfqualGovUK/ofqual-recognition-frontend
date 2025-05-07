@@ -216,7 +216,7 @@ stages:
           displayName: 'Install E2E Test Browsers'
         # Step 5: Start the application server
         - script: |
-            dotnet run --project Ofqual.Recognition.Frontend.Web/Ofqual.Recognition.Frontend.Web.csproj --urls "$(TestSettings__BaseUrl)" --ignoreHTTPSErrors &
+            dotnet run --project Ofqual.Recognition.Frontend.Web/Ofqual.Recognition.Frontend.Web.csproj --urls "$(TestSettings__BaseUrl)" &
             sleep 10
           displayName: 'Start Application Server for E2E Tests'
           env:
@@ -240,8 +240,6 @@ stages:
             projects: 'Ofqual.Recognition.Frontend.Playwright/Ofqual.Recognition.Frontend.Playwright.csproj'
             arguments: '--no-build --no-restore'
           env:
-            FeatureFlag__Application: '$(FeatureFlag__Application)'
-            RecognitionApi__BaseUrl: '$(RecognitionApi__BaseUrl)'
             TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
             
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
