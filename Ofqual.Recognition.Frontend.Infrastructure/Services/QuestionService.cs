@@ -5,6 +5,7 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
 using Serilog;
+using Ofqual.Recognition.Frontend.Core.Models.Questions;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -106,13 +107,13 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<QuestionAnswerDto> GetQuestionAnswer(Guid applicationId, Guid questionId)
+    public async Task<QuestionAnswer?> GetQuestionAnswer(Guid applicationId, Guid questionId)
     {
         try
         {
-            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionDetails}/{questionId}/answer"))
+            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer"))
             {
-                return _sessionService.GetFromSession<QuestionDetails>($"{SessionKeys.ApplicationQuestionDetails}/{questionId}/answer");
+                return _sessionService.GetFromSession<QuestionAnswer>($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
             }
 
             var client = _client.GetClient();
@@ -124,7 +125,7 @@ public class QuestionService : IQuestionService
                 return null;
             }
 
-            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionDetails}/{questionId}/answer", result);
+            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer", result);
             return result;
         } 
         catch (Exception ex)

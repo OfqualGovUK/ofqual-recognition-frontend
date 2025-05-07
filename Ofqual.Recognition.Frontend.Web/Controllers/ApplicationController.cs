@@ -75,6 +75,13 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
+        QuestionAnswerDto? questionAnswer = await _questionService.GetQuestionAnswer(applicationId, questionId);
+
+        if (questionAnswer == null)
+        {
+            return NotFound();
+        }
+
         var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
 
         if (status == TaskStatusEnum.Completed && !fromReview)

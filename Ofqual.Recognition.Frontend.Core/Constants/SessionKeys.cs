@@ -10,4 +10,5 @@ public static class SessionKeys
     public const string ApplicationTaskList = "ApplicationTaskList";
     public const string ApplicationQuestionDetails = "ApplicationQuestionDetails";
     public const string ApplicationQuestionReview = "ApplicationQuestionReview";
+    public const string ApplicationQuestionAnswer = "ApplicationQuestionAnswer";
 }
