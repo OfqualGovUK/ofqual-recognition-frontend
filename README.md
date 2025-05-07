@@ -69,8 +69,7 @@ The main application settings are defined in `appsettings.json` and can be tailo
 
 - **`AzureAdB2C:RedirectUri`
     An optional parameter that will override the sign-in redirect URL to the specified value, if specified.
-    This will need to be appended with the correct callback path, ie. `/signin-oidc`
-
+    
 - **`AzureAdB2C:UseAutomationPolicies`**
     This flag is used in development to determine if the application uses the typical or automated Sign up/Sign in flow.
     This should only be set to `true` when using automated testing.
