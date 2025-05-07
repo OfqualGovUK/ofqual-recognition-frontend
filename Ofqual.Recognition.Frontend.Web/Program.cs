@@ -77,11 +77,9 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     {
         builder.Configuration.Bind("AzureAdB2C", options);
 
-        if (builder.Configuration.GetValue<bool?>("AzureAdB2C:UseAutomationPolicies") ?? false)
-        {
+        if (builder.Configuration.GetValue<bool?>("AzureAdB2C:UseAutomationPolicies") ?? false)        
             options.SignUpSignInPolicyId = builder.Configuration
-                .GetValue<string>("AzureAdB2C:SignUpSignInPolicyForAutomationId");
-        }
+                .GetValue<string>("AzureAdB2C:SignUpSignInPolicyForAutomationId");        
 
         options.Events.OnRedirectToIdentityProvider += async (context) =>
         {
@@ -95,6 +93,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             
             await Task.CompletedTask.ConfigureAwait(false);
         };
+
         options.SaveTokens = true;
     });
 
@@ -146,10 +145,6 @@ app.UseRouting();
 
 app.UseCookiePolicy();
 app.UseAuthentication();
-app.UseForwardedHeaders(new ForwardedHeadersOptions 
-{ 
-    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
-});
 
 app.UseAuthorization();
 app.UseMiddleware<FeatureRedirectMiddleware>();
