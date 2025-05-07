@@ -238,7 +238,7 @@ stages:
           inputs:
             command: 'test'
             projects: 'Ofqual.Recognition.Frontend.Playwright/Ofqual.Recognition.Frontend.Playwright.csproj'
-            arguments: '--no-build --no-restore'
+            arguments: '--no-build --no-restore --ignore-certificate-errors'
           env:
             TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
             
