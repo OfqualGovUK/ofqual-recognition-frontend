@@ -129,7 +129,7 @@ stages:
           severityThreshold: 'high'
           failOnIssues: false
           additionalArguments: '--all-projects'
-      # Step 6: Scan docker image     
+      # Step 7: Scan docker image     
       - task: Docker@2
         displayName: Build Docker Image
         inputs:
