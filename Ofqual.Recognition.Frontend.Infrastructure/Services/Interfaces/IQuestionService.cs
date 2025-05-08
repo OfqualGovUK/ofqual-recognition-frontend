@@ -7,5 +7,5 @@ public interface IQuestionService
     public Task<QuestionDetails?> GetQuestionDetails(string taskName, string questionName);
     public Task<QuestionAnswerSubmissionResponse?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer);
     public Task<List<QuestionAnswerSection>?> GetTaskQuestionAnswers(Guid applicationId, Guid taskId);
-    public Task<QuestionAnswerDto> GetQuestionAnswer(Guid applicationId, Guid questionId);
+    public Task<QuestionAnswer?> GetQuestionAnswer(Guid applicationId, Guid questionId);
 }

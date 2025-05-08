@@ -1,4 +1,4 @@
-﻿namespace Ofqual.Recognition.Frontend.Core.Models.Questions;
+﻿namespace Ofqual.Recognition.Frontend.Core.Models;
 
 public class QuestionAnswer
 {

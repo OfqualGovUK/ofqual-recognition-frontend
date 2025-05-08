@@ -5,7 +5,6 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
 using Serilog;
-using Ofqual.Recognition.Frontend.Core.Models.Questions;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -66,7 +65,8 @@ public class QuestionService : IQuestionService
                 return null;
             }
 
-            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
+            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);            
             
             var result = await response.Content.ReadFromJsonAsync<QuestionAnswerSubmissionResponse>();
             return result;
@@ -117,7 +117,7 @@ public class QuestionService : IQuestionService
             }
 
             var client = _client.GetClient();
-            var result = await client.GetFromJsonAsync<List<QuestionAnswerSection>>($"/applications/{applicationId}/questions/{questionId}/answers");
+            var result = await client.GetFromJsonAsync<QuestionAnswer>($"/applications/{applicationId}/questions/{questionId}/answers");
 
             if (result == null)
             { 
