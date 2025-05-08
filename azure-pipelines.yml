@@ -134,7 +134,7 @@ stages:
         displayName: Build Docker Image
         inputs:
           command: build
-          repository: $(imageRepository)   #'register-frontend'
+          repository: $(SNYK_DOCKER_REPOS)   #'register-frontend'
           dockerfile: '$(dockerfilePath)'
           tags: 'latest'
       - script: docker images
