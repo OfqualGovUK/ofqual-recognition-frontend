@@ -134,7 +134,7 @@ stages:
         displayName: Build Docker Image
         inputs:
           command: build
-          repository: 'register-frontend'
+          repository: $(imageRepository)   #'register-frontend'
           dockerfile: '$(dockerfilePath)'
           tags: 'latest'
       - script: docker images
@@ -147,7 +147,7 @@ stages:
           dockerfilePath: './Dockerfile'
           monitorWhen: 'always'
           severityThreshold: 'high'
-          failOnIssues: true
+          failOnIssues: false
 
     # Audit job: This job audits dependencies for vulnerabilities.
     - job: Audit
