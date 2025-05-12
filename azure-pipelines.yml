@@ -80,7 +80,6 @@ stages:
           displayName: 'Publish SonarQube Analysis Results'
           inputs:
             pollingTimeoutSec: '300'
-
     # Audit job: This job audits dependencies for vulnerabilities.
     - job: Audit
       displayName: 'Audit Dependencies for Security Vulnerabilities'
@@ -228,6 +227,7 @@ stages:
             AzureAdB2C__Domain: '$(AzureAdB2C__Domain)'
             AzureAdB2C__SignUpSignInPolicyId: '$(AzureAdB2C__SignUpSignInPolicyId)'
             AzureAdB2C__SignUpSignInPolicyForAutomationId: '$(AzureAdB2C__SignUpSignInPolicyForAutomationId)'
+            AzureAdB2C__RedirectUri: '$(AzureAdB2C__RedirectUri)'
             AzureAdB2C__UseAutomationPolicies: '$(AzureAdB2C__UseAutomationPolicies)'
             AzureAdB2C__CallBackPath: '$(AzureAdB2C__CallBackPath)'
             AzureAdB2C__AzureAdB2CSignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)' 
@@ -239,8 +239,6 @@ stages:
             projects: 'Ofqual.Recognition.Frontend.Playwright/Ofqual.Recognition.Frontend.Playwright.csproj'
             arguments: '--no-build --no-restore'
           env:
-            FeatureFlag__Application: '$(FeatureFlag__Application)'
-            RecognitionApi__BaseUrl: '$(RecognitionApi__BaseUrl)'
             TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
             
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.

@@ -32,6 +32,7 @@ The main application settings are defined in `appsettings.json` and can be tailo
     "Domain": "",
     "SignUpSignInPolicyId": "",
     "SignUpSignInPolicyForAutomationId": "",
+    "RedirectUri": "",
     "UseAutomationPolicies": false,
     "CallBackPath": "/signin-oidc",
     "AzureAdB2CSignedOutCallbackPath": "/signout-callback-oidc"
@@ -66,6 +67,10 @@ The main application settings are defined in `appsettings.json` and can be tailo
 - **`AzureAdB2C:SignUpSignInPolicyForAutomationId`**
     The policy name for the automated Sign up/Sign in flow, this should not be set in production environments.
 
+- **`AzureAdB2C:RedirectUri`**
+    An optional parameter that will override the sign-in redirect URL to the specified value, if specified. 
+    This is used for the development service as a workaround and should not be required in production.
+    
 - **`AzureAdB2C:UseAutomationPolicies`**
     This flag is used in development to determine if the application uses the typical or automated Sign up/Sign in flow.
     This should only be set to `true` when using automated testing.
