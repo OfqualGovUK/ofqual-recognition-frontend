@@ -12,7 +12,6 @@ public static class ViewHelpers
         }
 
         var dictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(answersJson);
-
         if (dictionary != null && dictionary.TryGetValue(name, out var element))
         {
             if (element.ValueKind == JsonValueKind.String)

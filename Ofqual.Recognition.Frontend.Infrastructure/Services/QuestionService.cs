@@ -1,8 +1,8 @@
 ﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.Enums;
 using System.Net.Http.Json;
 using Serilog;
 
@@ -23,9 +23,11 @@ public class QuestionService : IQuestionService
     {
         try
         {
-            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}"))
+            var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}";
+            
+            if (_sessionService.HasInSession(sessionKey))
             {
-                return _sessionService.GetFromSession<QuestionDetails>($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}");
+                return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
             }
 
             var client = _client.GetClient();
@@ -37,7 +39,7 @@ public class QuestionService : IQuestionService
                 return result;
             }
 
-            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}", result);
+            _sessionService.SetInSession(sessionKey, result);
             return result;
         }
         catch (Exception ex)
@@ -83,10 +85,11 @@ public class QuestionService : IQuestionService
     {
         try
         {
+            var sessionKey = $"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}";
 
-            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}"))
+            if (_sessionService.HasInSession(sessionKey))
             {
-                return _sessionService.GetFromSession<List<QuestionAnswerSection>>($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
+                return _sessionService.GetFromSession<List<QuestionAnswerSection>>(sessionKey);
             }
 
             var client = _client.GetClient();
@@ -98,7 +101,7 @@ public class QuestionService : IQuestionService
                 return null;
             }
 
-            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}", result);
+            _sessionService.SetInSession(sessionKey, result);
             return result;
         }
         catch (Exception ex)
@@ -112,9 +115,11 @@ public class QuestionService : IQuestionService
     {
         try
         {
-            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer"))
+            var sessionKey = $"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer";
+
+            if (_sessionService.HasInSession(sessionKey))
             {
-               return _sessionService.GetFromSession<QuestionAnswer>($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
+               return _sessionService.GetFromSession<QuestionAnswer>(sessionKey);
             }
 
             var client = _client.GetClient();
@@ -126,7 +131,7 @@ public class QuestionService : IQuestionService
                 return null;
             }
 
-            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer", result);
+            _sessionService.SetInSession(sessionKey, result);
             return result;
         } 
         catch (Exception ex)
