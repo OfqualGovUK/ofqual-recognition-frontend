@@ -1,8 +1,8 @@
 ﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.Enums;
 using System.Net.Http.Json;
 using Serilog;
 
@@ -23,9 +23,11 @@ public class QuestionService : IQuestionService
     {
         try
         {
-            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}"))
+            var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}";
+            
+            if (_sessionService.HasInSession(sessionKey))
             {
-                return _sessionService.GetFromSession<QuestionDetails>($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}");
+                return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
             }
 
             var client = _client.GetClient();
@@ -37,7 +39,7 @@ public class QuestionService : IQuestionService
                 return result;
             }
 
-            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}", result);
+            _sessionService.SetInSession(sessionKey, result);
             return result;
         }
         catch (Exception ex)
@@ -65,7 +67,9 @@ public class QuestionService : IQuestionService
                 return null;
             }
 
-            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
+            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);            
             
             var result = await response.Content.ReadFromJsonAsync<QuestionAnswerSubmissionResponse>();
             return result;
@@ -81,10 +85,11 @@ public class QuestionService : IQuestionService
     {
         try
         {
+            var sessionKey = $"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}";
 
-            if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}"))
+            if (_sessionService.HasInSession(sessionKey))
             {
-                return _sessionService.GetFromSession<List<QuestionAnswerSection>>($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
+                return _sessionService.GetFromSession<List<QuestionAnswerSection>>(sessionKey);
             }
 
             var client = _client.GetClient();
@@ -96,12 +101,42 @@ public class QuestionService : IQuestionService
                 return null;
             }
 
-            _sessionService.SetInSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}", result);
+            _sessionService.SetInSession(sessionKey, result);
             return result;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving question answers for TaskId: {TaskId} in ApplicationId: {ApplicationId}", taskId, applicationId);
+            return null;
+        }
+    }
+
+    public async Task<QuestionAnswer?> GetQuestionAnswer(Guid applicationId, Guid questionId)
+    {
+        try
+        {
+            var sessionKey = $"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer";
+
+            if (_sessionService.HasInSession(sessionKey))
+            {
+               return _sessionService.GetFromSession<QuestionAnswer>(sessionKey);
+            }
+
+            var client = _client.GetClient();
+            var result = await client.GetFromJsonAsync<QuestionAnswer>($"/applications/{applicationId}/questions/{questionId}/answer");
+
+            if (result == null)
+            { 
+                Log.Warning("No question answer found for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
+                return null;
+            }
+
+            _sessionService.SetInSession(sessionKey, result);
+            return result;
+        } 
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while retrieving answers for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
             return null;
         }
     }

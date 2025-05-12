@@ -75,6 +75,8 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
+        QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
+
         var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
 
         if (status == TaskStatusEnum.Completed && !fromReview)
@@ -87,6 +89,7 @@ public class ApplicationController : Controller
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.FromReview = fromReview;
+        questionViewModel.AnswerJson = questionAnswer?.Answer;
 
         return View(questionViewModel);
     }
@@ -160,15 +163,21 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
+        TaskStatusEnum? status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
+
+        if (status == null)
+        {
+            return BadRequest();
+        }
+
         var lastQuestionUrl = reviewAnswers.LastOrDefault()?
             .QuestionAnswers.LastOrDefault()?
             .QuestionUrl;
-        var status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
 
         TaskReviewViewModel taskReview = QuestionMapper.MapToViewModel(reviewAnswers);
         taskReview.LastQuestionUrl = lastQuestionUrl;
         taskReview.IsCompletedStatus = status == TaskStatusEnum.Completed;
-
+        taskReview.Answer = (TaskStatusEnum)status;
         return View(taskReview);
     }
 

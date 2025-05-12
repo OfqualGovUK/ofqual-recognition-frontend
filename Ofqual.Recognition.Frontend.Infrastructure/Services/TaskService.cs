@@ -25,9 +25,11 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
         {
             try
             {
-                if (_sessionService.HasInSession(SessionKeys.ApplicationTaskList))
+                var sessionKey = SessionKeys.ApplicationTaskList;
+                
+                if (_sessionService.HasInSession(sessionKey))
                 {
-                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(SessionKeys.ApplicationTaskList) ?? new List<TaskItemStatusSection>();
+                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(sessionKey) ?? new List<TaskItemStatusSection>();
                 }
 
                 var client = _client.GetClient();
@@ -39,7 +41,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                     result = new List<TaskItemStatusSection>();
                 }
 
-                _sessionService.SetInSession(SessionKeys.ApplicationTaskList, result);
+                _sessionService.SetInSession(sessionKey, result);
                 return result;
             }
             catch (Exception ex)
@@ -82,9 +84,11 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
         {
             try
             {
-                if (_sessionService.HasInSession($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}"))
+                var sessionKey = $"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}";
+
+                if (_sessionService.HasInSession(sessionKey))
                 {
-                    return _sessionService.GetFromSession<TaskDetails>($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}");
+                    return _sessionService.GetFromSession<TaskDetails>(sessionKey);
                 }
 
                 var client = _client.GetClient();
@@ -96,7 +100,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                     return result;
                 }
                 
-                _sessionService.SetInSession($"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}", result);
+                _sessionService.SetInSession(sessionKey, result);
                 return result;
             }
             catch (Exception ex)

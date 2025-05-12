@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Ofqual.Recognition.Frontend.Core.Helpers;
 
- public static class FormDataHelper
+public static class FormDataHelper
 {
     public static string ConvertToJson(IFormCollection formData)
     {

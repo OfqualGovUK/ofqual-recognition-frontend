@@ -22,9 +22,11 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
         {
             try
             {
-                if (_sessionService.HasInSession(SessionKeys.Application))
+                var sessionKey = SessionKeys.Application;
+
+                if (_sessionService.HasInSession(sessionKey))
                 {
-                    return _sessionService.GetFromSession<Application>(SessionKeys.Application);
+                    return _sessionService.GetFromSession<Application>(sessionKey);
                 }
 
                 var client = _client.GetClient();
@@ -40,7 +42,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 
                 if (result != null)
                 {
-                    _sessionService.SetInSession(SessionKeys.Application, result);
+                    _sessionService.SetInSession(sessionKey, result);
                 }
 
                 return result;
