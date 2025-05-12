@@ -58,7 +58,7 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("{taskNameUrl}/{questionNameUrl}")]
-    public async Task<IActionResult> QuestionDetails(AnswerHelper answerHelper, string taskNameUrl, string questionNameUrl, bool fromReview = false)
+    public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -87,18 +87,9 @@ public class ApplicationController : Controller
             });
         }
 
-        var mappedData = answerHelper.MapQuestionAnswer(questionDetails, questionAnswer);
-
-        QuestionViewModel questionViewModel = new QuestionViewModel
-        {
-            QuestionId = mappedData.questionDetails.QuestionId,
-            TaskId = mappedData.questionDetails.TaskId,
-            QuestionTypeName = mappedData.questionDetails.QuestionTypeName,
-            QuestionContent = MapToQuestionContentViewModel(mappedData.questionDetails),
-            CurrentQuestionUrl = mappedData.questionDetails.CurrentQuestionUrl,
-            PreviousQuestionUrl = mappedData.questionDetails.PreviousQuestionUrl,
-            FromReview = fromReview,
-        };
+        QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
+        questionViewModel.FromReview = fromReview;
+        questionViewModel.AnswerJson = questionAnswer?.Answer;
 
         return View(questionViewModel);
     }
@@ -148,7 +139,7 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("{taskNameUrl}/review-your-answers")]
-    public async Task<IActionResult> TaskReview(string taskNameUrl, AnswerHelper answerHelper)
+    public async Task<IActionResult> TaskReview(string taskNameUrl)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -172,22 +163,6 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        var mappedAnswers = answerHelper.MapQuestionAnswerSections(reviewAnswers);
-
-        var taskReviewViewModel = new TaskReviewViewModel
-        {
-            QuestionAnswerSections = mappedAnswers.Select(section => new QuestionAnswerSectionViewModel
-            {
-                SectionHeading = section.SectionHeading,
-                QuestionAnswers = section.QuestionAnswers.Select(answer => new QuestionAnswerReviewViewModel
-                {
-                    QuestionText = answer.QuestionText,
-                    AnswerValue = answer.AnswerValue,
-                    QuestionUrl = answer.QuestionUrl
-                }).ToList()
-            }).ToList()
-        };
-
         TaskStatusEnum? status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
 
         if (status == null)
@@ -195,7 +170,15 @@ public class ApplicationController : Controller
             return BadRequest();
         }
 
-        return View(taskReviewViewModel);
+        var lastQuestionUrl = reviewAnswers.LastOrDefault()?
+            .QuestionAnswers.LastOrDefault()?
+            .QuestionUrl;
+
+        TaskReviewViewModel taskReview = QuestionMapper.MapToViewModel(reviewAnswers);
+        taskReview.LastQuestionUrl = lastQuestionUrl;
+        taskReview.IsCompletedStatus = status == TaskStatusEnum.Completed;
+        taskReview.Answer = (TaskStatusEnum)status;
+        return View(taskReview);
     }
 
     [HttpPost("{taskNameUrl}/review-your-answers")]
@@ -230,16 +213,5 @@ public class ApplicationController : Controller
         }
 
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
-    }
-
-    private QuestionContentViewModel MapToQuestionContentViewModel(QuestionDetails questionDetails) 
-    { 
-        return new QuestionContentViewModel
-        {
-            Heading = questionDetails.QuestionContent,
-            Body = new List<BodyItemViewModel>(),
-            Help = new List<HelpItemViewModel>(),
-            FormGroup = new FormGroupViewModel()
-        };
     }
 }

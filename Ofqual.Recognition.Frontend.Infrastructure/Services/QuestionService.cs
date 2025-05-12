@@ -66,6 +66,7 @@ public class QuestionService : IQuestionService
             }
 
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
             _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);            
             
             var result = await response.Content.ReadFromJsonAsync<QuestionAnswerSubmissionResponse>();
@@ -113,11 +114,11 @@ public class QuestionService : IQuestionService
         {
             if (_sessionService.HasInSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer"))
             {
-                return _sessionService.GetFromSession<QuestionAnswer>($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
+               return _sessionService.GetFromSession<QuestionAnswer>($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
             }
 
             var client = _client.GetClient();
-            var result = await client.GetFromJsonAsync<QuestionAnswer>($"/applications/{applicationId}/questions/{questionId}/answers");
+            var result = await client.GetFromJsonAsync<QuestionAnswer>($"/applications/{applicationId}/questions/{questionId}/answer");
 
             if (result == null)
             { 

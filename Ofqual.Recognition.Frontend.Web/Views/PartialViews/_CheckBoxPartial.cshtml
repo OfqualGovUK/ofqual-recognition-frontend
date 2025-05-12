@@ -1,9 +1,11 @@
 @using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
 @model QuestionViewModel
 
 @{
     var checkbox = Model?.QuestionContent?.FormGroup?.CheckBox;
     var checkboxes = checkbox?.CheckBoxes;
+    var selectedValues = ViewHelpers.GetCheckboxValues(checkbox?.Name, Model?.AnswerJson);
 }
 
 @if (checkboxes != null && checkboxes.Any())
@@ -37,15 +39,15 @@
             }
             
             <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                
                 @for (int i = 0; i < checkboxes.Count; i++)
                 {
                     var item = checkboxes[i];
-                    var checkboxId = $"{checkbox.Name ?? "checkbox"}-{i}";
-                    var checkboxName = checkbox.Name ?? "checkbox";
-                    var hasConditional = (item.ConditionalInputs != null && item.ConditionalInputs.Any()) ||
-                                        (item.ConditionalSelects != null && item.ConditionalSelects.Any());
+                    var checkboxId = $"{checkbox?.Name ?? "checkbox"}-{i}";
+                    var checkboxName = checkbox?.Name ?? "checkbox";
+                    var hasConditional = (item.ConditionalInputs != null && item.ConditionalInputs.Any()) || (item.ConditionalSelects != null && item.ConditionalSelects.Any());
                     var conditionalId = $"{checkboxId}-conditional";
-
+    
                     <div class="govuk-checkboxes__item">
 
                         <input class="govuk-checkboxes__input"
@@ -53,7 +55,9 @@
                             name="@checkboxName"
                             type="checkbox"
                             value="@item.Value"
-                            data-aria-controls="@(hasConditional ? conditionalId : null)" />
+                            data-aria-controls="@(hasConditional ? conditionalId : null)" 
+                            @(selectedValues.Contains(item.Value) ? "checked" : "")
+                            />
                         
                         <label class="govuk-label govuk-checkboxes__label" for="@checkboxId">
                             @item.Label
@@ -68,16 +72,18 @@
                                     {
                                         foreach (var input in item.ConditionalInputs)
                                         {
+                                            var value = ViewHelpers.GetAnswerValue(input?.Name, Model?.AnswerJson);
+
                                             <div class="govuk-form-group">
 
-                                                @if (!string.IsNullOrEmpty(input.Label))
+                                                @if (!string.IsNullOrEmpty(input?.Label))
                                                 {
                                                     <label class="govuk-label" for="@input.Name">
                                                         @input.Label
                                                     </label>
                                                 }
 
-                                                @if (!string.IsNullOrEmpty(input.Hint))
+                                                @if (!string.IsNullOrEmpty(input?.Hint))
                                                 {
                                                     <div class="govuk-hint">
                                                         @input.Hint
@@ -85,10 +91,11 @@
                                                 }
 
                                                 <input class="govuk-input"
-                                                    id="@input.Name"
-                                                    name="@input.Name"
-                                                    type="@input.InputType"
-                                                    disabled="@input.Disabled" />
+                                                    id="@input?.Name"
+                                                    name="@input?.Name"
+                                                    type="@input?.InputType"
+                                                    value="@value"
+                                                    disabled="@input?.Disabled" />
                                             </div>
                                         }
                                     }
@@ -97,16 +104,17 @@
                                     {
                                         foreach (var select in item.ConditionalSelects)
                                         {
-                                            <div class="govuk-form-group">
+                                            var value = ViewHelpers.GetAnswerValue(select?.Name, Model?.AnswerJson);
 
-                                                @if (!string.IsNullOrEmpty(select.Label))
+                                            <div class="govuk-form-group">
+                                                @if (!string.IsNullOrEmpty(select?.Label))
                                                 {
                                                     <label class="govuk-label" for="@select.Name">
                                                         @select.Label
                                                     </label>
                                                 }
 
-                                                @if (!string.IsNullOrEmpty(select.Hint))
+                                                @if (!string.IsNullOrEmpty(select?.Hint))
                                                 {
                                                     <div class="govuk-hint">
                                                         @select.Hint
@@ -114,13 +122,18 @@
                                                 }
 
                                                 <select class="govuk-select"
-                                                        id="@select.Name"
-                                                        name="@select.Name"
-                                                        disabled="@select.Disabled">
+                                                        id="@select?.Name"
+                                                        name="@select?.Name"
+                                                        disabled="@select?.Disabled">
                                                     
                                                     @foreach (var option in select.Options)
                                                     {
-                                                        var selected = option.Selected ? "selected" : null;
+                                                        var selected = option.Value == value 
+                                                            ? "selected" 
+                                                            : option.Selected 
+                                                                ? "selected" 
+                                                                : null;
+                                                        
                                                         <option value="@option.Value" selected="@selected">@option.Label</option>
                                                     }
 

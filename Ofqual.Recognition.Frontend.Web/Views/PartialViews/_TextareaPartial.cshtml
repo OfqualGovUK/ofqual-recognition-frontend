@@ -1,4 +1,5 @@
 ﻿@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
 @model QuestionViewModel
 
 @{
@@ -6,6 +7,7 @@
     var maxWords = textarea?.Validation?.MaxLength;
     var infoId = $"{textarea?.Name}-info";
     var hintId = $"{textarea?.Name}-hint";
+    var value = ViewHelpers.GetAnswerValue(textarea?.Name, Model?.AnswerJson);
 }
 
 @if (textarea is not null)
@@ -40,11 +42,11 @@
         }
 
         <textarea class="govuk-textarea govuk-js-character-count" 
-            id="@textarea.Name" 
-            name="@textarea.Name"
-            spellcheck="@textarea.SpellCheck?.ToString().ToLower()" 
-            rows="@textarea.Rows"
-            aria-describedby="@infoId @hintId"></textarea>
+            id="@textarea?.Name" 
+            name="@textarea?.Name"
+            spellcheck="@textarea?.SpellCheck?.ToString().ToLower()" 
+            rows="@textarea?.Rows"
+            aria-describedby="@infoId @hintId">@value</textarea>
 
         @if (maxWords.HasValue)
         {
