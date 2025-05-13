@@ -13,6 +13,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 [AllowAnonymous]
 [Area("MicrosoftIdentity")]
+[Controller()]
 [Route("[Area]/[Controller]/[Action]")]
 public class OfqualAccountController : Controller
 {
@@ -45,9 +46,9 @@ public class OfqualAccountController : Controller
         // send the id_token value to the authentication middleware
         var properties = new AuthenticationProperties
         {
-            RedirectUri = Url.Content("~/")
+            RedirectUri = Url.Content("~/Home/SignedOut")
         };
-        properties.Items[AuthConstants.TokenHintIdentifier] = idToken;
+        properties.Items[AuthConstants.TokenHintIdentifier] = idToken;        
 
         return SignOut(properties, CookieAuthenticationDefaults.AuthenticationScheme, scheme);
     }

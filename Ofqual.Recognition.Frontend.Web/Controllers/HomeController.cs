@@ -13,5 +13,13 @@ public class HomeController : Controller
 
         return View();
     }
+
+    [HttpGet]
+    public IActionResult SignedOut()
+    {
+        if (User.Identity?.IsAuthenticated ?? false)
+            return Redirect("~/MicrosoftIdentity/OfqualAccount/SignOut");
+        return View();
+    }
 }
 
