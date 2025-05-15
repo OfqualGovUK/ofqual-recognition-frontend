@@ -151,6 +151,13 @@ app.UseMiddleware<FeatureRedirectMiddleware>();
 
 // Configure route mapping
 app.MapControllers();
+
+app.MapControllerRoute(
+    name: "signed-out",
+    pattern: "signed-out",
+    defaults: new {controller="Home",action="signed-out"}
+);
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}"
