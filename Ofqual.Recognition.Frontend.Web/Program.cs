@@ -123,6 +123,8 @@ builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 
+builder.Services.AddMemoryCache();
+
 #endregion
 
 var app = builder.Build();

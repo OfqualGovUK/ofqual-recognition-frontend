@@ -37,7 +37,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
 
                 if (result == null || result.Count == 0)
                 {
-                    Log.Warning("No tasks found for Application ID {ApplicationId}", applicationId);
+                    Log.Warning("No Pre-Engagement tasks found for Application ID {ApplicationId}", applicationId);
                     result = new List<TaskItemStatusSection>();
                 }
 
@@ -47,6 +47,29 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while retrieving tasks for Application ID {ApplicationId}", applicationId);
+                return new List<TaskItemStatusSection>();
+            }
+        }
+
+        public async Task<List<TaskItemStatusSection>> GetPreEngagementTasks(string sessionId)
+        {
+            try
+            {
+                var client = _client.GetClient();
+                var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/applications/{1}/tasks");
+
+                if (result == null || result.Count == 0)
+                {
+                    Log.Warning("No tasks found for Application ID {ApplicationId}", 1);
+                    result = new List<TaskItemStatusSection>();
+                }
+
+                //_sessionService.SetInSession(sessionKey, result);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while retrieving tasks for Application ID {ApplicationId}", 1);
                 return new List<TaskItemStatusSection>();
             }
         }
