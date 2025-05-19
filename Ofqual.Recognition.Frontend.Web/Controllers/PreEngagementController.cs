@@ -26,18 +26,21 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         [HttpGet("tasks")]
         public async Task<IActionResult> TaskList()
         {
-            var sessionId = Guid.NewGuid().ToString();
-            TempData[SessionKeys.PreEngagementSession] = sessionId;
+            //get or create new session key
+            var sessionId = TempData[SessionKeys.PreEngagementSession]?.ToString();
+            if (string.IsNullOrEmpty(sessionId))
+                TempData[SessionKeys.PreEngagementSession] = sessionId = Guid.NewGuid().ToString();
 
+            //If no session data, add new session data
+            if(!_sessionService.HasInSession(sessionId))
+                _sessionService.SetInSession(sessionId, new PreEngagement { PreEngagementId = Guid.NewGuid() });
+            
             var preEngagementTasks = await _taskService.GetPreEngagementTasks(sessionId);
 
-            PreEngagement? preEngagement = _sessionService.GetFromSession<PreEngagement>(sessionId);
+            TaskListViewModel taskListViewModel = TaskListMapper.MapToViewModel(preEngagementTasks);
+            taskListViewModel.IsPreEngagement = true;
 
-            var taskItemStatusSection = await _taskService.GetApplicationTasks(preEngagement.PreEngagementId);
-
-            TaskListViewModel taskListViewModel = TaskListMapper.MapToViewModel(taskItemStatusSection);
-
-            return View(taskListViewModel);
+            return View("~/Views/Application/TaskList.cshtml", taskListViewModel);
         }
 
         [HttpPost("{taskNameUrl}/{questionNameUrl}")]
@@ -60,7 +63,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
         public IActionResult Summary()
         {
             var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
-            if (!_memoryCache.TryGetValue(cacheKey, out QuestionViewModel model))
+            if (!_memoryCache.TryGetValue<QuestionViewModel>(cacheKey, out var model))
             {
                 return RedirectToAction("OrganisationInfo");
             }

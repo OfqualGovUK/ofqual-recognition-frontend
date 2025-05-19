@@ -29,13 +29,13 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
                 
                 if (_sessionService.HasInSession(sessionKey))
                 {
-                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(sessionKey) ?? new List<TaskItemStatusSection>();
+                    return _sessionService.GetFromSession<List<TaskItemStatusSection>>(sessionKey)!;
                 }
 
                 var client = _client.GetClient();
                 var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/applications/{applicationId}/tasks");
 
-                if (result == null || result.Count == 0)
+                if (result is null || result.Count == 0)
                 {
                     Log.Warning("No Pre-Engagement tasks found for Application ID {ApplicationId}", applicationId);
                     result = new List<TaskItemStatusSection>();
@@ -56,7 +56,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             try
             {
                 var client = _client.GetClient();
-                var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/applications/{1}/tasks");
+                var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/pre-engagement/{1}/tasks");
 
                 if (result == null || result.Count == 0)
                 {
