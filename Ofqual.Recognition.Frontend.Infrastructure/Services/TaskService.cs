@@ -51,26 +51,25 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services
             }
         }
 
-        public async Task<List<TaskItemStatusSection>> GetPreEngagementTasks(string sessionId)
+        public async Task<List<PreEngagement>> GetPreEngagementTasks()
         {
             try
             {
                 var client = _client.GetClient();
-                var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/pre-engagement/{1}/tasks");
+                var result = await client.GetFromJsonAsync<List<PreEngagement>>($"/pre-engagement/tasks");
 
                 if (result == null || result.Count == 0)
                 {
                     Log.Warning("No tasks found for Application ID {ApplicationId}", 1);
-                    result = new List<TaskItemStatusSection>();
+                    result = new List<PreEngagement>();
                 }
 
-                //_sessionService.SetInSession(sessionKey, result);
                 return result;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while retrieving tasks for Application ID {ApplicationId}", 1);
-                return new List<TaskItemStatusSection>();
+                return new List<PreEngagement>();
             }
         }
 

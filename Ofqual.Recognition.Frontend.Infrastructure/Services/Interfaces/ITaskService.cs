@@ -8,5 +8,5 @@ public interface ITaskService
     public Task<List<TaskItemStatusSection>> GetApplicationTasks(Guid applicationId);
     public Task<bool> UpdateTaskStatus(Guid applicationId, Guid taskId, TaskStatusEnum status);
     public Task<TaskDetails?> GetTaskDetailsByTaskNameUrl(string taskNameUrl);
-    public Task<List<TaskItemStatusSection>> GetPreEngagementTasks(string sessionId);
+    public Task<List<PreEngagement>> GetPreEngagementTasks();
 }

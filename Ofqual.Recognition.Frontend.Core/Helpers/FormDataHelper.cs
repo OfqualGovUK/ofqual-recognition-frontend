@@ -13,7 +13,14 @@ public static class FormDataHelper
                 x => x.Key,
                 x => x.Value.Count > 1 ? x.Value.ToArray() : (object)x.Value.ToString()
             );
-            
+
         return JsonSerializer.Serialize(jsonPayload);
+    }
+
+    public static Dictionary<string, string> ConvertToDictionary(IFormCollection formData)
+    {
+        return formData
+            .Where(kvp => kvp.Key != "__RequestVerificationToken") // Exclude the anti-forgery token
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
     }
 }

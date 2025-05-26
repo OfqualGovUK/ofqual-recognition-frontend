@@ -18,7 +18,7 @@
         @if (!(User.Identity?.IsAuthenticated ?? false))
         {
             <h2 class="govuk-heading-m">Pre-Engagement:</h2>
-            <a asp-controller="PreEngagement" asp-action="TaskList" class="govuk-button govuk-button--start">Pre-Engagement</a>
+            <a asp-controller="PreEngagement" asp-action="PreEngagementTaskDetails" class="govuk-button govuk-button--start">Pre-Engagement</a>
         }
         @if (!(User.Identity?.IsAuthenticated ?? false))
         {
