@@ -46,6 +46,9 @@ public class ApplicationController : Controller
     [HttpGet("tasks")]
     public async Task<IActionResult> TaskList()
     {
+        var allPreEngagementAnswers = GetAllPreEngagementAnswersFromCache();
+        var preEngagementAnswerTaskIds = new HashSet<Guid>(allPreEngagementAnswers.Select(x => x.TaskId));
+
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
@@ -58,6 +61,12 @@ public class ApplicationController : Controller
 
         TaskListViewModel taskListViewModel = TaskListMapper.MapToViewModel(taskItemStatusSection);
 
+        taskListViewModel.Sections
+            .SelectMany(section => section.Tasks)
+            .Where(task => preEngagementAnswerTaskIds.Contains(task.TaskId) && task.Status != TaskStatusEnum.Completed)
+            .ToList()
+            .ForEach(task => task.Status = TaskStatusEnum.InProgress);
+
         return View(taskListViewModel);
     }
 
@@ -65,9 +74,6 @@ public class ApplicationController : Controller
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
     {
         var preEngagementTasks = await _taskService.GetPreEngagementTasks();
-
-        var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
-        var cachedData = _memoryCache.Get<List<PreEngagementAnswerModel>>(cacheKey);
 
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
@@ -79,7 +85,7 @@ public class ApplicationController : Controller
 
         QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
 
-        var preQuestionDetails = cachedData?.FirstOrDefault(x => x.QuestionId == questionDetails.QuestionId);
+        var preEngagementCacheAnswers = GetPreEngagementAnswerFromCache(questionDetails.QuestionId);
 
         if (questionDetails == null)
         {
@@ -93,7 +99,7 @@ public class ApplicationController : Controller
             questionAnswer = new QuestionAnswer
             {
                 QuestionId = questionDetails.QuestionId,
-                Answer = preQuestionDetails.AnswerJson
+                Answer = preEngagementCacheAnswers.AnswerJson
             };
         }
         else
@@ -239,5 +245,24 @@ public class ApplicationController : Controller
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
     }
 
-    //private List<QuestionAnswer>
+    private PreEngagementAnswerModel GetPreEngagementAnswerFromCache(Guid questionId)
+    {
+        var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
+        var cachedData = _memoryCache.Get<List<PreEngagementAnswerModel>>(cacheKey);
+        return cachedData?.FirstOrDefault(x => x.QuestionId == questionId) ?? new PreEngagementAnswerModel
+        {
+            QuestionId = questionId,
+            AnswerJson = string.Empty
+        };
+    }
+
+    private List<PreEngagementAnswerModel> GetAllPreEngagementAnswersFromCache()
+    {
+        var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
+        if (!_memoryCache.TryGetValue<List<PreEngagementAnswerModel>>(cacheKey, out var cachedData))
+        {
+            return new List<PreEngagementAnswerModel>();
+        }
+        return cachedData;
+    }
 }

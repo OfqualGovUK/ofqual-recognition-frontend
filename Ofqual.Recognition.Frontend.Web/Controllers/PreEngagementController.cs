@@ -6,6 +6,7 @@ using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Mappers;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Web.ViewModels.PreEngagement;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers
@@ -60,7 +61,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             var formDataDictionary = FormDataHelper.ConvertToDictionary(formdata);
 
             // Update the cache with the current task and form data
-            UpdateCache(questionDetails.QuestionId, formDataDictionary);
+            UpdateCache(questionDetails.QuestionId, questionDetails.TaskId, formDataDictionary);
 
             // Redirect to the next task or question
             return RedirectToAction("PreEngagementTaskDetails", new { currentTaskNameUrl, currentQuestionNameUrl });
@@ -98,7 +99,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             return null;
         }
 
-        private void UpdateCache(Guid questionId, Dictionary<string, string> formDataDictionary)
+        private void UpdateCache(Guid questionId, Guid taskId, Dictionary<string, string> formDataDictionary)
         {
             var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
 
@@ -110,7 +111,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             });
 
             // Find the existing AnswerModel for the current task
-            var existingAnswer = cachedData.FirstOrDefault(a => a.QuestionId == questionId);
+            var existingAnswer = cachedData.FirstOrDefault(a => a.QuestionId == questionId && a.TaskId == taskId);
 
             // Serialize the form data dictionary to JSON
             var answerJson = JsonSerializer.Serialize(formDataDictionary);
@@ -126,11 +127,25 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 var answerModel = new PreEngagementAnswerModel
                 {
                     QuestionId = questionId,
+                    TaskId = taskId,
                     AnswerJson = answerJson
                 };
                 cachedData.Add(answerModel);
             }
             _memoryCache.Set(cacheKey, cachedData);
+        }
+
+        [HttpGet("SeeCache")]
+        public IActionResult SeeCache()
+        {
+            var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
+            var cacheData = _memoryCache.Get<List<PreEngagementAnswerModel>>(cacheKey);
+
+            var json = JsonSerializer.Serialize(cacheData, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            return Content(json, "application/json");
         }
     }
 }
