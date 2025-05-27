@@ -24,7 +24,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             _sessionService = sessionService;
             _questionService = questionService;
             _memoryCache = memoryCache;
-        }      
+        }
 
         [HttpGet("tasks")]
         public async Task<IActionResult> PreEngagementTaskDetails(string? currentTaskNameUrl = null, string? currentQuestionNameUrl = null)
@@ -52,13 +52,15 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
 
         [HttpPost("tasks")]
         [ValidateAntiForgeryToken]
-        public IActionResult SaveOrganisationInfo(string currentTaskNameUrl, string currentQuestionNameUrl, [FromForm] IFormCollection formdata)
+        public async Task<IActionResult> SaveOrganisationInfo(string currentTaskNameUrl, string currentQuestionNameUrl, [FromForm] IFormCollection formdata)
         {
+            QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(currentTaskNameUrl, currentQuestionNameUrl);
+
             // Convert form data to a dictionary, excluding the anti-forgery token
             var formDataDictionary = FormDataHelper.ConvertToDictionary(formdata);
 
             // Update the cache with the current task and form data
-            UpdateCache(currentTaskNameUrl, formDataDictionary);
+            UpdateCache(questionDetails.QuestionId, formDataDictionary);
 
             // Redirect to the next task or question
             return RedirectToAction("PreEngagementTaskDetails", new { currentTaskNameUrl, currentQuestionNameUrl });
@@ -74,15 +76,6 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             }
 
             return View("Summary", model);
-        }
-
-        [HttpGet]
-        public IActionResult GetCache()
-        {
-            var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
-            var cachedData = _memoryCache.Get<List<PreEngagementAnswerModel>>(cacheKey) ?? new List<PreEngagementAnswerModel>();
-
-            return View(cachedData);
         }
 
         public async Task<PreEngagement?> GetPreEngagementTaskDetails(string? currentTaskNameUrl = null, string? currentQuestionNameUrl = null)
@@ -105,7 +98,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             return null;
         }
 
-        private void UpdateCache(string currentTaskNameUrl, Dictionary<string, string> formDataDictionary)
+        private void UpdateCache(Guid questionId, Dictionary<string, string> formDataDictionary)
         {
             var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
 
@@ -117,7 +110,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
             });
 
             // Find the existing AnswerModel for the current task
-            var existingAnswer = cachedData.FirstOrDefault(a => a.CurrentTaskNameUrl == currentTaskNameUrl);
+            var existingAnswer = cachedData.FirstOrDefault(a => a.QuestionId == questionId);
 
             // Serialize the form data dictionary to JSON
             var answerJson = JsonSerializer.Serialize(formDataDictionary);
@@ -132,7 +125,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers
                 // Add new answer
                 var answerModel = new PreEngagementAnswerModel
                 {
-                    CurrentTaskNameUrl = currentTaskNameUrl,
+                    QuestionId = questionId,
                     AnswerJson = answerJson
                 };
                 cachedData.Add(answerModel);

@@ -2,7 +2,7 @@
 {
     public class PreEngagementAnswerModel
     {
-        public string CurrentTaskNameUrl { get; set; }
+        public Guid QuestionId { get; set; }
         public string? AnswerJson { get; set; }
     }
 }

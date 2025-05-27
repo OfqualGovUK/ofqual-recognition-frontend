@@ -6,6 +6,8 @@ using Ofqual.Recognition.Frontend.Web.Mappers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Ofqual.Recognition.Frontend.Web.ViewModels.PreEngagement;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -16,13 +18,15 @@ public class ApplicationController : Controller
     private readonly ITaskService _taskService;
     private readonly ISessionService _sessionService;
     private readonly IQuestionService _questionService;
+    private readonly IMemoryCache _memoryCache;
 
-    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService)
+    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService, IMemoryCache memoryCache)
     {
         _applicationService = applicationService;
         _taskService = taskService;
         _sessionService = sessionService;
         _questionService = questionService;
+        _memoryCache = memoryCache;
     }
 
     [HttpGet]
@@ -60,6 +64,11 @@ public class ApplicationController : Controller
     [HttpGet("{taskNameUrl}/{questionNameUrl}")]
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
     {
+        var preEngagementTasks = await _taskService.GetPreEngagementTasks();
+
+        var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
+        var cachedData = _memoryCache.Get<List<PreEngagementAnswerModel>>(cacheKey);
+
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
@@ -70,12 +79,27 @@ public class ApplicationController : Controller
 
         QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
 
+        var preQuestionDetails = cachedData?.FirstOrDefault(x => x.QuestionId == questionDetails.QuestionId);
+
         if (questionDetails == null)
         {
             return NotFound();
         }
 
-        QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
+        QuestionAnswer? questionAnswer = null;
+
+        if (preEngagementTasks.Any(x => x.CurrentTaskNameUrl == taskNameUrl && x.CurrentQuestionNameUrl == questionNameUrl))
+        {
+            questionAnswer = new QuestionAnswer
+            {
+                QuestionId = questionDetails.QuestionId,
+                Answer = preQuestionDetails.AnswerJson
+            };
+        }
+        else
+        {
+            questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
+        }
 
         var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
 
@@ -214,4 +238,6 @@ public class ApplicationController : Controller
 
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
     }
+
+    //private List<QuestionAnswer>
 }
