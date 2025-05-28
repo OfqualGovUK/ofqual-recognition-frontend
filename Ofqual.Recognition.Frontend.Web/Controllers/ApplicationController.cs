@@ -6,9 +6,11 @@ using Ofqual.Recognition.Frontend.Web.Mappers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
+[AuthorizeForScopes(ScopeKeySection = "DownstreamApis:CitizenAPI:Scopes")]
 [Route("application")]
 public class ApplicationController : Controller
 {
