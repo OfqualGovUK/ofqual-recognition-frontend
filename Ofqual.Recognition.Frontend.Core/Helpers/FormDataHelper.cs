@@ -16,11 +16,4 @@ public static class FormDataHelper
 
         return JsonSerializer.Serialize(jsonPayload);
     }
-
-    public static Dictionary<string, string> ConvertToDictionary(IFormCollection formData)
-    {
-        return formData
-            .Where(kvp => kvp.Key != "__RequestVerificationToken") // Exclude the anti-forgery token
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
-    }
 }

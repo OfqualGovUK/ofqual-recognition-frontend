@@ -5,12 +5,12 @@ using Ofqual.Recognition.Frontend.Core.Helpers;
 using Ofqual.Recognition.Frontend.Web.Mappers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Ofqual.Recognition.Frontend.Web.ViewModels.PreEngagement;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
+[Authorize]
 [Route("application")]
 public class ApplicationController : Controller
 {
@@ -18,15 +18,13 @@ public class ApplicationController : Controller
     private readonly ITaskService _taskService;
     private readonly ISessionService _sessionService;
     private readonly IQuestionService _questionService;
-    private readonly IMemoryCache _memoryCache;
 
-    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService, IMemoryCache memoryCache)
+    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService)
     {
         _applicationService = applicationService;
         _taskService = taskService;
         _sessionService = sessionService;
         _questionService = questionService;
-        _memoryCache = memoryCache;
     }
 
     [HttpGet]
@@ -46,9 +44,6 @@ public class ApplicationController : Controller
     [HttpGet("tasks")]
     public async Task<IActionResult> TaskList()
     {
-        var allPreEngagementAnswers = GetAllPreEngagementAnswersFromCache();
-        var preEngagementAnswerTaskIds = new HashSet<Guid>(allPreEngagementAnswers.Select(x => x.TaskId));
-
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
@@ -61,20 +56,12 @@ public class ApplicationController : Controller
 
         TaskListViewModel taskListViewModel = TaskListMapper.MapToViewModel(taskItemStatusSection);
 
-        taskListViewModel.Sections
-            .SelectMany(section => section.Tasks)
-            .Where(task => preEngagementAnswerTaskIds.Contains(task.TaskId) && task.Status != TaskStatusEnum.Completed)
-            .ToList()
-            .ForEach(task => task.Status = TaskStatusEnum.InProgress);
-
         return View(taskListViewModel);
     }
 
     [HttpGet("{taskNameUrl}/{questionNameUrl}")]
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
     {
-        var preEngagementTasks = await _taskService.GetPreEngagementTasks();
-
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
 
         if (application == null)
@@ -85,27 +72,12 @@ public class ApplicationController : Controller
 
         QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
 
-        var preEngagementCacheAnswers = GetPreEngagementAnswerFromCache(questionDetails.QuestionId);
-
         if (questionDetails == null)
         {
             return NotFound();
         }
 
-        QuestionAnswer? questionAnswer = null;
-
-        if (preEngagementTasks.Any(x => x.CurrentTaskNameUrl == taskNameUrl && x.CurrentQuestionNameUrl == questionNameUrl))
-        {
-            questionAnswer = new QuestionAnswer
-            {
-                QuestionId = questionDetails.QuestionId,
-                Answer = preEngagementCacheAnswers.AnswerJson
-            };
-        }
-        else
-        {
-            questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
-        }
+        QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
         var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
 
@@ -143,7 +115,6 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        // Temporary solution might need to be refactored in the future
         string jsonAnswer = FormDataHelper.ConvertToJson(formdata);
 
         QuestionAnswerSubmissionResponse? questionAnswerResult = await _questionService.SubmitQuestionAnswer(
@@ -243,26 +214,5 @@ public class ApplicationController : Controller
         }
 
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
-    }
-
-    private PreEngagementAnswerModel GetPreEngagementAnswerFromCache(Guid questionId)
-    {
-        var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
-        var cachedData = _memoryCache.Get<List<PreEngagementAnswerModel>>(cacheKey);
-        return cachedData?.FirstOrDefault(x => x.QuestionId == questionId) ?? new PreEngagementAnswerModel
-        {
-            QuestionId = questionId,
-            AnswerJson = string.Empty
-        };
-    }
-
-    private List<PreEngagementAnswerModel> GetAllPreEngagementAnswersFromCache()
-    {
-        var cacheKey = HttpContext.Session.Id + "_PreEngagementData";
-        if (!_memoryCache.TryGetValue<List<PreEngagementAnswerModel>>(cacheKey, out var cachedData))
-        {
-            return new List<PreEngagementAnswerModel>();
-        }
-        return cachedData;
     }
 }

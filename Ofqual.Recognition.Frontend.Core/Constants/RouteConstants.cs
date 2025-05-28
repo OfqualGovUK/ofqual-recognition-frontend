@@ -25,6 +25,11 @@ public static class RouteConstants
         public const string NOT_ELIGIBLE_PATH = "/eligibility/not-eligible";
     }
 
+    public static class PreEngagementConstants
+    {
+        public const string PRE_ENGAGEMENT_PATH = "/pre-engagement";
+    }
+
     public static class ApplicationConstants
     {
         public const string APPLICATION_PATH = "/application";

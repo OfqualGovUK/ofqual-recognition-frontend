@@ -9,6 +9,29 @@ public static class QuestionMapper
     public static QuestionViewModel MapToViewModel(QuestionDetails question)
     {
         var json = JsonConvert.DeserializeObject<QuestionContentViewModel>(question.QuestionContent);
+        
+        var questionViewModel = new QuestionViewModel
+        {
+            QuestionTypeName = question.QuestionTypeName,
+            QuestionId = question.QuestionId,
+            TaskId = question.TaskId,
+            QuestionContent = new QuestionContentViewModel
+            {
+                Heading = json?.Heading,
+                Body = json?.Body,
+                Help = json?.Help,
+                FormGroup = json?.FormGroup
+            },
+            CurrentQuestionUrl = question.CurrentQuestionUrl,
+            PreviousQuestionUrl = question.PreviousQuestionUrl
+        };
+        return questionViewModel;
+    }
+
+    public static QuestionViewModel MapToViewModel(PreEngagementQuestionDetails question)
+    {
+        var json = JsonConvert.DeserializeObject<QuestionContentViewModel>(question.QuestionContent);
+
         var questionViewModel = new QuestionViewModel
         {
             QuestionTypeName = question.QuestionTypeName,

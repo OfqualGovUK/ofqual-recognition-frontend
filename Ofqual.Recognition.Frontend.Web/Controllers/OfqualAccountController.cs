@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -17,10 +15,10 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers;
 public class OfqualAccountController : Controller
 {
     private readonly IOptionsMonitor<MicrosoftIdentityOptions> _optionsMonitor;
-    
+
     public OfqualAccountController(IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor)
     {
-        _optionsMonitor = optionsMonitor;        
+        _optionsMonitor = optionsMonitor;
     }
 
     [HttpGet("{scheme?}")]

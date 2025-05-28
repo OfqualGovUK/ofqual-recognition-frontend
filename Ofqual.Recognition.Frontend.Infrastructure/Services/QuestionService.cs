@@ -19,11 +19,11 @@ public class QuestionService : IQuestionService
         _sessionService = sessionService;
     }
 
-    public async Task<QuestionDetails?> GetQuestionDetails(string taskName, string questionName)
+    public async Task<QuestionDetails?> GetQuestionDetails(string taskNameUrl, string questionNameUrl)
     {
         try
         {
-            var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}";
+            var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}/{taskNameUrl}/{questionNameUrl}";
             
             if (_sessionService.HasInSession(sessionKey))
             {
@@ -31,11 +31,11 @@ public class QuestionService : IQuestionService
             }
 
             var client = _client.GetClient();
-            var result = await client.GetFromJsonAsync<QuestionDetails>($"/questions/{taskName}/{questionName}");
+            var result = await client.GetFromJsonAsync<QuestionDetails>($"/questions/{taskNameUrl}/{questionNameUrl}");
 
             if (result == null)
             {
-                Log.Warning("No question found with URL: {taskName}/{questionName}", taskName, questionName);
+                Log.Warning("No question found with URL: {taskName}/{questionName}", taskNameUrl, questionNameUrl);
                 return result;
             }
 
@@ -44,7 +44,7 @@ public class QuestionService : IQuestionService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while retrieving question for URL: {taskName}/{questionName}", taskName, questionName);
+            Log.Error(ex, "An error occurred while retrieving question for URL: {taskName}/{questionName}", taskNameUrl, questionNameUrl);
             return null;
         }
     }
