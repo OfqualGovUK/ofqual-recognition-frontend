@@ -1,5 +1,6 @@
 ﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
+using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Helpers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Web.Mappers;
@@ -48,10 +49,11 @@ public class PreEngagementController : Controller
             return NotFound();
         }
 
-        PreEngagementAnswer? PreEngagement = _memoryCacheService.GetPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId);
-
+        var preEngagement = _memoryCacheService.GetFromCache<List<PreEngagementAnswer>>(SessionKeys.PreEngagementAnswers);
+        var currentQuestionAnswer = preEngagement?.FirstOrDefault(a => a.QuestionId == questionDetails.QuestionId && a.TaskId == questionDetails.TaskId);
+  
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-        questionViewModel.AnswerJson = PreEngagement?.AnswerJson;
+        questionViewModel.AnswerJson = currentQuestionAnswer?.AnswerJson;
         questionViewModel.FromPreEngagement = true;
 
         return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);

@@ -25,13 +25,14 @@ public class ApplicationService : IApplicationService
         try
         {
             var sessionKey = SessionKeys.Application;
+            var preEngagementAnswersKey = SessionKeys.PreEngagementAnswers;
 
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<Application>(sessionKey);
             }
 
-            var preEngagementAnswers = _memoryCacheService.GetAllPreEngagementAnswers();
+            var preEngagementAnswers = _memoryCacheService.GetFromCache<List<PreEngagementAnswer>>(preEngagementAnswersKey);
 
             var client = _client.GetClient();
             var response = await client.PostAsJsonAsync("/applications", preEngagementAnswers);
@@ -47,6 +48,7 @@ public class ApplicationService : IApplicationService
             if (result != null)
             {
                 _sessionService.SetInSession(sessionKey, result);
+                _memoryCacheService.RemoveFromCache(preEngagementAnswersKey);
             }
 
             return result;

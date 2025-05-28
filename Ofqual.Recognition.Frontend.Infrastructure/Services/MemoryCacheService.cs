@@ -14,6 +14,33 @@ public class MemoryCacheService : IMemoryCacheService
         _memoryCache = memoryCache;
     }
 
+    public T? GetFromCache<T>(string cacheKey)
+    {
+        if (_memoryCache.TryGetValue(cacheKey, out var value) && value is T typedValue)
+        {
+            return typedValue;
+        }
+
+        return default;
+    }
+
+    public void RemoveFromCache(string cacheKey)
+    {
+        _memoryCache.Remove(cacheKey);
+    }
+
+    public void SetInCache<T>(string cacheKey, T value, TimeSpan? expiration = null)
+    {
+        var options = new MemoryCacheEntryOptions();
+
+        if (expiration.HasValue)
+        {
+            options.SetAbsoluteExpiration(expiration.Value);
+        }
+
+        _memoryCache.Set(cacheKey, value, options);
+    }
+
     public void UpsertPreEngagementAnswer(Guid questionId, Guid taskId, string answerJson)
     {
         if (string.IsNullOrWhiteSpace(answerJson))
@@ -44,29 +71,5 @@ public class MemoryCacheService : IMemoryCacheService
         {
             SlidingExpiration = TimeSpan.FromMinutes(60)
         });
-    }
-
-    public PreEngagementAnswer? GetPreEngagementAnswer(Guid questionId, Guid taskId)
-    {
-        var cacheKey = SessionKeys.PreEngagementAnswers;
-
-        if (_memoryCache.TryGetValue(cacheKey, out var rawList) && rawList is List<PreEngagementAnswer> cachedAnswers)
-        {
-            return cachedAnswers.FirstOrDefault(a => a.QuestionId == questionId && a.TaskId == taskId);
-        }
-
-        return null;
-    }
-
-    public List<PreEngagementAnswer>? GetAllPreEngagementAnswers()
-    {
-        var cacheKey = SessionKeys.PreEngagementAnswers;
-
-        if (_memoryCache.TryGetValue(cacheKey, out var rawList) && rawList is List<PreEngagementAnswer> cachedAnswers)
-        {
-            return cachedAnswers;
-        }
-        
-        return null;
     }
 }
