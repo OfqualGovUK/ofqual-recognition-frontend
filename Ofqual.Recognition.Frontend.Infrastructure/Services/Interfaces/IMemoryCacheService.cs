@@ -4,6 +4,7 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 public interface IMemoryCacheService
 {
-    public void UpsertPreEngagementAnswer(Guid sessionId, Guid questionId, Guid taskId, string answerJson);
-    public PreEngagementAnswer? GetPreEngagementAnswer(Guid sessionId, Guid questionId, Guid taskId);
+    public void UpsertPreEngagementAnswer(Guid questionId, Guid taskId, string answerJson);
+    public PreEngagementAnswer? GetPreEngagementAnswer(Guid questionId, Guid taskId);
+    public List<PreEngagementAnswer>? GetAllPreEngagementAnswers();
 }

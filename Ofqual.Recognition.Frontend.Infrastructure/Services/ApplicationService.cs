@@ -11,11 +11,13 @@ public class ApplicationService : IApplicationService
 {
     private readonly IRecognitionCitizenClient _client;
     private readonly ISessionService _sessionService;
+    private readonly IMemoryCacheService _memoryCacheService;
 
-    public ApplicationService(IRecognitionCitizenClient client, ISessionService sessionService)
+    public ApplicationService(IRecognitionCitizenClient client, ISessionService sessionService, IMemoryCacheService memoryCacheService)
     {
         _client = client;
         _sessionService = sessionService;
+        _memoryCacheService = memoryCacheService;
     }
 
     public async Task<Application?> SetUpApplication()
@@ -29,8 +31,10 @@ public class ApplicationService : IApplicationService
                 return _sessionService.GetFromSession<Application>(sessionKey);
             }
 
+            var preEngagementAnswers = _memoryCacheService.GetAllPreEngagementAnswers();
+
             var client = _client.GetClient();
-            var response = await client.PostAsync("/applications", null);
+            var response = await client.PostAsJsonAsync("/applications", preEngagementAnswers);
 
             if (!response.IsSuccessStatusCode)
             {

@@ -24,7 +24,7 @@ public class PreEngagementController : Controller
     [HttpGet]
     public async Task<IActionResult> StartPreEngagement()
     {
-        var firstQuestion = await _preEngagementService.GetFirstPreEngagementQuestion();
+        PreEngagementQuestion? firstQuestion = await _preEngagementService.GetFirstPreEngagementQuestion();
 
         if (firstQuestion == null)
         {
@@ -48,9 +48,7 @@ public class PreEngagementController : Controller
             return NotFound();
         }
 
-        Guid sessionId = Guid.Parse(HttpContext.Session.Id);
-
-        PreEngagementAnswer? PreEngagement = _memoryCacheService.GetPreEngagementAnswer(sessionId, questionDetails.QuestionId, questionDetails.TaskId);
+        PreEngagementAnswer? PreEngagement = _memoryCacheService.GetPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId);
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.AnswerJson = PreEngagement?.AnswerJson;
@@ -71,9 +69,7 @@ public class PreEngagementController : Controller
         }
 
         string jsonAnswer = FormDataHelper.ConvertToJson(formdata);
-        Guid sessionId = Guid.Parse(HttpContext.Session.Id);
-
-        _memoryCacheService.UpsertPreEngagementAnswer(sessionId, questionDetails.QuestionId, questionDetails.TaskId, jsonAnswer);
+        _memoryCacheService.UpsertPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId, jsonAnswer);
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {

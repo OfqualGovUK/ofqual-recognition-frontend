@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Ofqual.Recognition.Frontend.Core.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Ofqual.Recognition.Frontend.Core.Constants;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;

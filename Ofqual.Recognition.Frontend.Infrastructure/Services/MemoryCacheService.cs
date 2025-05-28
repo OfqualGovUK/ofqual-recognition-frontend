@@ -14,14 +14,14 @@ public class MemoryCacheService : IMemoryCacheService
         _memoryCache = memoryCache;
     }
 
-    public void UpsertPreEngagementAnswer(Guid sessionId, Guid questionId, Guid taskId, string answerJson)
+    public void UpsertPreEngagementAnswer(Guid questionId, Guid taskId, string answerJson)
     {
         if (string.IsNullOrWhiteSpace(answerJson))
         {
             throw new ArgumentException("Answer JSON cannot be null or empty.", nameof(answerJson));
         }
 
-        var cacheKey = $"{sessionId}_{SessionKeys.PreEngagementAnswers}";
+        var cacheKey = SessionKeys.PreEngagementAnswers;
         var cachedAnswers = _memoryCache.Get(cacheKey) as List<PreEngagementAnswer> ?? new List<PreEngagementAnswer>();
         var existing = cachedAnswers.FirstOrDefault(a => a.QuestionId == questionId && a.TaskId == taskId);
 
@@ -35,7 +35,8 @@ public class MemoryCacheService : IMemoryCacheService
             {
                 QuestionId = questionId,
                 TaskId = taskId,
-                AnswerJson = answerJson
+                AnswerJson = answerJson,
+                SubmittedDate = DateTime.UtcNow
             });
         }
 
@@ -45,15 +46,27 @@ public class MemoryCacheService : IMemoryCacheService
         });
     }
 
-    public PreEngagementAnswer? GetPreEngagementAnswer(Guid sessionId, Guid questionId, Guid taskId)
+    public PreEngagementAnswer? GetPreEngagementAnswer(Guid questionId, Guid taskId)
     {
-        var cacheKey = $"{sessionId}_{SessionKeys.PreEngagementAnswers}";
+        var cacheKey = SessionKeys.PreEngagementAnswers;
 
         if (_memoryCache.TryGetValue(cacheKey, out var rawList) && rawList is List<PreEngagementAnswer> cachedAnswers)
         {
             return cachedAnswers.FirstOrDefault(a => a.QuestionId == questionId && a.TaskId == taskId);
         }
 
+        return null;
+    }
+
+    public List<PreEngagementAnswer>? GetAllPreEngagementAnswers()
+    {
+        var cacheKey = SessionKeys.PreEngagementAnswers;
+
+        if (_memoryCache.TryGetValue(cacheKey, out var rawList) && rawList is List<PreEngagementAnswer> cachedAnswers)
+        {
+            return cachedAnswers;
+        }
+        
         return null;
     }
 }
