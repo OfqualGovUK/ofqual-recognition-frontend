@@ -116,6 +116,15 @@ public class ApplicationController : Controller
         }
 
         string jsonAnswer = FormDataHelper.ConvertToJson(formdata);
+        QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
+
+        if (JsonComparisonHelper.AreEqual(questionAnswer?.Answer, jsonAnswer))
+        {
+            return RedirectToAction(nameof(TaskReview), new
+            {
+                taskNameUrl
+            });
+        }
 
         QuestionAnswerSubmissionResponse? questionAnswerResult = await _questionService.SubmitQuestionAnswer(
             application.ApplicationId,

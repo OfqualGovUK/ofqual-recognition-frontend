@@ -1,5 +1,6 @@
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Helpers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -48,13 +49,23 @@ public class MemoryCacheService : IMemoryCacheService
             throw new ArgumentException("Answer JSON cannot be null or empty.", nameof(answerJson));
         }
 
+        var now = DateTime.UtcNow;
         var cacheKey = MemoryKeys.PreEngagementAnswers;
         var cachedAnswers = _memoryCache.Get(cacheKey) as List<PreEngagementAnswer> ?? new List<PreEngagementAnswer>();
         var existing = cachedAnswers.FirstOrDefault(a => a.QuestionId == questionId && a.TaskId == taskId);
 
         if (existing != null)
         {
-            existing.AnswerJson = answerJson;
+            if (!JsonComparisonHelper.AreEqual(existing.AnswerJson, answerJson))
+            {
+                existing.AnswerJson = answerJson;
+                existing.ModifiedDate = now;
+
+                _memoryCache.Set(cacheKey, cachedAnswers, new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = TimeSpan.FromMinutes(60)
+                });
+            }
         }
         else
         {
@@ -63,13 +74,14 @@ public class MemoryCacheService : IMemoryCacheService
                 QuestionId = questionId,
                 TaskId = taskId,
                 AnswerJson = answerJson,
-                SubmittedDate = DateTime.UtcNow
+                CreatedDate = now,
+                ModifiedDate = now
+            });
+
+            _memoryCache.Set(cacheKey, cachedAnswers, new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(60)
             });
         }
-
-        _memoryCache.Set(cacheKey, cachedAnswers, new MemoryCacheEntryOptions
-        {
-            SlidingExpiration = TimeSpan.FromMinutes(60)
-        });
     }
 }
