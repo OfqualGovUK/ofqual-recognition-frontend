@@ -1,4 +1,4 @@
-<header class="govuk-header" data-module="govuk-header">
+<header class="govuk-header govuk-header--full-width-border" data-module="govuk-header">
     <div class="govuk-header__container govuk-width-container">
         <div class="govuk-header__logo">
             <a href="#" class="govuk-header__link govuk-header__link--homepage">
@@ -15,10 +15,36 @@
                 </svg>
             </a>
         </div>
-        <div class="govuk-header__content">
-            <a href="/@ViewData["HomePage"]" class="govuk-header__link govuk-header__service-name">
-                @ViewData["HeaderTitle"]
-            </a>
-        </div>
     </div>
 </header>
+<section aria-label="Service Information" class="govuk-service-navigation" data-module="govuk-service-navigation" data-govuk-service-navigation-init>
+    <div class="govuk-width-container">
+        <div class="govuk-service-navigation__container">
+            <span class="govuk-service-navigation__service-name">
+                <a href="/@ViewData["HomePage"]" class="govuk-service-navigation__link">
+                    @ViewData["HeaderTitle"]
+                </a>
+            </span>
+            <nav aria-label="Menu" class="govuk-service-navigation__wrapper" style="flex-grow: 1;">
+                <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
+                    Menu
+                </button>
+                <ul class="govuk-service-navigation__list" id="navigation">
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <li class="govuk-service-navigation__item" style="margin-left: auto;">
+                            <a asp-area="MicrosoftIdentity"
+                               asp-controller="OfqualAccount"
+                               asp-action="SignOut"
+                               class="govuk-service-navigation__link">
+                                <strong>
+                                    Sign out
+                                </strong>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>

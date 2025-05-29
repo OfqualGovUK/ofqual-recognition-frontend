@@ -49,7 +49,7 @@ public class PreEngagementController : Controller
             return NotFound();
         }
 
-        var preEngagement = _memoryCacheService.GetFromCache<List<PreEngagementAnswer>>(SessionKeys.PreEngagementAnswers);
+        var preEngagement = _memoryCacheService.GetFromCache<List<PreEngagementAnswer>>(MemoryKeys.PreEngagementAnswers);
         var currentQuestionAnswer = preEngagement?.FirstOrDefault(a => a.QuestionId == questionDetails.QuestionId && a.TaskId == questionDetails.TaskId);
   
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);

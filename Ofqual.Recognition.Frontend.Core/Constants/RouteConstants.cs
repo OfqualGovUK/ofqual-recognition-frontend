@@ -9,6 +9,12 @@ namespace Ofqual.Recognition.Frontend.Core.Constants;
 /// </remarks>
 public static class RouteConstants
 {
+
+    public static class AuthConstants
+    {
+        public const string SIGNED_OUT_PATH = "/signed-out";
+    }
+
     public static class HomeConstants
     {
         public const string HOME_PATH = "/home";

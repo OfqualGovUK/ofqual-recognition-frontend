@@ -25,7 +25,7 @@ public class ApplicationService : IApplicationService
         try
         {
             var sessionKey = SessionKeys.Application;
-            var preEngagementAnswersKey = SessionKeys.PreEngagementAnswers;
+            var preEngagementAnswersKey = MemoryKeys.PreEngagementAnswers;
 
             if (_sessionService.HasInSession(sessionKey))
             {

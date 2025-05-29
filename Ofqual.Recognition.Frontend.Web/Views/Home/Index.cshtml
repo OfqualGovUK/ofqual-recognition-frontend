@@ -5,9 +5,7 @@
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">Apply to have your qualifications regulated</h1>
         <h2 class="govuk-heading-m">About this service</h2>
-        <p class="govuk-body">
-            This service is currently in private beta. Use this service and support its continuous improvement.
-        </p>
+        <p class="govuk-body">This service is currently in private beta. Use this service and support its continuous improvement.</p>
         <h2 class="govuk-heading-m">Eligibility:</h2>
         <a asp-controller="eligibility" asp-action="start" data-test="eligibility-start" class="govuk-button govuk-button--start">Start now</a>
         @if (FeatureFlagService.IsFeatureEnabled("Application"))
@@ -27,12 +25,9 @@
         }
         else
         {
-            <h2 class="govuk-heading-m">Account information:</h2>
-            <p class="govuk-body">
-               Signed in as @User.Identity.Name
-            </p>
-            <a asp-area="MicrosoftIdentity" asp-controller="OfqualAccount" asp-action="SignOut" class="govuk-button govuk-button--start">Sign Out</a>
+            @* <h2 class="govuk-heading-m">Account information:</h2> *@
+            @* <p class="govuk-body">Signed in as @User.Identity.Name</p> *@
+            @* <a asp-area="MicrosoftIdentity" asp-controller="OfqualAccount" asp-action="SignOut" class="govuk-button govuk-button--start">Sign Out</a> *@
         }
-
     </div>
 </div>

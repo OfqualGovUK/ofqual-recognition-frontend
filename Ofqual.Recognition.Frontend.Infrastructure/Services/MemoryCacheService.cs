@@ -48,7 +48,7 @@ public class MemoryCacheService : IMemoryCacheService
             throw new ArgumentException("Answer JSON cannot be null or empty.", nameof(answerJson));
         }
 
-        var cacheKey = SessionKeys.PreEngagementAnswers;
+        var cacheKey = MemoryKeys.PreEngagementAnswers;
         var cachedAnswers = _memoryCache.Get(cacheKey) as List<PreEngagementAnswer> ?? new List<PreEngagementAnswer>();
         var existing = cachedAnswers.FirstOrDefault(a => a.QuestionId == questionId && a.TaskId == taskId);
 

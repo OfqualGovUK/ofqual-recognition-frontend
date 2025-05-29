@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Microsoft.AspNetCore.Authentication;
@@ -11,6 +11,7 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 [AllowAnonymous]
 [Area("MicrosoftIdentity")]
+[Controller]
 [Route("[Area]/[Controller]/[Action]")]
 public class OfqualAccountController : Controller
 {
@@ -27,9 +28,10 @@ public class OfqualAccountController : Controller
         scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
         var properties = new AuthenticationProperties
         {
-            RedirectUri = Url.Content("~/")
+            RedirectUri = Url.Content($"~{RouteConstants.ApplicationConstants.APPLICATION_PATH}")
         };
         properties.Items["policy"] = _optionsMonitor.CurrentValue.SignUpSignInPolicyId;
+
         return Challenge(properties, scheme);
     }
 
@@ -43,7 +45,7 @@ public class OfqualAccountController : Controller
         // send the id_token value to the authentication middleware
         var properties = new AuthenticationProperties
         {
-            RedirectUri = Url.Content("~/")
+            RedirectUri = Url.Content($"~{RouteConstants.AuthConstants.SIGNED_OUT_PATH}")
         };
         properties.Items[AuthConstants.TokenHintIdentifier] = idToken;
 
