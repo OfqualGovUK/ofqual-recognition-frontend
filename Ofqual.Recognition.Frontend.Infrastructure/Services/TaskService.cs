@@ -29,15 +29,15 @@ public class TaskService : ITaskService
 
             if (_sessionService.HasInSession(sessionKey))
             {
-                return _sessionService.GetFromSession<List<TaskItemStatusSection>>(sessionKey)!;
+                return _sessionService.GetFromSession<List<TaskItemStatusSection>>(sessionKey) ?? new List<TaskItemStatusSection>();
             }
 
             var client = _client.GetClient();
             var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/applications/{applicationId}/tasks");
 
-            if (result is null || result.Count == 0)
+            if (result == null || result.Count == 0)
             {
-                Log.Warning("No Pre-Engagement tasks found for Application ID {ApplicationId}", applicationId);
+                Log.Warning("No tasks found for Application ID {ApplicationId}", applicationId);
                 result = new List<TaskItemStatusSection>();
             }
 
