@@ -61,16 +61,13 @@ public class MemoryCacheService : IMemoryCacheService
 
         if (existing != null)
         {
-            if (!JsonHelper.AreEqual(existing.AnswerJson, answerJson))
+            if (JsonHelper.AreEqual(existing.AnswerJson, answerJson))
             {
-                existing.AnswerJson = answerJson;
-                existing.ModifiedDate = now;
-
-                _memoryCache.Set(cacheKey, cachedAnswers, new MemoryCacheEntryOptions
-                {
-                    SlidingExpiration = TimeSpan.FromMinutes(60)
-                });
+                return;
             }
+            
+            existing.AnswerJson = answerJson;
+            existing.ModifiedDate = now;
         }
         else
         {
@@ -82,11 +79,11 @@ public class MemoryCacheService : IMemoryCacheService
                 CreatedDate = now,
                 ModifiedDate = now
             });
-
-            _memoryCache.Set(cacheKey, cachedAnswers, new MemoryCacheEntryOptions
-            {
-                SlidingExpiration = TimeSpan.FromMinutes(60)
-            });
         }
+
+        _memoryCache.Set(cacheKey, cachedAnswers, new MemoryCacheEntryOptions
+        {
+            SlidingExpiration = TimeSpan.FromMinutes(60)
+        });
     }
 }
