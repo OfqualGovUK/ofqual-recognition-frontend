@@ -52,6 +52,4 @@ public class HomePage : BasePage
         await _signOutButton.ClickAsync();
         await _signedInText.IsHiddenAsync();
     }
-    
-
 }

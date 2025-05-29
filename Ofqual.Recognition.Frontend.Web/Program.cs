@@ -107,7 +107,7 @@ builder.Services.AddHttpClient("RecognitionCitizen", client =>
 builder.Services.AddSession(options =>
 {
     options.Cookie.Name = CookieConstants.SessionCookieName;
-    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SameSite = SameSiteMode.Lax;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.IdleTimeout = TimeSpan.FromHours(20);
     options.Cookie.IsEssential = true;

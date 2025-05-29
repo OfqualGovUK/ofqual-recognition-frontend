@@ -28,7 +28,7 @@ public class OfqualAccountController : Controller
         scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
         var properties = new AuthenticationProperties
         {
-            RedirectUri = Url.Content($"~{RouteConstants.ApplicationConstants.APPLICATION_PATH}")
+            RedirectUri = Url.Content(RouteConstants.ApplicationConstants.APPLICATION_PATH)
         };
         properties.Items["policy"] = _optionsMonitor.CurrentValue.SignUpSignInPolicyId;
 
@@ -45,8 +45,9 @@ public class OfqualAccountController : Controller
         // send the id_token value to the authentication middleware
         var properties = new AuthenticationProperties
         {
-            RedirectUri = Url.Content($"~{RouteConstants.AuthConstants.SIGNED_OUT_PATH}")
+            RedirectUri = Url.Content(RouteConstants.AuthConstants.SIGNED_OUT_PATH)
         };
+        
         properties.Items[AuthConstants.TokenHintIdentifier] = idToken;
 
         return SignOut(properties, CookieAuthenticationDefaults.AuthenticationScheme, scheme);

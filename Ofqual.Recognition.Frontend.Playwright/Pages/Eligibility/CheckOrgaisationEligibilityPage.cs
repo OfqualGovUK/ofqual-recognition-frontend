@@ -1,19 +1,18 @@
 ﻿using Microsoft.Playwright;
 
-namespace Ofqual.Recognition.Frontend.Playwright.Pages
+namespace Ofqual.Recognition.Frontend.Playwright.Pages;
+
+public class CheckOrgaisationEligibilityPage : BasePage
 {
-    public class CheckOrgaisationEligibilityPage : BasePage
+    protected readonly ILocator _continueButton;
+
+    public CheckOrgaisationEligibilityPage(IPage page) : base(page)
     {
-        protected readonly ILocator _continueButton;
+        _continueButton = page.Locator("a.govuk-button:has-text('Continue')");
+    }
 
-        public CheckOrgaisationEligibilityPage(IPage page) : base(page)
-        {
-            _continueButton = page.Locator("a.govuk-button:has-text('Continue')");
-        }
-
-        public async Task ClickContinueButton()
-        {
-            await _continueButton.ClickAsync();
-        }
+    public async Task ClickContinueButton()
+    {
+        await _continueButton.ClickAsync();
     }
 }
