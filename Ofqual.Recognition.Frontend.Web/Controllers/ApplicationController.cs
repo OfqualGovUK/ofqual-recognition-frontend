@@ -115,10 +115,10 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        string jsonAnswer = FormDataHelper.ConvertToJson(formdata);
+        string jsonAnswer = JsonHelper.ConvertToJson(formdata);
         QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
-        if (JsonComparisonHelper.AreEqual(questionAnswer?.Answer, jsonAnswer))
+        if (JsonHelper.AreEqual(questionAnswer?.Answer, jsonAnswer))
         {
             return RedirectToAction(nameof(TaskReview), new
             {

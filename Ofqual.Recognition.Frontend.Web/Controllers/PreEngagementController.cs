@@ -70,7 +70,7 @@ public class PreEngagementController : Controller
             return NotFound();
         }
 
-        string jsonAnswer = FormDataHelper.ConvertToJson(formdata);
+        string jsonAnswer = JsonHelper.ConvertToJson(formdata);
         _memoryCacheService.UpsertPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId, jsonAnswer);
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))

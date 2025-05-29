@@ -49,6 +49,11 @@ public class MemoryCacheService : IMemoryCacheService
             throw new ArgumentException("Answer JSON cannot be null or empty.", nameof(answerJson));
         }
 
+        if (JsonHelper.IsEmptyJsonObject(answerJson))
+        {
+            return;
+        }
+
         var now = DateTime.UtcNow;
         var cacheKey = MemoryKeys.PreEngagementAnswers;
         var cachedAnswers = _memoryCache.Get(cacheKey) as List<PreEngagementAnswer> ?? new List<PreEngagementAnswer>();
@@ -56,7 +61,7 @@ public class MemoryCacheService : IMemoryCacheService
 
         if (existing != null)
         {
-            if (!JsonComparisonHelper.AreEqual(existing.AnswerJson, answerJson))
+            if (!JsonHelper.AreEqual(existing.AnswerJson, answerJson))
             {
                 existing.AnswerJson = answerJson;
                 existing.ModifiedDate = now;
