@@ -2,7 +2,5 @@ namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
 public class TaskListViewModel
 {
-    public List<TaskSectionViewModel> Sections { get; set; } = [];
-
-    public bool IsPreEngagement { get; set; } = false;
+    public List<TaskSectionViewModel> Sections { get; set; } = new List<TaskSectionViewModel>();
 }
