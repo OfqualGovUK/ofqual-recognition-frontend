@@ -7,12 +7,12 @@
     var currentTaskNameUrl = QuestionUrlHelper.Parse(Model.CurrentQuestionUrl)!.Value.taskNameUrl;
     
     var backLinkUrl = Model.FromReview
-    ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{currentTaskNameUrl}/review-your-answers"
-    : Model.PreviousQuestionUrl != null
-    ? $"../{Model.PreviousQuestionUrl}"
-    : Model.FromPreEngagement
-    ? RouteConstants.PreEngagementConstants.PRE_ENGAGEMENT_PATH
-    : RouteConstants.ApplicationConstants.TASK_LIST_PATH;
+        ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{currentTaskNameUrl}/review-your-answers"
+        : Model.PreviousQuestionUrl != null
+        ? $"../{Model.PreviousQuestionUrl}"
+        : Model.FromPreEngagement
+        ? RouteConstants.PreEngagementConstants.PRE_ENGAGEMENT_PATH
+        : RouteConstants.ApplicationConstants.TASK_LIST_PATH;
 }
 
 @section BackLink {
