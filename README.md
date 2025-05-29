@@ -53,34 +53,32 @@ The main application settings are defined in `appsettings.json` and can be tailo
 ### Setting Details
 
 - **`AzureAdB2C:Instance`**
-    The URL of the B2C service used to authenticate.
+  The URL of the B2C service used to authenticate.
 
 - **`AzureAdB2C:ClientId`**
-    The Application ID of the service we will be running.
+  The Application ID of the service we will be running.
 
 - **`AzureAdB2C:Domain`**
-    The domain we will be authenticating under.
+  The domain we will be authenticating under.
 
 - **`AzureAdB2C:SignUpSignInPolicyId`**
-    The policy name for the typical Sign up/Sign in flow.
+  The policy name for the typical Sign up/Sign in flow.
 
 - **`AzureAdB2C:SignUpSignInPolicyForAutomationId`**
-    The policy name for the automated Sign up/Sign in flow, this should not be set in production environments.
+  The policy name for the automated Sign up/Sign in flow, this should not be set in production environments.
 
 - **`AzureAdB2C:RedirectUri`**
-    An optional parameter that will override the sign-in redirect URL to the specified value, if specified. 
-    This is used for the development service as a workaround and should not be required in production.
-    
+  An optional parameter that will override the sign-in redirect URL to the specified value, if specified.
+  This is used for the development service as a workaround and should not be required in production.
 - **`AzureAdB2C:UseAutomationPolicies`**
-    This flag is used in development to determine if the application uses the typical or automated Sign up/Sign in flow.
-    This should only be set to `true` when using automated testing.
+  This flag is used in development to determine if the application uses the typical or automated Sign up/Sign in flow.
+  This should only be set to `true` when using automated testing.
 
 - **`AzureAdB2C:CallBackPath`**
-    The callback path when signing in to Azure B2C, typically set to `/signin-oidc`
+  The callback path when signing in to Azure B2C, typically set to `/signin-oidc`
 
 - **`AzureAdB2C:AzureAdB2CSignedOutCallbackPath`**
-    The callback path when signing out of Azure B2c, typically set to `/signout-callback-oidc`
-    
+  The callback path when signing out of Azure B2c, typically set to `/signout-callback-oidc`
 - **`RecognitionApi:BaseUrl`**  
   The base URL of the external Recognition API the application communicates with. This should point to the correct environment (e.g., local, development, production).
 
@@ -103,7 +101,11 @@ These settings are used specifically for **Playwright-based end-to-end (E2E) and
 ```json
 {
   "TestSettings": {
-    "BaseUrl": ""
+    "BaseUrl": "",
+    "B2CUser": {
+      "Username": "",
+      "Password": ""
+    }
   }
 }
 ```
@@ -112,5 +114,11 @@ These settings are used specifically for **Playwright-based end-to-end (E2E) and
 
 - **`TestSettings:BaseUrl`**  
   The base URL of the application under test. This should point to the environment where E2E or integration tests are executed (e.g., local dev server, test container, or staging instance).
+  
+- **`TestSettings:B2CUser:Username`**  
+  The Azure B2C test user's email or login name.
+
+- **`TestSettings:B2CUser:Password`**  
+  The password associated with the Azure B2C test user.
 
 > These settings support the test environment and can be overridden in CI/CD using environment variables (e.g., `TestSettings__BaseUrl`).

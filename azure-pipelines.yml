@@ -290,7 +290,6 @@ stages:
           env:
             FeatureFlag__Application: '$(FeatureFlag__Application)'
             RecognitionApi__BaseUrl: '$(RecognitionApi__BaseUrl)'
-            TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
             AzureAdB2C__Instance: '$(AzureAdB2C__Instance)'
             AzureAdB2C__ClientId: '$(AzureAdB2C__ClientId)'
             AzureAdB2C__Domain: '$(AzureAdB2C__Domain)'
@@ -309,6 +308,8 @@ stages:
             arguments: '--no-build --no-restore'
           env:
             TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
+            TestSettings__B2CUser__Username: '$(TestSettings__B2CUser__Username)'
+            TestSettings__B2CUser__Password: '$(TestSettings__B2CUser__Password)'
             
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
 - stage: Build

@@ -15,6 +15,8 @@ public static class TestConfig
             .AddEnvironmentVariables()
             .Build();
     }
-    
+
     public static string RecognitionBaseUrl => _config["TestSettings:BaseUrl"]!;
+    public static string B2CUsername => _config["TestSettings:B2CUser:Username"]!;
+    public static string B2CPassword => _config["TestSettings:B2CUser:Password"]!;
 }
