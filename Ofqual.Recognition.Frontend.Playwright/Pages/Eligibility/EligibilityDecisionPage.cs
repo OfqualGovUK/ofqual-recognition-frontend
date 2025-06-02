@@ -16,7 +16,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         public async Task VerifyCreateAccountLink()
         {
             await Expect(_createAccountLink).ToBeVisibleAsync();
-            await Expect(_createAccountLink).ToHaveAttributeAsync("href", "https://recognition.ofqual.gov.uk");
+            await Expect(_createAccountLink).ToHaveAttributeAsync("href", "https://submit.forms.service.gov.uk/form/7851/request-an-ofqual-recognition-account");
         }
 
         public async Task VerifyNotEligiblePage()
