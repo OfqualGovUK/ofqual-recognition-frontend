@@ -5,5 +5,5 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 public interface IPreEngagementService
 {
     public Task<PreEngagementQuestion?> GetFirstPreEngagementQuestion();
-    public Task<PreEngagementQuestionDetails?> GetPreEngagementQuestionDetails(string taskNameUrl, string questionNameUrl);
+    public Task<QuestionDetails?> GetPreEngagementQuestionDetails(string taskNameUrl, string questionNameUrl);
 }

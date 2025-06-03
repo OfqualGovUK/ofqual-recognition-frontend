@@ -8,4 +8,5 @@ public class QuestionDetails
     public required string QuestionContent { get; set; }
     public required string CurrentQuestionUrl { get; set; }
     public string? PreviousQuestionUrl { get; set; }
+    public string? NextQuestionUrl { get; set; }
 }

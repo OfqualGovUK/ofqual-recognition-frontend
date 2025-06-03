@@ -42,7 +42,7 @@ public class PreEngagementController : Controller
     [HttpGet("{taskNameUrl}/{questionNameUrl}")]
     public async Task<IActionResult> PreEngagementQuestionDetails(string taskNameUrl, string questionNameUrl)
     {
-        PreEngagementQuestionDetails? questionDetails = await _preEngagementService.GetPreEngagementQuestionDetails(taskNameUrl, questionNameUrl);
+        QuestionDetails? questionDetails = await _preEngagementService.GetPreEngagementQuestionDetails(taskNameUrl, questionNameUrl);
 
         if (questionDetails == null)
         {
@@ -63,7 +63,7 @@ public class PreEngagementController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PreEngagementSubmitAnswers(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
-        PreEngagementQuestionDetails? questionDetails = await _preEngagementService.GetPreEngagementQuestionDetails(taskNameUrl, questionNameUrl);
+        QuestionDetails? questionDetails = await _preEngagementService.GetPreEngagementQuestionDetails(taskNameUrl, questionNameUrl);
 
         if (questionDetails == null)
         {

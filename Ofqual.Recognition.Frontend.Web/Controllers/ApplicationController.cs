@@ -31,7 +31,6 @@ public class ApplicationController : Controller
     public async Task<IActionResult> StartApplication()
     {
         Application? application = await _applicationService.SetUpApplication();
-
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
@@ -45,7 +44,6 @@ public class ApplicationController : Controller
     public async Task<IActionResult> TaskList()
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
@@ -63,7 +61,6 @@ public class ApplicationController : Controller
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
@@ -71,7 +68,6 @@ public class ApplicationController : Controller
         }
 
         QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
-
         if (questionDetails == null)
         {
             return NotFound();
@@ -80,7 +76,6 @@ public class ApplicationController : Controller
         QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
         var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
-
         if (status == TaskStatusEnum.Completed && !fromReview)
         {
             return RedirectToAction(nameof(TaskReview), new
@@ -100,51 +95,62 @@ public class ApplicationController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitAnswers(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
-            // TODO: Redirect to login page and not home page
+            // TODO: Redirect to login page instead of home
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
-
+        var questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
         if (questionDetails == null)
         {
             return NotFound();
         }
 
-        string jsonAnswer = JsonHelper.ConvertToJson(formdata);
-        QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
-
-        if (JsonHelper.AreEqual(questionAnswer?.Answer, jsonAnswer))
+        var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
+        if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && nextQuestion == null)
         {
-            return RedirectToAction(nameof(TaskReview), new
+            return BadRequest();
+        }
+
+        var jsonAnswer = JsonHelper.ConvertToJson(formdata);
+        var existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
+
+        if (JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
+        {
+            if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
             {
-                taskNameUrl
+                return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
+            }
+
+            return RedirectToAction(nameof(QuestionDetails), new
+            {
+                nextQuestion!.Value.taskNameUrl,
+                nextQuestion.Value.questionNameUrl
             });
         }
 
-        QuestionAnswerSubmissionResponse? questionAnswerResult = await _questionService.SubmitQuestionAnswer(
+        bool submissionSuccess = await _questionService.SubmitQuestionAnswer(
             application.ApplicationId,
             questionDetails.TaskId,
             questionDetails.QuestionId,
             jsonAnswer
         );
-
-        if (questionAnswerResult == null || questionAnswerResult.NextQuestionNameUrl == null || questionAnswerResult.NextTaskNameUrl == null)
+        if (!submissionSuccess)
         {
-            return RedirectToAction(nameof(TaskReview), new
-            {
-                taskNameUrl
-            });
+            return BadRequest("Failed to submit the answer.");
+        }
+
+        if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
+        {
+            return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
         return RedirectToAction(nameof(QuestionDetails), new
         {
-            taskNameUrl = questionAnswerResult.NextTaskNameUrl,
-            questionNameUrl = questionAnswerResult.NextQuestionNameUrl
+            nextQuestion!.Value.taskNameUrl,
+            nextQuestion.Value.questionNameUrl
         });
     }
 
@@ -152,7 +158,6 @@ public class ApplicationController : Controller
     public async Task<IActionResult> TaskReview(string taskNameUrl)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
@@ -160,21 +165,18 @@ public class ApplicationController : Controller
         }
 
         TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
-
         if (taskDetails == null)
         {
             return NotFound();
         }
 
         var reviewAnswers = await _questionService.GetTaskQuestionAnswers(application.ApplicationId, taskDetails.TaskId);
-
         if (reviewAnswers == null || reviewAnswers.Count == 0)
         {
             return NotFound();
         }
 
         TaskStatusEnum? status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
-
         if (status == null)
         {
             return BadRequest();
@@ -196,7 +198,6 @@ public class ApplicationController : Controller
     public async Task<IActionResult> SubmitTaskReview(string taskNameUrl, [FromForm] TaskReviewViewModel formdata)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-
         if (application == null)
         {
             // TODO: Redirect to login page and not home page
@@ -204,7 +205,6 @@ public class ApplicationController : Controller
         }
 
         TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
-
         if (taskDetails == null)
         {
             return NotFound();
@@ -216,7 +216,6 @@ public class ApplicationController : Controller
         }
 
         bool hasTaskStatusUpdated = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, formdata.Answer);
-
         if (!hasTaskStatusUpdated)
         {
             return BadRequest();

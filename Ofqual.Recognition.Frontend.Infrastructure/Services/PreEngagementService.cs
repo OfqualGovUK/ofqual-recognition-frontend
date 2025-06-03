@@ -48,7 +48,7 @@ public class PreEngagementService : IPreEngagementService
         }
     }
 
-    public async Task<PreEngagementQuestionDetails?> GetPreEngagementQuestionDetails(string taskNameUrl, string questionNameUrl)
+    public async Task<QuestionDetails?> GetPreEngagementQuestionDetails(string taskNameUrl, string questionNameUrl)
     {
         try
         {
@@ -56,11 +56,11 @@ public class PreEngagementService : IPreEngagementService
 
             if (_sessionService.HasInSession(sessionKey))
             {
-                return _sessionService.GetFromSession<PreEngagementQuestionDetails>(sessionKey);
+                return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
             }
 
             var client = _client.GetClient();
-            var result = await client.GetFromJsonAsync<PreEngagementQuestionDetails>($"/pre-engagement/{taskNameUrl}/{questionNameUrl}");
+            var result = await client.GetFromJsonAsync<QuestionDetails>($"/pre-engagement/{taskNameUrl}/{questionNameUrl}");
 
             if (result == null)
             {

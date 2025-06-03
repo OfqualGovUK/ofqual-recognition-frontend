@@ -24,7 +24,7 @@ public class QuestionService : IQuestionService
         try
         {
             var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}/{taskNameUrl}/{questionNameUrl}";
-            
+
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
@@ -49,7 +49,7 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<QuestionAnswerSubmissionResponse?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
+    public async Task<bool> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
     {
         try
         {
@@ -64,23 +64,22 @@ public class QuestionService : IQuestionService
             if (!response.IsSuccessStatusCode)
             {
                 Log.Warning("Failed to submit answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
-                return null;
+                return false;
             }
 
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
-            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);            
-            
-            var result = await response.Content.ReadFromJsonAsync<QuestionAnswerSubmissionResponse>();
-            return result;
+            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
+
+            return true;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while submitting answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
-            return null;
+            return false;
         }
     }
-
+    
     public async Task<List<QuestionAnswerSection>?> GetTaskQuestionAnswers(Guid applicationId, Guid taskId)
     {
         try
@@ -119,21 +118,21 @@ public class QuestionService : IQuestionService
 
             if (_sessionService.HasInSession(sessionKey))
             {
-               return _sessionService.GetFromSession<QuestionAnswer>(sessionKey);
+                return _sessionService.GetFromSession<QuestionAnswer>(sessionKey);
             }
 
             var client = _client.GetClient();
             var result = await client.GetFromJsonAsync<QuestionAnswer>($"/applications/{applicationId}/questions/{questionId}/answer");
 
             if (result == null)
-            { 
+            {
                 Log.Warning("No question answer found for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
                 return null;
             }
 
             _sessionService.SetInSession(sessionKey, result);
             return result;
-        } 
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving answers for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
