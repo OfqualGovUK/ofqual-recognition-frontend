@@ -114,31 +114,20 @@ public class ApplicationController : Controller
         var jsonAnswer = JsonHelper.ConvertToJson(formdata);
         var existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
-        if (JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
+        if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
-            if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
+            bool submissionSuccess = await _questionService.SubmitQuestionAnswer(
+                application.ApplicationId,
+                questionDetails.TaskId,
+                questionDetails.QuestionId,
+                jsonAnswer
+            );
+            if (!submissionSuccess)
             {
-                return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
+                return BadRequest("Failed to submit the answer.");
             }
-
-            return RedirectToAction(nameof(QuestionDetails), new
-            {
-                nextQuestion!.Value.taskNameUrl,
-                nextQuestion.Value.questionNameUrl
-            });
         }
-
-        bool submissionSuccess = await _questionService.SubmitQuestionAnswer(
-            application.ApplicationId,
-            questionDetails.TaskId,
-            questionDetails.QuestionId,
-            jsonAnswer
-        );
-        if (!submissionSuccess)
-        {
-            return BadRequest("Failed to submit the answer.");
-        }
-
+        
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
