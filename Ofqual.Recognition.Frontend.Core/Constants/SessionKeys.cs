@@ -13,4 +13,5 @@ public static class SessionKeys
     public const string ApplicationQuestionAnswer = "ApplicationQuestionAnswer";
     public const string FirstPreEngagementQuestion = "FirstPreEngagementQuestion";
     public const string PreEngagementQuestionDetails = "PreEngagementQuestionDetails";
+    public const string PreEngagementAnswers = "PreEngagementAnswers";
 }

@@ -88,6 +88,5 @@ public class OfqualAccountControllerTests
 
         //Assert
         Assert.IsType<SignOutResult>(result);
-    }
-    
+    }   
 }

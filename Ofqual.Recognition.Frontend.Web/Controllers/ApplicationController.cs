@@ -78,10 +78,7 @@ public class ApplicationController : Controller
         var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
         if (status == TaskStatusEnum.Completed && !fromReview)
         {
-            return RedirectToAction(nameof(TaskReview), new
-            {
-                taskNameUrl
-            });
+            return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);

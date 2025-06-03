@@ -14,12 +14,12 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers;
 public class PreEngagementController : Controller
 {
     private readonly IPreEngagementService _preEngagementService;
-    private readonly IMemoryCacheService _memoryCacheService;
+    private readonly ISessionService _sessionService;
 
-    public PreEngagementController(IPreEngagementService preEngagementService, IMemoryCacheService memoryCacheService)
+    public PreEngagementController(IPreEngagementService preEngagementService, ISessionService sessionService)
     {
         _preEngagementService = preEngagementService;
-        _memoryCacheService = memoryCacheService;
+        _sessionService = sessionService;
     }
 
     [HttpGet]
@@ -49,7 +49,7 @@ public class PreEngagementController : Controller
             return NotFound();
         }
 
-        var preEngagement = _memoryCacheService.GetFromCache<List<PreEngagementAnswer>>(MemoryKeys.PreEngagementAnswers);
+        var preEngagement = _sessionService.GetFromSession<List<PreEngagementAnswer>>(SessionKeys.PreEngagementAnswers);
         var currentQuestionAnswer = preEngagement?.FirstOrDefault(a => a.QuestionId == questionDetails.QuestionId && a.TaskId == questionDetails.TaskId);
   
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
@@ -71,11 +71,11 @@ public class PreEngagementController : Controller
         }
 
         string jsonAnswer = JsonHelper.ConvertToJson(formdata);
-        _memoryCacheService.UpsertPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId, jsonAnswer);
+        _sessionService.UpsertPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId, jsonAnswer);
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
-            return RedirectToAction("StartApplication", "Application");
+            return RedirectToAction(nameof(ApplicationController.StartApplication), "Application");
         }
 
         var next = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);

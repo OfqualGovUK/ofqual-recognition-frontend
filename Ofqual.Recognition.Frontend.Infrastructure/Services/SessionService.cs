@@ -1,5 +1,6 @@
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Helpers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Http;
@@ -17,9 +18,6 @@ public class SessionService : ISessionService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    /// <summary>
-    /// Gets a stored object from session.
-    /// </summary>
     public T? GetFromSession<T>(string key) where T : class
     {
         var session = _httpContextAccessor.HttpContext?.Session;
@@ -37,9 +35,6 @@ public class SessionService : ISessionService
         return JsonConvert.DeserializeObject<T>(jsonData);
     }
 
-    /// <summary>
-    /// Stores an object in session.
-    /// </summary>
     public void SetInSession<T>(string key, T data) where T : class
     {
         var session = _httpContextAccessor.HttpContext?.Session;
@@ -52,9 +47,6 @@ public class SessionService : ISessionService
         session.SetString(key, jsonData);
     }
 
-    /// <summary>
-    /// Checks if a key exists in session.
-    /// </summary>
     public bool HasInSession(string key)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
@@ -75,11 +67,6 @@ public class SessionService : ISessionService
         session?.Remove(key);
     }
 
-    /// <summary>
-    /// Updates the status of a specific task in the session.
-    /// </summary>
-    /// <param name="taskId">The ID of the task to update.</param>
-    /// <param name="newStatus">The new status for the task.</param>
     public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
@@ -119,11 +106,6 @@ public class SessionService : ISessionService
         session.Set(SessionKeys.ApplicationTaskList, Encoding.UTF8.GetBytes(updatedData));
     }
 
-    /// <summary>
-    /// Retrieves the status of a specific task from the session.
-    /// </summary>
-    /// <param name="taskId">The ID of the task to retrieve.</param>
-    /// <returns>The task status, or null if not found.</returns>
     public TaskStatusEnum? GetTaskStatusFromSession(Guid taskId)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
@@ -159,5 +141,60 @@ public class SessionService : ISessionService
         }
 
         return null;
+    }
+
+    public void UpsertPreEngagementAnswer(Guid questionId, Guid taskId, string answerJson)
+    {
+        if (string.IsNullOrWhiteSpace(answerJson))
+        {
+            throw new ArgumentException("Answer JSON cannot be null or empty.", nameof(answerJson));
+        }
+
+        if (JsonHelper.IsEmptyJsonObject(answerJson))
+        {
+            return;
+        }
+
+        var session = _httpContextAccessor.HttpContext?.Session;
+        if (session == null)
+        {
+            return;
+        }
+
+        const string sessionKey = SessionKeys.PreEngagementAnswers;
+
+        List<PreEngagementAnswer> cachedAnswers;
+        if (session.TryGetValue(sessionKey, out var data))
+        {
+            var json = Encoding.UTF8.GetString(data);
+            cachedAnswers = JsonConvert.DeserializeObject<List<PreEngagementAnswer>>(json) ?? new List<PreEngagementAnswer>();
+        }
+        else
+        {
+            cachedAnswers = new List<PreEngagementAnswer>();
+        }
+
+        var existing = cachedAnswers.FirstOrDefault(a => a.QuestionId == questionId && a.TaskId == taskId);
+
+        if (existing != null)
+        {
+            if (JsonHelper.AreEqual(existing.AnswerJson, answerJson))
+            {
+                return;
+            }
+            existing.AnswerJson = answerJson;
+        }
+        else
+        {
+            cachedAnswers.Add(new PreEngagementAnswer
+            {
+                QuestionId = questionId,
+                TaskId = taskId,
+                AnswerJson = answerJson
+            });
+        }
+
+        var updatedJson = JsonConvert.SerializeObject(cachedAnswers);
+        session.Set(sessionKey, Encoding.UTF8.GetBytes(updatedJson));
     }
 }

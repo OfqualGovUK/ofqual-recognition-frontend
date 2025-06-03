@@ -10,4 +10,5 @@ public interface ISessionService
     public void ClearFromSession(string key);
     public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus);
     public TaskStatusEnum? GetTaskStatusFromSession(Guid taskId);
+    public void UpsertPreEngagementAnswer(Guid questionId, Guid taskId, string answerJson);
 }

@@ -11,28 +11,26 @@ public class ApplicationService : IApplicationService
 {
     private readonly IRecognitionCitizenClient _client;
     private readonly ISessionService _sessionService;
-    private readonly IMemoryCacheService _memoryCacheService;
 
-    public ApplicationService(IRecognitionCitizenClient client, ISessionService sessionService, IMemoryCacheService memoryCacheService)
+    public ApplicationService(IRecognitionCitizenClient client, ISessionService sessionService)
     {
         _client = client;
         _sessionService = sessionService;
-        _memoryCacheService = memoryCacheService;
     }
 
     public async Task<Application?> SetUpApplication()
     {
         try
         {
-            var sessionKey = SessionKeys.Application;
-            var preEngagementAnswersKey = MemoryKeys.PreEngagementAnswers;
+            var applicationSessionKey = SessionKeys.Application;
+            var preEngagementAnswersSessionKey = SessionKeys.PreEngagementAnswers;
 
-            if (_sessionService.HasInSession(sessionKey))
+            if (_sessionService.HasInSession(applicationSessionKey))
             {
-                return _sessionService.GetFromSession<Application>(sessionKey);
+                return _sessionService.GetFromSession<Application>(applicationSessionKey);
             }
 
-            var preEngagementAnswers = _memoryCacheService.GetFromCache<List<PreEngagementAnswer>>(preEngagementAnswersKey);
+            var preEngagementAnswers = _sessionService.GetFromSession<List<PreEngagementAnswer>>(preEngagementAnswersSessionKey);
 
             var client = _client.GetClient();
             var response = await client.PostAsJsonAsync("/applications", preEngagementAnswers);
@@ -47,8 +45,8 @@ public class ApplicationService : IApplicationService
 
             if (result != null)
             {
-                _sessionService.SetInSession(sessionKey, result);
-                _memoryCacheService.RemoveFromCache(preEngagementAnswersKey);
+                _sessionService.SetInSession(applicationSessionKey, result);
+                _sessionService.ClearFromSession(preEngagementAnswersSessionKey);
             }
 
             return result;
