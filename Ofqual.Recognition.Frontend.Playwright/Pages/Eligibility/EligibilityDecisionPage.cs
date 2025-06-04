@@ -13,11 +13,11 @@ public class EligibilityDecisionPage : BasePage
         _reviewAndChangeLink = page.Locator("a.govuk-link[href='question-review']");
     }
 
-    public async Task VerifyCreateAccountLink()
-    {
-        await Expect(_createAccountLink).ToBeVisibleAsync();
-        await Expect(_createAccountLink).ToHaveAttributeAsync("href", "https://recognition.ofqual.gov.uk");
-    }
+        public async Task VerifyCreateAccountLink()
+        {
+            await Expect(_createAccountLink).ToBeVisibleAsync();
+            await Expect(_createAccountLink).ToHaveAttributeAsync("href", "https://submit.forms.service.gov.uk/form/7851/request-an-ofqual-recognition-account");
+        }
 
     public async Task VerifyNotEligiblePage()
     {
