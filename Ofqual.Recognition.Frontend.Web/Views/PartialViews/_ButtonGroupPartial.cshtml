@@ -1,8 +1,14 @@
 @using Ofqual.Recognition.Frontend.Core.Constants
 
+@{
+    var cancelLinkUrl = Model.FromPreEngagement 
+        ? RouteConstants.PreEngagementConstants.PRE_ENGAGEMENT_PATH 
+        : RouteConstants.ApplicationConstants.TASK_LIST_PATH;
+}
+
 <div class="govuk-button-group">
     <button type="submit" class="govuk-button" data-module="govuk-button">
         Save and continue
     </button>
-    <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
+    <a class="govuk-link" href="@cancelLinkUrl">Cancel</a>
 </div>

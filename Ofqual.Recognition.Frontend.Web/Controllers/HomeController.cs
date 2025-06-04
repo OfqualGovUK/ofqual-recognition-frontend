@@ -14,7 +14,7 @@ public class HomeController : Controller
         return View();
     }
 
-    [HttpGet("home/signed-out")]
+    [HttpGet("signed-out")]
     public IActionResult SignedOut()
     {
         if (User.Identity?.IsAuthenticated ?? false)

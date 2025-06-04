@@ -125,7 +125,7 @@ public class SessionServiceTests
     {
         // Arrange
         var taskId = Guid.NewGuid();
-        
+
         var task = new TaskItemStatus
         {
             TaskId = taskId,
@@ -133,7 +133,7 @@ public class SessionServiceTests
             Status = originalStatus,
             FirstQuestionURL = "/application-details/contact-details"
         };
-        
+
         var section = new TaskItemStatusSection
         {
             SectionId = Guid.NewGuid(),
@@ -147,11 +147,11 @@ public class SessionServiceTests
 
         _sessionMock.Setup(s => s.TryGetValue(SessionKeys.ApplicationTaskList, out sessionBytes))
             .Returns(true);
-        
+
         byte[]? updatedBytes = null;
         _sessionMock.Setup(s => s.Set(SessionKeys.ApplicationTaskList, It.IsAny<byte[]>()))
             .Callback<string, byte[]>((_, bytes) => updatedBytes = bytes);
-        
+
         // Act
         _sessionService.UpdateTaskStatusInSession(taskId, newStatus);
 
@@ -263,5 +263,96 @@ public class SessionServiceTests
 
         // Assert
         Assert.Null(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void UpsertPreEngagementAnswer_ShouldAddNewAnswer_WhenNotExists()
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var answerJson = "{\"value\":\"test\"}";
+        
+        byte[]? sessionBytes = null;
+        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.PreEngagementAnswers, out sessionBytes))
+            .Returns(false);
+
+        byte[]? storedBytes = null;
+        _sessionMock.Setup(s => s.Set(SessionKeys.PreEngagementAnswers, It.IsAny<byte[]>()))
+            .Callback<string, byte[]>((_, bytes) => storedBytes = bytes);
+        
+        // Act
+        _sessionService.UpsertPreEngagementAnswer(questionId, taskId, answerJson);
+
+        // Assert
+        Assert.NotNull(storedBytes);
+        var stored = JsonConvert.DeserializeObject<List<PreEngagementAnswer>>(Encoding.UTF8.GetString(storedBytes!));
+        Assert.Single(stored!);
+        Assert.Equal(questionId, stored[0].QuestionId);
+        Assert.Equal(taskId, stored[0].TaskId);
+        Assert.Equal(answerJson, stored[0].AnswerJson);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    [Trait("Category", "Unit")]
+    public void UpsertPreEngagementAnswer_ShouldThrowException_WhenAnswerIsNullOrWhiteSpace(string? badJson)
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() =>
+            _sessionService.UpsertPreEngagementAnswer(questionId, taskId, badJson!));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void UpsertPreEngagementAnswer_ShouldNotUpdate_WhenJsonIsEmptyObject()
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var emptyJson = "{}";
+
+        // Act
+        _sessionService.UpsertPreEngagementAnswer(questionId, taskId, emptyJson);
+
+        // Assert
+        _sessionMock.Verify(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()), Times.Never);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void UpsertPreEngagementAnswer_ShouldNotSet_WhenAnswerUnchanged()
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var answerJson = "{\"value\":\"same\"}";
+
+        var existing = new List<PreEngagementAnswer>
+        {
+            new PreEngagementAnswer { QuestionId = questionId, TaskId = taskId, AnswerJson = answerJson }
+        };
+
+        var serialized = JsonConvert.SerializeObject(existing);
+        var sessionBytes = Encoding.UTF8.GetBytes(serialized);
+
+        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.PreEngagementAnswers, out sessionBytes))
+            .Returns(true);
+        
+        _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+            .Verifiable();
+        
+        // Act
+        _sessionService.UpsertPreEngagementAnswer(questionId, taskId, answerJson);
+
+        // Assert
+        _sessionMock.Verify(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()), Times.Never);
     }
 }

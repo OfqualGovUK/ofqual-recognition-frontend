@@ -1,26 +1,25 @@
 ﻿using Microsoft.Playwright;
 
-namespace Ofqual.Recognition.Frontend.Playwright.Pages
+namespace Ofqual.Recognition.Frontend.Playwright.Pages;
+
+public class Question1Page : BasePage
 {
-    public class Question1Page : BasePage
+    private readonly ILocator _continueButton;
+    private readonly ILocator _questionHeading;
+
+    public Question1Page(IPage page) : base(page)
     {
-        private readonly ILocator _continueButton;
-        private readonly ILocator _questionHeading;
+        _continueButton = page.Locator("button.govuk-button:has-text('Continue')");
+        _questionHeading = page.Locator("[data-test='legend']");
+    }
 
-        public Question1Page(IPage page) : base(page)
-        {
-            _continueButton = page.Locator("button.govuk-button:has-text('Continue')");
-            _questionHeading = page.Locator("[data-test='legend']");
-        }
+    public async Task ClickContinueButton()
+    {
+        await _continueButton.ClickAsync();
+    }
 
-        public async Task ClickContinueButton()
-        {
-            await _continueButton.ClickAsync();
-        }
-
-        public async Task CheckQuestionHeading(string heading)
-        {
-            await Expect(_questionHeading).ToHaveTextAsync(heading);
-        }
+    public async Task CheckQuestionHeading(string heading)
+    {
+        await Expect(_questionHeading).ToHaveTextAsync(heading);
     }
 }

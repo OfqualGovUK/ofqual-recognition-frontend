@@ -10,4 +10,5 @@ public class QuestionViewModel
     public string? AnswerJson { get; set; }
     public string? PreviousQuestionUrl { get; set; }
     public bool FromReview { get; set; }
+    public bool FromPreEngagement { get; set; }
 }

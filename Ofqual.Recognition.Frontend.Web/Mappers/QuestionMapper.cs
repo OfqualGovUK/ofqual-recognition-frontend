@@ -9,6 +9,7 @@ public static class QuestionMapper
     public static QuestionViewModel MapToViewModel(QuestionDetails question)
     {
         var json = JsonConvert.DeserializeObject<QuestionContentViewModel>(question.QuestionContent);
+        
         var questionViewModel = new QuestionViewModel
         {
             QuestionTypeName = question.QuestionTypeName,

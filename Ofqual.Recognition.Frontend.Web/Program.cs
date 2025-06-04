@@ -107,7 +107,7 @@ builder.Services.AddHttpClient("RecognitionCitizen", client =>
 builder.Services.AddSession(options =>
 {
     options.Cookie.Name = CookieConstants.SessionCookieName;
-    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SameSite = SameSiteMode.Lax;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.IdleTimeout = TimeSpan.FromHours(20);
     options.Cookie.IsEssential = true;
@@ -122,6 +122,7 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IPreEngagementService, PreEngagementService>();
 
 #endregion
 
@@ -151,12 +152,6 @@ app.UseMiddleware<FeatureRedirectMiddleware>();
 
 // Configure route mapping
 app.MapControllers();
-
-app.MapControllerRoute(
-    name: "signed-out",
-    pattern: "signed-out",
-    defaults: new {controller="Home",action="signed-out"}
-);
 
 app.MapControllerRoute(
     name: "default",
