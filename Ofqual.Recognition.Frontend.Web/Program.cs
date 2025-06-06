@@ -123,6 +123,7 @@ builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IPreEngagementService, PreEngagementService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 #endregion
 

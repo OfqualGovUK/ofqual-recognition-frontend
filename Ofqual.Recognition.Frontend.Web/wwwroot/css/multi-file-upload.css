@@ -1,0 +1,147 @@
+.ofqual-file-list {
+    font-family: "GDS Transport", Arial, sans-serif;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.ofqual-file-list__item {
+    border-bottom: 1px solid #ccc;
+    padding: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ofqual-file-list__item--preupload {
+    gap: 10px;
+}
+
+.ofqual-file-list__item--error {
+    position: relative;
+    padding-left: 15px;
+}
+
+.ofqual-file-list__item--error::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 75%;
+    width: 5px;
+    background-color: #d4351c;
+    border-radius: 1px;
+}
+
+.ofqual-file-list__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: nowrap;
+}
+
+.ofqual-file-list__name {
+    font-weight: 600;
+    font-size: 16px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+
+.ofqual-file-list__size {
+    font-size: 14px;
+    color: #505a5f;
+}
+
+.ofqual-file-list__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ofqual-file-list__progress-wrapper {
+    flex-grow: 1;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.ofqual-file-list__progress-wrapper--blue {
+    background-color: #d2e2f1;
+}
+
+.ofqual-file-list__progress-wrapper--green {
+    background-color: #d9ead3;
+}
+
+.ofqual-file-list__progress-wrapper--red {
+    background-color: #f3dcdc;
+}
+
+.ofqual-file-list__progress-bar {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 5px;
+}
+
+.ofqual-file-list__progress-bar--blue {
+    background-color: #1d70b8;
+}
+
+.ofqual-file-list__progress-bar--green {
+    background-color: #00703c;
+}
+
+.ofqual-file-list__progress-bar--red {
+    background-color: #d4351c;
+}
+
+.ofqual-file-list__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ofqual-file-list__action {
+    font-size: 14px;
+    color: #1d70b8;
+    text-decoration: underline;
+    white-space: nowrap;
+    font-family: inherit;
+    padding-left: 8px;
+}
+
+.ofqual-file-list__action+.ofqual-file-list__action {
+    border-left: 1px solid #b1b4b6;
+}
+
+.ofqual-file-list__status {
+    font-size: 14px;
+    color: #505a5f;
+    margin-top: 0;
+    line-height: 0.5;
+}
+
+.ofqual-file-list__item--error .ofqual-file-list__status {
+    font-size: 1rem;
+    color: #d4351c;
+    font-weight: bold;
+}
+
+.govuk-file-upload-button__status {
+    display: none;
+}
+
+@media screen and (max-width: 640px) {
+    .ofqual-file-list__status {
+        font-size: 13px;
+        line-height: 0.2;
+    }
+
+    .ofqual-file-list__item--error .ofqual-file-list__status {
+        font-size: 0.85rem;
+    }
+}
