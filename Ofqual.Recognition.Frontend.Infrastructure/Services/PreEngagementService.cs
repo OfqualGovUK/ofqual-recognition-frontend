@@ -29,7 +29,7 @@ public class PreEngagementService : IPreEngagementService
                 return _sessionService.GetFromSession<PreEngagementQuestion>(sessionKey);
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<PreEngagementQuestion>("/pre-engagement/first-question");
 
             if (result == null)
@@ -59,7 +59,7 @@ public class PreEngagementService : IPreEngagementService
                 return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<QuestionDetails>($"/pre-engagement/{taskNameUrl}/{questionNameUrl}");
 
             if (result == null)

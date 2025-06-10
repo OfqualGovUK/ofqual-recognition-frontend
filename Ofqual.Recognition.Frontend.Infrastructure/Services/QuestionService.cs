@@ -30,7 +30,7 @@ public class QuestionService : IQuestionService
                 return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<QuestionDetails>($"/questions/{taskNameUrl}/{questionNameUrl}");
 
             if (result == null)
@@ -53,7 +53,7 @@ public class QuestionService : IQuestionService
     {
         try
         {
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var payload = new QuestionAnswerSubmission
             {
                 Answer = answer
@@ -91,7 +91,7 @@ public class QuestionService : IQuestionService
                 return _sessionService.GetFromSession<List<QuestionAnswerSection>>(sessionKey);
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<List<QuestionAnswerSection>>($"/applications/{applicationId}/tasks/{taskId}/questions/answers");
 
             if (result == null)
@@ -121,7 +121,7 @@ public class QuestionService : IQuestionService
                 return _sessionService.GetFromSession<QuestionAnswer>(sessionKey);
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<QuestionAnswer>($"/applications/{applicationId}/questions/{questionId}/answer");
 
             if (result == null)
