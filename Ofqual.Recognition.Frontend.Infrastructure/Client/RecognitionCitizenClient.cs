@@ -24,7 +24,7 @@ public class RecognitionCitizenClient : IRecognitionCitizenClient
 
     public async Task<HttpClient> GetClientAsync()
     {
-        var scopes = _configuration.GetSection("DownstreamApis:RecognitionApi:Scopes").Get<IEnumerable<string>>();
+        var scopes = _configuration.GetSection("RecognitionApi:Scopes").Get<IEnumerable<string>>();
 
         var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
 

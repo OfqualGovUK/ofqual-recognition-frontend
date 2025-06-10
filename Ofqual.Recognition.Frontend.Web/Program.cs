@@ -73,7 +73,7 @@ builder.Services.AddOptions();
 builder.Services.Configure<OpenIdConnectOptions>(builder.Configuration.GetSection("AzureAdB2C"));
 
 // This needs to be a list of *direct urls* to scopes and not just the names of the scopes!
-IEnumerable<string>? initialScopes = builder.Configuration.GetSection("DownstreamApis:RecognitionApi:Scopes").Get<IEnumerable<string>>();
+IEnumerable<string>? initialScopes = builder.Configuration.GetSection("RecognitionApi:Scopes").Get<IEnumerable<string>>();
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
