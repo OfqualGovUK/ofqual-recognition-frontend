@@ -90,7 +90,7 @@ public class ApplicationController : Controller
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SubmitAnswers(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
+    public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
         var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
@@ -116,14 +116,25 @@ public class ApplicationController : Controller
 
         if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
-            await _questionService.SubmitQuestionAnswer(
+            ValidationResponse? validationResponse = await _questionService.SubmitQuestionAnswer(
                 application.ApplicationId,
                 questionDetails.TaskId,
                 questionDetails.QuestionId,
                 jsonAnswer
             );
+            
+            if(validationResponse != null)
+            {
+                QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
+                ErrorResponseViewModel errorResponseViewModel = QuestionMapper.MapToViewModel(validationResponse);
+
+                questionViewModel.ErrorResponseViewModel = errorResponseViewModel;
+                questionViewModel.AnswerJson = jsonAnswer;
+
+                return View(questionViewModel);
+            }
         }
-        
+
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
@@ -177,7 +188,7 @@ public class ApplicationController : Controller
 
     [HttpPost("{taskNameUrl}/review-your-answers")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SubmitTaskReview(string taskNameUrl, [FromForm] TaskReviewViewModel formdata)
+    public async Task<IActionResult> TaskReview(string taskNameUrl, [FromForm] TaskReviewViewModel formdata)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)

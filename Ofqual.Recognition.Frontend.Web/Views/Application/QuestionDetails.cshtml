@@ -20,8 +20,8 @@
 }
 
 <div class="govuk-grid-row">
-
     <div class="govuk-grid-column-two-thirds">
+        @await Html.PartialAsync($"~/Views/PartialViews/_ErrorSummaryPartial.cshtml", Model)      
 
         @if (!string.IsNullOrEmpty(Model.QuestionContent.Heading))
         {
@@ -38,11 +38,9 @@
 
                 @Html.AntiForgeryToken()
                 @await Html.PartialAsync($"~/Views/PartialViews/_ButtonGroupPartial.cshtml", Model)
-
             </form>
         }
     </div>
 
     @await Html.PartialAsync($"~/Views/PartialViews/_HelpPartial.cshtml", Model)
-
 </div>

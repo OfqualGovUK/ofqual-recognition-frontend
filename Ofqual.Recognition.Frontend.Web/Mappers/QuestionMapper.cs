@@ -44,4 +44,16 @@ public static class QuestionMapper
             }).ToList()
         };
     }
+
+    public static ErrorResponseViewModel MapToViewModel(ValidationResponse validationResponse)
+    {
+        return new ErrorResponseViewModel
+        {
+            Errors = validationResponse?.Errors?.Select(error => new ErrorItemViewModel
+            {
+                PropertyName = error.PropertyName,
+                ErrorMessage = error.ErrorMessage
+            })
+        };
+    }
 }

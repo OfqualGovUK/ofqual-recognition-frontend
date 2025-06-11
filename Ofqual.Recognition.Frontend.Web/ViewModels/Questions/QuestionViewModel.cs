@@ -13,5 +13,5 @@ public class QuestionViewModel
     public string? PreviousQuestionUrl { get; set; }
     public bool FromReview { get; set; }
     public bool FromPreEngagement { get; set; }
-    public Dictionary<string, string> ValidationErrors { get; set; } = [];
+    public ErrorResponseViewModel? ErrorResponseViewModel { get; set; }
 }

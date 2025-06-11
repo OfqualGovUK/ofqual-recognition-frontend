@@ -49,7 +49,7 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<List<ErrorItem>?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
+    public async Task<ValidationResponse?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
     {
         try
         {
@@ -63,9 +63,15 @@ public class QuestionService : IQuestionService
 
             if (!response.IsSuccessStatusCode)
             {
+                ValidationResponse? validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponse>();
+                if (validationResponse?.Errors != null)
+                {
+                    return validationResponse;
+                }
+
                 Log.Warning("Failed to submit answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
-                var result = await response.Content.ReadFromJsonAsync<List<ErrorItem>>();
-                return result;
+            
+                return new ValidationResponse { Message = validationResponse?.Message ?? "We couldn't submit your answer. Please try again." };
             }
 
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
@@ -77,10 +83,10 @@ public class QuestionService : IQuestionService
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while submitting answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
-            return null;
+            return new ValidationResponse { Message = "Something went wrong, Please try again." };
         }
     }
-    
+
     public async Task<List<QuestionAnswerSection>?> GetTaskQuestionAnswers(Guid applicationId, Guid taskId)
     {
         try
