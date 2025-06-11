@@ -116,16 +116,12 @@ public class ApplicationController : Controller
 
         if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
-            bool submissionSuccess = await _questionService.SubmitQuestionAnswer(
+            await _questionService.SubmitQuestionAnswer(
                 application.ApplicationId,
                 questionDetails.TaskId,
                 questionDetails.QuestionId,
                 jsonAnswer
             );
-            if (!submissionSuccess)
-            {
-                return BadRequest("Failed to submit the answer.");
-            }
         }
         
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))

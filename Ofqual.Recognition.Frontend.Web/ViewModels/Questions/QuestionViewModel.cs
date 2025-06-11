@@ -1,4 +1,6 @@
-﻿namespace Ofqual.Recognition.Frontend.Web.ViewModels;
+﻿using Microsoft.AspNetCore.Mvc.Diagnostics;
+
+namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
 public class QuestionViewModel
 {
@@ -11,4 +13,5 @@ public class QuestionViewModel
     public string? PreviousQuestionUrl { get; set; }
     public bool FromReview { get; set; }
     public bool FromPreEngagement { get; set; }
+    public Dictionary<string, string> ValidationErrors { get; set; } = [];
 }

@@ -49,7 +49,7 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<bool> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
+    public async Task<List<ErrorItem>?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
     {
         try
         {
@@ -64,19 +64,20 @@ public class QuestionService : IQuestionService
             if (!response.IsSuccessStatusCode)
             {
                 Log.Warning("Failed to submit answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
-                return false;
+                var result = await response.Content.ReadFromJsonAsync<List<ErrorItem>>();
+                return result;
             }
 
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
             _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
 
-            return true;
+            return null;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while submitting answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
-            return false;
+            return null;
         }
     }
     
