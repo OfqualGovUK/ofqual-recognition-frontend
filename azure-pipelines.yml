@@ -284,7 +284,6 @@ stages:
           displayName: 'Install E2E Test Browsers'
         # Step 5: Start the application server
         - script: |
-            echo "RecognitionApi__Scopes:$RecognitionApi__Scopes"
             dotnet run --project Ofqual.Recognition.Frontend.Web/Ofqual.Recognition.Frontend.Web.csproj --urls "$(TestSettings__BaseUrl)" &
             sleep 10
           displayName: 'Start Application Server for E2E Tests'
@@ -301,7 +300,7 @@ stages:
             AzureAdB2C__UseAutomationPolicies: '$(AzureAdB2C__UseAutomationPolicies)'
             AzureAdB2C__CallBackPath: '$(AzureAdB2C__CallBackPath)'
             AzureAdB2C__SignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)'
-            AzureAdB2C__ClientCredentials: "[ { 'SourceType': 'ClientSecret', 'ClientSecret': '$(AzureAdB2C__ClientCredentials__ClientSecret)' } ]" 
+            AzureAdB2C__ClientCredentials: "[ { 'SourceType': '$(AzureAdB2C__ClientCredentials__0__SourceType)', 'ClientSecret': '$(AzureAdB2C__ClientCredentials__0__ClientSecret)' } ]" 
         # Step 6: Run Playwright E2E tests
         - task: DotNetCoreCLI@2
           displayName: 'Run Playwright End-to-End Tests'
