@@ -77,4 +77,38 @@ public class PreEngagementService : IPreEngagementService
             return null;
         }
     }
+
+    public async Task<ValidationResponse?> ValidatePreEngagementAnswer(Guid questionId, string answerJson)
+    {
+        try
+        {
+            var client = _client.GetClient();
+            var payload = new QuestionAnswerSubmission { Answer = answerJson };
+
+            var response = await client.PostAsJsonAsync($"/pre-engagement/questions/{questionId}/validate", payload);
+            if (response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            ValidationResponse? validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponse>();
+            if (validationResponse == null)
+            {
+                Log.Warning("Pre-engagement validation response was null. QuestionId: {QuestionId}, StatusCode: {StatusCode}", questionId, response.StatusCode);
+                return new ValidationResponse { Message = "We could not validate your pre-engagement answer. Please try again." };
+            }
+
+            if (!string.IsNullOrWhiteSpace(validationResponse.Message))
+            {
+                Log.Warning("Pre-engagement validation failed with message. QuestionId: {QuestionId}. Message: {Message}", questionId, validationResponse.Message);
+            }
+
+            return validationResponse;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while validating the pre-engagement answer for QuestionId: {QuestionId}", questionId);
+            return new ValidationResponse { Message = "An unexpected error occurred while validating your pre-engagement answer. Please try again."};
+        }
+    }
 }
