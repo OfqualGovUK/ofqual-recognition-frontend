@@ -32,7 +32,8 @@ namespace Ofqual.Recognition.Frontend.Playwright.Tests
             {
                 var testName = TestContext.CurrentContext.Test.Name;
                 var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                var fileName = $"fail_{testName}_{timestamp}.png";
+                var safeTestName = string.Concat(testName.Split(Path.GetInvalidFileNameChars()));
+                var fileName = $"fail_{safeTestName}_{timestamp}.png";
 
                 var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
                 var screenshotsDir = Path.Combine(projectRoot, "Screenshots");

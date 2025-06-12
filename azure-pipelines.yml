@@ -307,19 +307,19 @@ stages:
           inputs:
             command: 'test'
             projects: 'Ofqual.Recognition.Frontend.Playwright/Ofqual.Recognition.Frontend.Playwright.csproj'
-            arguments: '--no-build --no-restore'
+            arguments: '--no-build --no-restore --logger:"nunit;LogFilePath=TestResult.xml"'
           env:
             TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
             TestSettings__B2CUser__Username: '$(TestSettings__B2CUser__Username)'
             TestSettings__B2CUser__Password: '$(TestSettings__B2CUser__Password)'
         # Step 7: Publish Screenshots Folder as Artifact
-        - task: PublishBuildArtifacts@1
-          displayName: 'Publish Screenshots'
-          condition: failed()
+        - task: PublishTestResults@2
+          displayName: 'Publish NUnit Test Results with Screenshots'
           inputs:
-            PathtoPublish: '$(Build.SourcesDirectory)/Screenshots'
-            ArtifactName: 'Screenshots'
-            publishLocation: 'Container'
+            testResultsFormat: 'NUnit'
+            testResultsFiles: '**/TestResult.xml'
+            searchFolder: '$(System.DefaultWorkingDirectory)'
+            publishRunAttachments: true
             
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
 - stage: Build
