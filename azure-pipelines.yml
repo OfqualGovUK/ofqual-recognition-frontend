@@ -317,7 +317,7 @@ stages:
           displayName: 'Publish Screenshots'
           condition: failed()
           inputs:
-            PathtoPublish: '$(System.DefaultWorkingDirectory)/Screenshots'
+            PathtoPublish: '$(Build.SourcesDirectory)/Screenshots'
             ArtifactName: 'Screenshots'
             publishLocation: 'Container'
             
