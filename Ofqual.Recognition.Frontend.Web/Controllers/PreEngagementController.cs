@@ -61,7 +61,7 @@ public class PreEngagementController : Controller
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PreEngagementSubmitAnswers(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
+    public async Task<IActionResult> PreEngagementQuestionDetails(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
         QuestionDetails? questionDetails = await _preEngagementService.GetPreEngagementQuestionDetails(taskNameUrl, questionNameUrl);
 

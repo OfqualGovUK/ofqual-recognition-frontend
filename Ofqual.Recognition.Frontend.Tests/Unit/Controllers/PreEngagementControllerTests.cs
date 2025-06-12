@@ -138,7 +138,7 @@ public class PreEngagementControllerTests
         var formData = new FormCollection(new Dictionary<string, StringValues> { { "field", "value" } });
 
         // Act
-        var result = await _controller.PreEngagementSubmitAnswers("task1", "question1", formData);
+        var result = await _controller.PreEngagementQuestionDetails("task1", "question1", formData);
         
         // Assert
         _sessionServiceMock.Verify(x =>
@@ -171,7 +171,7 @@ public class PreEngagementControllerTests
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
         // Act
-        var result = await _controller.PreEngagementSubmitAnswers("task1", "question1", formData);
+        var result = await _controller.PreEngagementQuestionDetails("task1", "question1", formData);
 
         // Assert
         var redirect = Assert.IsType<RedirectToActionResult>(result);
@@ -200,7 +200,7 @@ public class PreEngagementControllerTests
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
         // Act
-        var result = await _controller.PreEngagementSubmitAnswers("task1", "question1", formData);
+        var result = await _controller.PreEngagementQuestionDetails("task1", "question1", formData);
 
         // Assert
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -218,7 +218,7 @@ public class PreEngagementControllerTests
         var formData = new FormCollection(new Dictionary<string, StringValues>());
         
         // Act
-        var result = await _controller.PreEngagementSubmitAnswers("task1", "question1", formData);
+        var result = await _controller.PreEngagementQuestionDetails("task1", "question1", formData);
         
         // Assert
         Assert.IsType<NotFoundResult>(result);

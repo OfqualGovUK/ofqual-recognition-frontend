@@ -9,7 +9,7 @@ public static class QuestionMapper
     public static QuestionViewModel MapToViewModel(QuestionDetails question)
     {
         var json = JsonConvert.DeserializeObject<QuestionContentViewModel>(question.QuestionContent);
-        
+
         var questionViewModel = new QuestionViewModel
         {
             QuestionTypeName = question.QuestionTypeName,
@@ -45,15 +45,12 @@ public static class QuestionMapper
         };
     }
 
-    public static ErrorResponseViewModel MapToViewModel(ValidationResponse validationResponse)
+    public static IEnumerable<ErrorItemViewModel> MapToViewModel(IEnumerable<ValidationErrorItem> errors)
     {
-        return new ErrorResponseViewModel
+        return errors.Select(e => new ErrorItemViewModel
         {
-            Errors = validationResponse?.Errors?.Select(error => new ErrorItemViewModel
-            {
-                PropertyName = error.PropertyName,
-                ErrorMessage = error.ErrorMessage
-            })
-        };
+            PropertyName = e.PropertyName,
+            ErrorMessage = e.ErrorMessage
+        });
     }
 }

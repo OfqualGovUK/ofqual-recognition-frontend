@@ -122,13 +122,16 @@ public class ApplicationController : Controller
                 questionDetails.QuestionId,
                 jsonAnswer
             );
-            
-            if(validationResponse != null)
+
+            if (validationResponse != null)
             {
                 QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-                ErrorResponseViewModel errorResponseViewModel = QuestionMapper.MapToViewModel(validationResponse);
+                var errors = validationResponse.Errors != null
+                    ? QuestionMapper.MapToViewModel(validationResponse.Errors)
+                    : Enumerable.Empty<ErrorItemViewModel>();
 
-                questionViewModel.ErrorResponseViewModel = errorResponseViewModel;
+                questionViewModel.Errors = errors;
+                questionViewModel.ErrorMessage = validationResponse.Message;
                 questionViewModel.AnswerJson = jsonAnswer;
 
                 return View(questionViewModel);
