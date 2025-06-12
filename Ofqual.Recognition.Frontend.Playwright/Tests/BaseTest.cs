@@ -5,6 +5,26 @@ namespace Ofqual.Recognition.Frontend.Playwright.Tests
 {
     public class BaseTest : PageTest
     {
+
+        [OneTimeSetUp]
+        public void SetupScreenshotsFolder()
+        {
+            var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+            var screenshotsDir = Path.Combine(projectRoot, "Screenshots");
+
+            if (Directory.Exists(screenshotsDir))
+            {
+                foreach (var file in Directory.GetFiles(screenshotsDir))
+                {
+                    File.Delete(file);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(screenshotsDir);
+            }
+        }
+
         [TearDown]
         public async Task TearDown()
         {
