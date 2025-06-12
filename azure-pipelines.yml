@@ -284,6 +284,7 @@ stages:
           displayName: 'Install E2E Test Browsers'
         # Step 5: Start the application server
         - script: |
+            echo "RecognitionApi__Scopes:$RecognitionApi__Scopes"
             dotnet run --project Ofqual.Recognition.Frontend.Web/Ofqual.Recognition.Frontend.Web.csproj --urls "$(TestSettings__BaseUrl)" &
             sleep 10
           displayName: 'Start Application Server for E2E Tests'
