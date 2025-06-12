@@ -43,6 +43,8 @@ public class HomePage : BasePage
     }
     public async Task CheckSignInAndSignOut()
     {
+        TestContext.WriteLine($"Username: {TestConfig.B2CUsername}");
+
         await _signInButton.ClickAsync();
         await _userName.ClickAsync();
         await _userName.FillAsync(TestConfig.B2CUsername);
