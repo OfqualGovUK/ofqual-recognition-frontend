@@ -312,6 +312,14 @@ stages:
             TestSettings__BaseUrl: '$(TestSettings__BaseUrl)'
             TestSettings__B2CUser__Username: '$(TestSettings__B2CUser__Username)'
             TestSettings__B2CUser__Password: '$(TestSettings__B2CUser__Password)'
+        # Step 7: Publish Screenshots Folder as Artifact
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Screenshots'
+          condition: failed()
+          inputs:
+            PathtoPublish: '$(System.DefaultWorkingDirectory)/Screenshots'
+            ArtifactName: 'Screenshots'
+            publishLocation: 'Container'
             
 # Build and Push Stage: This stage builds and pushes Docker images for Development/Preproduction and Production environments.
 - stage: Build
