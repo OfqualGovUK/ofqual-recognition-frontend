@@ -29,6 +29,12 @@ The main application settings are defined in `appsettings.json` and can be tailo
   "AzureAdB2C": {
     "Instance": "",
     "ClientId": "",
+    "ClientCredentials": [
+      {
+        "SourceType": "",
+        "ClientSecret": ""
+      }
+    ],
     "Domain": "",
     "SignUpSignInPolicyId": "",
     "SignUpSignInPolicyForAutomationId": "",
@@ -38,14 +44,15 @@ The main application settings are defined in `appsettings.json` and can be tailo
     "SignedOutCallbackPath": ""
   },
   "RecognitionApi": {
-    "BaseUrl": ""
+    "BaseUrl": "",
+    "Scopes": []
   },
   "LogzIo": {
     "Environment": "",
     "Uri": ""
   },
   "FeatureFlag": {
-    "Application": ""
+    "Application": true
   }
 }
 ```
@@ -57,6 +64,12 @@ The main application settings are defined in `appsettings.json` and can be tailo
 
 - **`AzureAdB2C:ClientId`**
   The Application ID of the service we will be running.
+
+- **`AzureAdB2C:ClientCredentials[0]:SourceType`**  
+  Specifies how the client credentials are sourced. Use `"PlainText"` if the secret is provided directly, or `"KeyVault"` to retrieve it securely from Azure Key Vault.
+
+- **`AzureAdB2C:ClientCredentials[0]:ClientSecret`**  
+  The client secret used to authenticate the application with Azure AD B2C. This should be securely stored and must not be committed to source control.
 
 - **`AzureAdB2C:Domain`**
   The domain we will be authenticating under.
@@ -84,14 +97,26 @@ The main application settings are defined in `appsettings.json` and can be tailo
 - **`RecognitionApi:BaseUrl`**  
   The base URL of the external Recognition API the application communicates with. This should point to the correct environment (e.g., local, development, production).
 
-- **`LogzIo:Environment`**  
+- **`RecognitionApi:Scopes`**  
+  A list of OAuth scopes the application will request when calling the Recognition API. These scopes define the permissions being requested on behalf of the user or system.
+
+  For example:
+
+  ```json
+  "Scopes": [
+    "https://example.com/.default",
+    "api://your-app-id/read"
+  ]
+  ```
+
+- **`LogzIo:Environment`**
   Identifies the current environment in the logs (e.g., `DEV`, `PREPROD`, `PROD`). This helps separate log entries across environments.
 
-- **`LogzIo:Uri`**  
+- **`LogzIo:Uri`**
   The endpoint URI for sending log data to an external logging service such as Logz.io.
 
-- **`FeatureFlag:Application`**  
-  A **boolean** flag used to enable or disable middleware URL redirection and application UI visibility.  
+- **`FeatureFlag:Application`**
+  A **boolean** flag used to enable or disable middleware URL redirection and application UI visibility.
   When set to `false`, users will be redirected away from application-related routes and any associated buttons or links will not be shown.
 
 > These settings should be environment-specific and managed through `appsettings.{Environment}.json` or overridden using environment variables in production scenarios.
@@ -116,7 +141,6 @@ These settings are used specifically for **Playwright-based end-to-end (E2E) and
 
 - **`TestSettings:BaseUrl`**  
   The base URL of the application under test. This should point to the environment where E2E or integration tests are executed (e.g., local dev server, test container, or staging instance).
-  
 - **`TestSettings:B2CUser:Username`**  
   The Azure B2C test user's email or login name.
 
