@@ -290,17 +290,18 @@ stages:
           env:
             FeatureFlag__Application: '$(FeatureFlag__Application)'
             RecognitionApi__BaseUrl: '$(RecognitionApi__BaseUrl)'
-            RecognitionApi__Scopes: "[ '$(RecognitionApi__Scopes__0)' ]"
+            RecognitionApi__Scopes__0: '$(RecognitionApi__Scopes__0)'
             AzureAdB2C__Instance: '$(AzureAdB2C__Instance)'
             AzureAdB2C__ClientId: '$(AzureAdB2C__ClientId)'
+            AzureAdB2C__ClientCredentials__0__SourceType: $(AzureAdB2C__ClientCredentials__0__SourceType)'
+            AzureAdB2C__ClientCredentials__0__ClientSecret: $(AzureAdB2C__ClientCredentials__0__ClientSecret)'
             AzureAdB2C__Domain: '$(AzureAdB2C__Domain)'
             AzureAdB2C__SignUpSignInPolicyId: '$(AzureAdB2C__SignUpSignInPolicyId)'
             AzureAdB2C__SignUpSignInPolicyForAutomationId: '$(AzureAdB2C__SignUpSignInPolicyForAutomationId)'
             AzureAdB2C__RedirectUri: '$(AzureAdB2C__RedirectUri)'
             AzureAdB2C__UseAutomationPolicies: '$(AzureAdB2C__UseAutomationPolicies)'
             AzureAdB2C__CallBackPath: '$(AzureAdB2C__CallBackPath)'
-            AzureAdB2C__SignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)'
-            AzureAdB2C__ClientCredentials: "[ { 'SourceType': '$(AzureAdB2C__ClientCredentials__0__SourceType)', 'ClientSecret': '$(AzureAdB2C__ClientCredentials__0__ClientSecret)' } ]" 
+            AzureAdB2C__AzureAdB2CSignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)' 
         # Step 6: Run Playwright E2E tests
         - task: DotNetCoreCLI@2
           displayName: 'Run Playwright End-to-End Tests'
