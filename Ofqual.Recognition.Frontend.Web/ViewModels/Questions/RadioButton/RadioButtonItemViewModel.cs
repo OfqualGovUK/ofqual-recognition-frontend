@@ -1,6 +1,6 @@
 ﻿namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
-public class RadioButtonItem
+public class RadioButtonItemViewModel
 {
     /// <summary>
     /// The text label shown to the user for this radio button.

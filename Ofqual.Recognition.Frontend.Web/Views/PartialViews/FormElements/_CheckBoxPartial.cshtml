@@ -1,0 +1,193 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@model QuestionViewModel
+
+@{
+    var checkbox = Model?.QuestionContent?.FormGroup?.CheckBox;
+    var checkboxes = checkbox?.CheckBoxes;
+    var name = checkbox?.Name ?? "checkbox";
+    var hintId = $"{name}-hint";
+    var errorId = $"{name}-error";
+    var selectedValues = ViewHelpers.GetCheckboxValues(name, Model?.AnswerJson);
+    var error = Model?.Errors?.FirstOrDefault(e => e.PropertyName == name);
+    var hasError = error != null;
+
+    var describedByParts = new List<string>();
+    if (!string.IsNullOrWhiteSpace(checkbox?.Hint)) describedByParts.Add(hintId);
+    if (hasError) describedByParts.Add(errorId);
+    var describedBy = string.Join(" ", describedByParts);
+}
+
+@if (checkboxes != null && checkboxes.Any())
+{
+    <div class="govuk-form-group @(hasError ? "govuk-form-group--error" : "")">
+        <fieldset class="govuk-fieldset" aria-describedby="@describedBy">
+
+            @if (!string.IsNullOrEmpty(checkbox?.Heading?.Text))
+            {
+                var labelSize = Model?.QuestionContent?.Heading != null ? checkbox.Heading.Size : "l";
+                var headingText = checkbox.Heading.Text;
+                
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--@labelSize">
+                    @if (Model?.QuestionContent?.Heading == null)
+                    {
+                        <h1 class="govuk-fieldset__heading">@headingText</h1>
+                    }
+                    else
+                    {
+                        @headingText
+                    }
+                </legend>
+            }
+
+            @if (!string.IsNullOrEmpty(checkbox?.Hint))
+            {
+                <div id="@hintId" class="govuk-hint">
+                    @checkbox.Hint
+                </div>
+            }
+
+            @if (hasError)
+            {
+                <p id="@errorId" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> @error?.ErrorMessage
+                </p>
+            }
+            
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                @for (int i = 0; i < checkboxes.Count; i++)
+                {
+                    var item = checkboxes[i];
+                    var itemId = i == 0 ? name : $"{name}-{i}";
+                    var hasConditional = (item.ConditionalInputs?.Any() ?? false) || (item.ConditionalSelects?.Any() ?? false);
+                    var conditionalId = $"{itemId}-conditional";
+
+                    <div class="govuk-checkboxes__item">
+                        <input class="govuk-checkboxes__input"
+                               id="@itemId"
+                               name="@name"
+                               type="checkbox"
+                               value="@item.Value"
+                               data-aria-controls="@(hasConditional ? conditionalId : null)"
+                               @(selectedValues.Contains(item.Value) ? "checked" : "") />
+                        
+                        <label class="govuk-label govuk-checkboxes__label" for="@itemId">
+                            @item.Label
+                        </label>
+
+                        @if (hasConditional)
+                        {
+                            <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="@conditionalId">
+                                @if (item.ConditionalInputs != null)
+                                {
+                                    foreach (var input in item.ConditionalInputs)
+                                    {
+                                        var value = ViewHelpers.GetAnswerValue(input?.Name, Model?.AnswerJson);
+                                        var errorInput = Model?.Errors?.FirstOrDefault(e => e.PropertyName == input?.Name);
+                                        var hasInputError = errorInput != null;
+
+                                        var errorInputId = $"{input?.Name}-error";
+                                        var hintInputId = $"{input?.Name}-hint";
+
+                                        var describedByInput = new List<string>();
+                                        if (!string.IsNullOrWhiteSpace(hintInputId)) describedByInput.Add(hintInputId);
+                                        if (hasInputError && !string.IsNullOrWhiteSpace(errorInputId)) describedByInput.Add(errorInputId);
+
+                                        <div class="govuk-form-group @(hasInputError ? "govuk-form-group--error" : "")">
+                                            @if (!string.IsNullOrEmpty(input?.Label))
+                                            {
+                                                <label class="govuk-label" for="@input.Name">
+                                                    @input.Label
+                                                </label>
+                                            }
+
+                                            @if (!string.IsNullOrEmpty(input?.Hint))
+                                            {
+                                                <div id="@hintInputId" class="govuk-hint">
+                                                    @input.Hint
+                                                </div>
+                                            }
+
+                                            @if (hasInputError)
+                                            {
+                                                <p id="@errorInputId" class="govuk-error-message">
+                                                    <span class="govuk-visually-hidden">Error:</span> @errorInput!.ErrorMessage
+                                                </p>
+                                            }
+
+                                            <input class="govuk-input @(hasInputError ? "govuk-input--error" : "")"
+                                                id="@input?.Name"
+                                                name="@input?.Name"
+                                                type="@input?.InputType"
+                                                value="@value"
+                                                aria-describedby="@string.Join(" ", describedByInput)"
+                                                disabled="@input?.Disabled" />
+                                        </div>
+                                    }
+                                }
+
+                                @if (item.ConditionalSelects != null)
+                                {
+                                    foreach (var select in item.ConditionalSelects)
+                                    {
+                                        var value = ViewHelpers.GetAnswerValue(select?.Name, Model?.AnswerJson);
+                                        var errorSelect = Model?.Errors?.FirstOrDefault(e => e.PropertyName == select?.Name);
+                                        var hasSelectError = errorSelect != null;
+
+                                        var errorSelectId = $"{select?.Name}-error";
+                                        var hintSelectId = $"{select?.Name}-hint";
+
+                                        var describedBySelect = new List<string>();
+                                        if (!string.IsNullOrWhiteSpace(hintSelectId)) describedBySelect.Add(hintSelectId);
+                                        if (hasSelectError && !string.IsNullOrWhiteSpace(errorSelectId)) describedBySelect.Add(errorSelectId);
+
+                                        <div class="govuk-form-group @(hasSelectError ? "govuk-form-group--error" : "")">
+                                            @if (!string.IsNullOrEmpty(select?.Label))
+                                            {
+                                                <label class="govuk-label" for="@select.Name">
+                                                    @select.Label
+                                                </label>
+                                            }
+
+                                            @if (!string.IsNullOrEmpty(select?.Hint))
+                                            {
+                                                <div id="@hintSelectId" class="govuk-hint">
+                                                    @select.Hint
+                                                </div>
+                                            }
+
+                                            @if (hasSelectError)
+                                            {
+                                                <p id="@errorSelectId" class="govuk-error-message">
+                                                    <span class="govuk-visually-hidden">Error:</span> @errorSelect!.ErrorMessage
+                                                </p>
+                                            }
+                                            
+                                            <select class="govuk-select @(hasSelectError ? "govuk-select--error" : "")"
+                                                    id="@select?.Name"
+                                                    name="@select?.Name"
+                                                    aria-describedby="@string.Join(" ", describedBySelect)"
+                                                    disabled="@select?.Disabled">
+                                                
+                                                @foreach (var option in select.Options)
+                                                {
+                                                    var isSelected = option.Value == value || option.Selected;
+                                                    
+                                                    <option 
+                                                        value="@option.Value" 
+                                                        selected="@(isSelected ? "selected" : null)">
+                                                        @option.Label
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </fieldset>
+    </div>
+}
