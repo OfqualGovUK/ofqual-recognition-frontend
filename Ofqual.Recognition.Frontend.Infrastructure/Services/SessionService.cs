@@ -58,13 +58,16 @@ public class SessionService : ISessionService
         return session.TryGetValue(key, out var value) && value?.Length > 0;
     }
 
-    /// <summary>
-    /// Removes an object from session.
-    /// </summary>
     public void ClearFromSession(string key)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         session?.Remove(key);
+    }
+
+    public void ClearAllSession()
+    {
+        var session = _httpContextAccessor.HttpContext?.Session;
+        session?.Clear();
     }
 
     public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus)

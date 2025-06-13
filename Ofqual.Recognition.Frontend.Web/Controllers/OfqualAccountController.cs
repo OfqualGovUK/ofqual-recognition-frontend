@@ -1,3 +1,4 @@
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Ofqual.Recognition.Frontend.Core.Constants;
@@ -16,10 +17,12 @@ namespace Ofqual.Recognition.Frontend.Web.Controllers;
 public class OfqualAccountController : Controller
 {
     private readonly IOptionsMonitor<MicrosoftIdentityOptions> _optionsMonitor;
+    private readonly ISessionService _sessionService;
 
-    public OfqualAccountController(IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor)
+    public OfqualAccountController(IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, ISessionService sessionService)
     {
         _optionsMonitor = optionsMonitor;
+        _sessionService = sessionService;
     }
 
     [HttpGet("{scheme?}")]
@@ -40,6 +43,8 @@ public class OfqualAccountController : Controller
     {
         scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
 
+        _sessionService.ClearAllSession();
+
         // obtain the id_token
         var idToken = await HttpContext.GetTokenAsync("id_token");
         // send the id_token value to the authentication middleware
@@ -47,7 +52,7 @@ public class OfqualAccountController : Controller
         {
             RedirectUri = Url.Content(RouteConstants.AuthConstants.SIGNED_OUT_PATH)
         };
-        
+
         properties.Items[AuthConstants.TokenHintIdentifier] = idToken;
 
         return SignOut(properties, CookieAuthenticationDefaults.AuthenticationScheme, scheme);

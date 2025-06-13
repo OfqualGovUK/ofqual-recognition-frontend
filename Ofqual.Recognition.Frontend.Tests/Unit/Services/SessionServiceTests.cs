@@ -47,38 +47,57 @@ public class SessionServiceTests
         _sessionMock.Verify(s => s.Set(key, It.Is<byte[]>(b => b.SequenceEqual(expectedBytes))), Times.Once);
     }
 
-    [Theory]
+    [Fact]
     [Trait("Category", "Unit")]
-    [MemberData(nameof(SessionServiceTestCases.GetFromSessionTestCases), MemberType = typeof(SessionServiceTestCases))]
-    public void GetFromSession_ShouldReturnExpectedResult(string key, SessionServiceTestCases.TestData? testData, bool isSessionNull)
+    public void GetFromSession_ShouldReturnNull_WhenSessionIsNull()
     {
-        if (isSessionNull)
-        {
-            _httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext)null!);
-        }
-        else
-        {
-            byte[]? sessionBytes = testData != null
-                ? Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(testData))
-                : null;
+        // Arrange
+        _httpContextAccessorMock.Setup(x => x.HttpContext).Returns((HttpContext?)null);
 
-            _sessionMock.Setup(s => s.TryGetValue(key, out sessionBytes))
-                        .Returns(sessionBytes != null);
-        }
+        var service = new SessionService(_httpContextAccessorMock.Object);
+
+        // Act
+        var result = service.GetFromSession<SessionServiceTestCases.TestData>("anyKey");
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GetFromSession_ShouldReturnNull_WhenKeyNotFound()
+    {
+        // Arrange
+        var key = "missingKey";
+        byte[]? outBytes = null;
+
+        _sessionMock.Setup(s => s.TryGetValue(key, out outBytes)).Returns(false);
 
         // Act
         var result = _sessionService.GetFromSession<SessionServiceTestCases.TestData>(key);
 
         // Assert
-        if (isSessionNull || testData == null)
-        {
-            Assert.Null(result);
-        }
-        else
-        {
-            Assert.NotNull(result);
-            Assert.Equal(testData.Name, result!.Name);
-        }
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void GetFromSession_ShouldReturnDeserializedObject_WhenKeyExists()
+    {
+        // Arrange
+        var key = "validKey";
+        var testData = new SessionServiceTestCases.TestData { Name = "Expected" };
+        var jsonData = JsonConvert.SerializeObject(testData);
+        var bytes = Encoding.UTF8.GetBytes(jsonData);
+
+        byte[]? outBytes = bytes;
+        _sessionMock.Setup(s => s.TryGetValue(key, out outBytes)).Returns(true);
+
+        // Act
+        var result = _sessionService.GetFromSession<SessionServiceTestCases.TestData>(key);
+        
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("Expected", result!.Name);
     }
 
     [Theory]
@@ -115,6 +134,21 @@ public class SessionServiceTests
 
         // Assert
         _sessionMock.Verify(s => s.Remove(key), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ClearAllSession_ShouldClearAllSessionData()
+    {
+        // Arrange
+        _sessionMock.Setup(s => s.Clear())
+            .Verifiable();
+
+        // Act
+        _sessionService.ClearAllSession();
+
+        // Assert
+        _sessionMock.Verify(s => s.Clear(), Times.Once);
     }
 
     [Theory]
@@ -273,7 +307,7 @@ public class SessionServiceTests
         var questionId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var answerJson = "{\"value\":\"test\"}";
-        
+
         byte[]? sessionBytes = null;
         _sessionMock.Setup(s => s.TryGetValue(SessionKeys.PreEngagementAnswers, out sessionBytes))
             .Returns(false);
@@ -281,7 +315,7 @@ public class SessionServiceTests
         byte[]? storedBytes = null;
         _sessionMock.Setup(s => s.Set(SessionKeys.PreEngagementAnswers, It.IsAny<byte[]>()))
             .Callback<string, byte[]>((_, bytes) => storedBytes = bytes);
-        
+
         // Act
         _sessionService.UpsertPreEngagementAnswer(questionId, taskId, answerJson);
 
@@ -345,10 +379,10 @@ public class SessionServiceTests
 
         _sessionMock.Setup(s => s.TryGetValue(SessionKeys.PreEngagementAnswers, out sessionBytes))
             .Returns(true);
-        
+
         _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
             .Verifiable();
-        
+
         // Act
         _sessionService.UpsertPreEngagementAnswer(questionId, taskId, answerJson);
 
