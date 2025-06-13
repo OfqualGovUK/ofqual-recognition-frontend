@@ -72,23 +72,19 @@ public class PreEngagementController : Controller
 
         string jsonAnswer = JsonHelper.ConvertToJson(formdata);
 
-        if (!JsonHelper.IsEmptyJsonObject(jsonAnswer))
+        ValidationResponse? validationResponse = await _preEngagementService.ValidatePreEngagementAnswer(questionDetails.QuestionId, jsonAnswer);
+        if (validationResponse != null)
         {
-            ValidationResponse? validationResponse = await _preEngagementService.ValidatePreEngagementAnswer(questionDetails.QuestionId, jsonAnswer);
+            QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
+            var errors = validationResponse.Errors != null
+                ? QuestionMapper.MapToViewModel(validationResponse.Errors)
+                : Enumerable.Empty<ErrorItemViewModel>();
 
-            if (validationResponse != null)
-            {
-                QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-                var errors = validationResponse.Errors != null
-                    ? QuestionMapper.MapToViewModel(validationResponse.Errors)
-                    : Enumerable.Empty<ErrorItemViewModel>();
+            questionViewModel.Errors = errors;
+            questionViewModel.ErrorMessage = validationResponse.Message;
+            questionViewModel.AnswerJson = jsonAnswer;
 
-                questionViewModel.Errors = errors;
-                questionViewModel.ErrorMessage = validationResponse.Message;
-                questionViewModel.AnswerJson = jsonAnswer;
-
-                return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);
-            }
+            return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);
         }
 
         _sessionService.UpsertPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId, jsonAnswer);
