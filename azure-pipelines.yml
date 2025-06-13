@@ -301,7 +301,7 @@ stages:
             AzureAdB2C__RedirectUri: '$(AzureAdB2C__RedirectUri)'
             AzureAdB2C__UseAutomationPolicies: '$(AzureAdB2C__UseAutomationPolicies)'
             AzureAdB2C__CallBackPath: '$(AzureAdB2C__CallBackPath)'
-            AzureAdB2C__AzureAdB2CSignedOutCallbackPath: '$(AzureAdB2C__AzureAdB2CSignedOutCallbackPath)' 
+            AzureAdB2C__SignedOutCallbackPath: '$(AzureAdB2C__SignedOutCallbackPath)' 
         # Step 6: Run Playwright E2E tests
         - task: DotNetCoreCLI@2
           displayName: 'Run Playwright End-to-End Tests'

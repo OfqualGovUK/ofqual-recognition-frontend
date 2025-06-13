@@ -34,8 +34,8 @@ The main application settings are defined in `appsettings.json` and can be tailo
     "SignUpSignInPolicyForAutomationId": "",
     "RedirectUri": "",
     "UseAutomationPolicies": false,
-    "CallBackPath": "/signin-oidc",
-    "AzureAdB2CSignedOutCallbackPath": "/signout-callback-oidc"
+    "CallBackPath": "",
+    "SignedOutCallbackPath": ""
   },
   "RecognitionApi": {
     "BaseUrl": ""
@@ -70,6 +70,7 @@ The main application settings are defined in `appsettings.json` and can be tailo
 - **`AzureAdB2C:RedirectUri`**
   An optional parameter that will override the sign-in redirect URL to the specified value, if specified.
   This is used for the development service as a workaround and should not be required in production.
+
 - **`AzureAdB2C:UseAutomationPolicies`**
   This flag is used in development to determine if the application uses the typical or automated Sign up/Sign in flow.
   This should only be set to `true` when using automated testing.
@@ -77,8 +78,9 @@ The main application settings are defined in `appsettings.json` and can be tailo
 - **`AzureAdB2C:CallBackPath`**
   The callback path when signing in to Azure B2C, typically set to `/signin-oidc`
 
-- **`AzureAdB2C:AzureAdB2CSignedOutCallbackPath`**
+- **`AzureAdB2C:SignedOutCallbackPath`**
   The callback path when signing out of Azure B2c, typically set to `/signout-callback-oidc`
+
 - **`RecognitionApi:BaseUrl`**  
   The base URL of the external Recognition API the application communicates with. This should point to the correct environment (e.g., local, development, production).
 
