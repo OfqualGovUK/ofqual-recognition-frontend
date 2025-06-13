@@ -4,7 +4,10 @@
 
 @{
     var textarea = Model?.QuestionContent?.FormGroup?.Textarea;
-    var maxWords = textarea?.Validation?.MaxLength;
+    var validation = textarea?.Validation;
+
+    var countWords = validation?.CountWords == true;
+    var maxLimit = validation?.MaxLength;
     var infoId = $"{textarea?.Name}-info";
     var hintId = $"{textarea?.Name}-hint";
     var errorId = $"{textarea?.Name}-error";
@@ -21,14 +24,15 @@
 
 @if (textarea != null)
 {
-    <div class="govuk-form-group govuk-character-count @(hasError ? "govuk-form-group--error" : "")"
-        data-module="govuk-character-count" data-maxwords="@maxWords">
+    <div class="govuk-form-group govuk-character-count @(hasError ? "govuk-form-group--error" : "")" data-module="govuk-character-count" 
+        @(countWords && maxLimit.HasValue ? $"data-maxwords={maxLimit}" : "")
+        @(!countWords && maxLimit.HasValue ? $"data-maxlength={maxLimit}" : "")>
 
         @if (!string.IsNullOrEmpty(textarea.Label?.Text))
         {
             var labelSize = Model?.QuestionContent?.Heading != null ? textarea.Label.Size : "l";
             var labelText = textarea.Label.Text;
-            
+
             if (Model?.QuestionContent?.Heading == null)
             {
                 <h1 class="govuk-label-wrapper">
@@ -66,10 +70,10 @@
             rows="@textarea.Rows" 
             aria-describedby="@describedBy">@value</textarea>
 
-        @if (maxWords.HasValue)
+        @if (maxLimit.HasValue)
         {
             <div id="@infoId" class="govuk-hint govuk-character-count__message">
-                You can enter up to @maxWords words
+                You can enter up to @maxLimit @(countWords ? "words" : "characters")
             </div>
         }
     </div>
