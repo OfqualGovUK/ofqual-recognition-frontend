@@ -1,4 +1,5 @@
 namespace Ofqual.Recognition.Frontend.Web.ViewModels;
+
 public class QuestionContentViewModel
 {
     public string? Heading { get; set; }

@@ -1,4 +1,5 @@
-﻿using Ofqual.Recognition.Frontend.Web.Controllers;
+﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -15,12 +16,14 @@ public class OfqualAccountControllerTests
     private readonly Mock<IUrlHelper> _urlHelperMock;
     private readonly Mock<IAuthenticationService> _authenticationMock;
     private readonly Mock<IHttpContextAccessor> _contextMock;
+    private readonly Mock<ISessionService> _sessionServiceMock;
 
     public OfqualAccountControllerTests()
     {
         _optionsMock = new Mock<IOptionsMonitor<MicrosoftIdentityOptions>>();
         _urlHelperMock = new Mock<IUrlHelper>();
         _authenticationMock = new Mock<IAuthenticationService>();
+        _sessionServiceMock = new Mock<ISessionService>();
         _contextMock = new Mock<IHttpContextAccessor>();
 
         const string scheme = "test_scheme";
@@ -41,10 +44,10 @@ public class OfqualAccountControllerTests
                     new AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(), scheme));
 
                 result.Properties!.StoreTokens([ new AuthenticationToken
-                { 
-                    Name = "id_token", 
-                    Value = Guid.NewGuid().ToString() 
-                }]); 
+                {
+                    Name = "id_token",
+                    Value = Guid.NewGuid().ToString()
+                }]);
 
                 return result;
             });
@@ -58,7 +61,7 @@ public class OfqualAccountControllerTests
     public void SignIn_ReturnsChallenge()
     {
         //Arrange
-        var controller = new OfqualAccountController(_optionsMock.Object)
+        var controller = new OfqualAccountController(_optionsMock.Object, _sessionServiceMock.Object)
         {
             Url = _urlHelperMock.Object
         };
@@ -74,7 +77,7 @@ public class OfqualAccountControllerTests
     public async Task SignOut_ReturnsSignOut()
     {
         //Arrange
-        var controller = new OfqualAccountController(_optionsMock.Object)
+        var controller = new OfqualAccountController(_optionsMock.Object, _sessionServiceMock.Object)
         {
             Url = _urlHelperMock.Object,
             ControllerContext = new ControllerContext() 

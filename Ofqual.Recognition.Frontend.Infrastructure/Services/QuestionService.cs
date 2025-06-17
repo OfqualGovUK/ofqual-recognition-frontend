@@ -49,7 +49,7 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<bool> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
+    public async Task<ValidationResponse?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
     {
         try
         {
@@ -60,26 +60,36 @@ public class QuestionService : IQuestionService
             };
 
             var response = await client.PostAsJsonAsync($"/applications/{applicationId}/tasks/{taskId}/questions/{questionId}", payload);
-
-            if (!response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                Log.Warning("Failed to submit answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
-                return false;
+                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
+                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
+                _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
+
+                return null;
             }
 
-            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
-            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
-            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
+            var validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponse>();
+            if (validationResponse == null)
+            {
+                Log.Warning("Validation response was null while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}, StatusCode: {StatusCode}", questionId, taskId, applicationId, response.StatusCode);
+                return new ValidationResponse { Message = "We could not validate your answer. Please try again." };
+            }
 
-            return true;
+            if (!string.IsNullOrWhiteSpace(validationResponse.Message))
+            {
+                Log.Warning("Validation failed with message for QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}. Message: {Message}", questionId, taskId, applicationId, validationResponse.Message);
+            }
+
+            return validationResponse;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while submitting answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
-            return false;
+            Log.Error(ex, "An error occurred while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}", questionId, taskId, applicationId);
+            return new ValidationResponse { Message = "Something went wrong. Please try again." };
         }
     }
-    
+
     public async Task<List<QuestionAnswerSection>?> GetTaskQuestionAnswers(Guid applicationId, Guid taskId)
     {
         try

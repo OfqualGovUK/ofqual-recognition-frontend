@@ -35,5 +35,5 @@ public class RadioButtonViewModel
     /// <summary>
     /// A list of individual radio button items to render.
     /// </summary>
-    public required List<RadioButtonItem> Radios { get; set; }
+    public required List<RadioButtonItemViewModel> Radios { get; set; }
 }

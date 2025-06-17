@@ -51,7 +51,7 @@ public class PreEngagementController : Controller
 
         var preEngagement = _sessionService.GetFromSession<List<PreEngagementAnswer>>(SessionKeys.PreEngagementAnswers);
         var currentQuestionAnswer = preEngagement?.FirstOrDefault(a => a.QuestionId == questionDetails.QuestionId && a.TaskId == questionDetails.TaskId);
-  
+
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.AnswerJson = currentQuestionAnswer?.AnswerJson;
         questionViewModel.FromPreEngagement = true;
@@ -61,7 +61,7 @@ public class PreEngagementController : Controller
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PreEngagementSubmitAnswers(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
+    public async Task<IActionResult> PreEngagementQuestionDetails(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
         QuestionDetails? questionDetails = await _preEngagementService.GetPreEngagementQuestionDetails(taskNameUrl, questionNameUrl);
 
@@ -71,6 +71,22 @@ public class PreEngagementController : Controller
         }
 
         string jsonAnswer = JsonHelper.ConvertToJson(formdata);
+
+        ValidationResponse? validationResponse = await _preEngagementService.ValidatePreEngagementAnswer(questionDetails.QuestionId, jsonAnswer);
+        if (validationResponse != null)
+        {
+            QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
+            var errors = validationResponse.Errors != null
+                ? QuestionMapper.MapToViewModel(validationResponse.Errors)
+                : Enumerable.Empty<ErrorItemViewModel>();
+
+            questionViewModel.Errors = errors;
+            questionViewModel.ErrorMessage = validationResponse.Message;
+            questionViewModel.AnswerJson = jsonAnswer;
+
+            return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);
+        }
+
         _sessionService.UpsertPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId, jsonAnswer);
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
