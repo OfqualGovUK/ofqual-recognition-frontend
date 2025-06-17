@@ -82,7 +82,7 @@ public class PreEngagementService : IPreEngagementService
     {
         try
         {
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var payload = new QuestionAnswerSubmission { Answer = answerJson };
 
             var response = await client.PostAsJsonAsync($"/pre-engagement/questions/{questionId}/validate", payload);
