@@ -3,7 +3,7 @@
 namespace Ofqual.Recognition.Frontend.Playwright.Tests;
 
 [TestFixture]
-public class ApplicationSignInAndSignOut : PageTest
+public class ApplicationSignInAndSignOut : BaseTest
 {
     [Test]
     public async Task SignInAndSignOut()

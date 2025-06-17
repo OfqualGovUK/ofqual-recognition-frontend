@@ -5,7 +5,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Tests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class EligibilityQuestionsTest : PageTest
+public class EligibilityQuestionsTest : BaseTest
 {
     [Test]
     public async Task EligibleDecision()

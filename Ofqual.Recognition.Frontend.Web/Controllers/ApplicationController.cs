@@ -7,10 +7,12 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 [Authorize]
+[AuthorizeForScopes(ScopeKeySection = "RecognitionApi:Scopes")]
 [Route("application")]
 public class ApplicationController : Controller
 {

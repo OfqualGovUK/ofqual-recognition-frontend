@@ -32,7 +32,7 @@ public class ApplicationService : IApplicationService
 
             var preEngagementAnswers = _sessionService.GetFromSession<List<PreEngagementAnswer>>(preEngagementAnswersSessionKey);
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var response = await client.PostAsJsonAsync("/applications", preEngagementAnswers);
 
             if (!response.IsSuccessStatusCode)
