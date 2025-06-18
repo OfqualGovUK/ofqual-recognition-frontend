@@ -4,6 +4,8 @@ using Microsoft.Identity.Web;
 using System.Net.Http.Headers;
 
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Microsoft.Identity.Client;
+using Serilog;
 
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Client;
@@ -26,14 +28,20 @@ public class RecognitionCitizenClient : IRecognitionCitizenClient
     {
         var scopes = _configuration.GetSection("RecognitionApi:Scopes").Get<IEnumerable<string>>();
 
-        var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-
         HttpClient client = _clientFactory
             .CreateClient("RecognitionCitizen");
 
-        if (accessToken != null)
+        try 
         {
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+
+            if (accessToken != null)
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            }
+        } catch (MicrosoftIdentityWebChallengeUserException ex) 
+        {
+            Log.Debug("User not authenticated, skip access token");
         }
         
         return client;
