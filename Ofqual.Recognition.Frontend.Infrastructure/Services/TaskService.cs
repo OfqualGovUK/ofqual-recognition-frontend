@@ -32,7 +32,7 @@ public class TaskService : ITaskService
                 return _sessionService.GetFromSession<List<TaskItemStatusSection>>(sessionKey) ?? new List<TaskItemStatusSection>();
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/applications/{applicationId}/tasks");
 
             if (result == null || result.Count == 0)
@@ -55,7 +55,7 @@ public class TaskService : ITaskService
     {
         try
         {
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var newTaskStatus = new UpdateTaskStatus
             {
                 Status = status
@@ -91,7 +91,7 @@ public class TaskService : ITaskService
                 return _sessionService.GetFromSession<TaskDetails>(sessionKey);
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<TaskDetails>($"/tasks/{taskNameUrl}");
 
             if (result == null)

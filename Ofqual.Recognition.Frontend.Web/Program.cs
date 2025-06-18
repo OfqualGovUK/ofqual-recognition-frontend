@@ -72,6 +72,9 @@ builder.Services.AddCorrelationId();
 builder.Services.AddOptions();
 builder.Services.Configure<OpenIdConnectOptions>(builder.Configuration.GetSection("AzureAdB2C"));
 
+// This needs to be a list of *direct urls* to scopes and not just the names of the scopes!
+IEnumerable<string>? initialScopes = builder.Configuration.GetSection("RecognitionApi:Scopes").Get<IEnumerable<string>>();
+
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
     {
@@ -95,7 +98,9 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         };
 
         options.SaveTokens = true;
-    });
+    })
+    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+    .AddDistributedTokenCaches();
 
 // Configure HttpClient for API calls
 builder.Services.AddHttpClient("RecognitionCitizen", client =>
