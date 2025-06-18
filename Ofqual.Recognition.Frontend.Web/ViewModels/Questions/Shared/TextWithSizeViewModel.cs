@@ -1,3 +1,5 @@
+using Ofqual.Recognition.Frontend.Core.Enums;
+
 namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
 public class TextWithSizeViewModel
@@ -5,10 +7,10 @@ public class TextWithSizeViewModel
     /// <summary>
     /// The text content to be displayed.
     /// </summary>
-    public string? Text { get; set; }
+    public required string Text { get; set; }
 
     /// <summary>
-    /// The display size of the text, such as "s", "m", "l".
+    /// The display size of the text.
     /// </summary>
-    public string Size { get; set; } = "m";
+    public BodyTextSize Size { get; set; } = BodyTextSize.M;
 }

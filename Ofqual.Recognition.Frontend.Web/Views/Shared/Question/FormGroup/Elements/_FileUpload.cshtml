@@ -1,0 +1,55 @@
+@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Enums
+@model QuestionViewModel
+
+@{
+    var fileUpload = Model?.QuestionContent?.FormGroup?.FileUpload;
+    var fieldName = fileUpload?.Name ?? "file-upload";
+    var label = fileUpload?.Label;
+    var allowMultiple = fileUpload?.AllowMultiple ?? true;
+
+    var labelText = label?.Text ?? "Upload files";
+    var labelTag = label?.Size.ToHeadingTag();
+    var labelClass = label?.Size.ToGovUkLabelClass();
+
+    var sizeCountId = $"{fieldName}-file-size-count";
+    var countId = $"{fieldName}-file-count";
+    var fileListId = $"{fieldName}-file-list";
+    var ariaStatusId = $"{fieldName}-aria-status";
+}
+
+@if (fileUpload != null)
+{
+    <div class="govuk-form-group">
+        <text>
+            @Html.Raw($"<{labelTag} class=\"govuk-label-wrapper\">" +
+                      $"<label class=\"govuk-label {labelClass}\" for=\"{fieldName}\">{labelText}</label>" +
+                      $"</{labelTag}>")
+        </text>
+
+        <p class="govuk-body" aria-live="polite" id="@sizeCountId"></p>
+
+        <div class="govuk-drop-zone" data-module="govuk-file-upload">
+            <input class="govuk-file-upload"
+                   id="@fieldName"
+                   name="@fieldName"
+                   type="file"
+                   @(allowMultiple ? "multiple" : null) />
+        </div>
+    </div>
+
+    <div class="govuk-inset-text govuk-!-display-none" aria-live="polite" id="@countId"></div>
+
+    <ul class="ofqual-file-list" id="@fileListId" role="list"></ul>
+
+    <div id="@ariaStatusId" class="govuk-visually-hidden" aria-live="assertive" aria-atomic="true"></div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/multi-file-upload.css" />
+}
+
+@section Scripts {
+    <script src="~/js/multi-file-upload.js"></script>
+}

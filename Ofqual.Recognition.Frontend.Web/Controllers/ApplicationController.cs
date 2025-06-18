@@ -116,22 +116,16 @@ public class ApplicationController : Controller
 
         if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
-            ValidationResponse? validationResponse = await _questionService.SubmitQuestionAnswer(
-                application.ApplicationId,
-                questionDetails.TaskId,
-                questionDetails.QuestionId,
-                jsonAnswer
-            );
+            ValidationResponse? validationResponse = await _questionService.SubmitQuestionAnswer(application.ApplicationId, questionDetails.TaskId, questionDetails.QuestionId, jsonAnswer);
+            if (validationResponse == null)
+            {
+                return BadRequest();
+            }
 
-            if (validationResponse != null)
+            if (validationResponse.Errors != null && validationResponse.Errors.Any())
             {
                 QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-                var errors = validationResponse.Errors != null
-                    ? QuestionMapper.MapToViewModel(validationResponse.Errors)
-                    : Enumerable.Empty<ErrorItemViewModel>();
-
-                questionViewModel.Errors = errors;
-                questionViewModel.ErrorMessage = validationResponse.Message;
+                questionViewModel.Validation = QuestionMapper.MapToViewModel(validationResponse);
                 questionViewModel.AnswerJson = jsonAnswer;
 
                 return View(questionViewModel);

@@ -70,12 +70,7 @@ public class QuestionService : IQuestionService
             if (validationResponse == null)
             {
                 Log.Warning("Validation response was null while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}, StatusCode: {StatusCode}", questionId, taskId, applicationId, response.StatusCode);
-                return new ValidationResponse { Message = "We could not validate your answer. Please try again." };
-            }
-
-            if (!string.IsNullOrWhiteSpace(validationResponse.Message))
-            {
-                Log.Warning("Validation failed with message for QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}. Message: {Message}", questionId, taskId, applicationId, validationResponse.Message);
+                return null;
             }
 
             return validationResponse;
@@ -83,7 +78,7 @@ public class QuestionService : IQuestionService
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}", questionId, taskId, applicationId);
-            return new ValidationResponse { Message = "Something went wrong. Please try again." };
+            return null;
         }
     }
 

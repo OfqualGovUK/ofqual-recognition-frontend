@@ -10,21 +10,21 @@ public static class QuestionMapper
     {
         var json = JsonConvert.DeserializeObject<QuestionContentViewModel>(question.QuestionContent);
 
-        var questionViewModel = new QuestionViewModel
+        QuestionViewModel questionViewModel = new QuestionViewModel
         {
             QuestionTypeName = question.QuestionTypeName,
             QuestionId = question.QuestionId,
             TaskId = question.TaskId,
             QuestionContent = new QuestionContentViewModel
             {
-                Heading = json?.Heading,
                 Body = json?.Body,
-                Help = json?.Help,
+                Sidebar = json?.Sidebar,
                 FormGroup = json?.FormGroup
             },
             CurrentQuestionUrl = question.CurrentQuestionUrl,
             PreviousQuestionUrl = question.PreviousQuestionUrl
         };
+
         return questionViewModel;
     }
 
@@ -45,12 +45,15 @@ public static class QuestionMapper
         };
     }
 
-    public static IEnumerable<ErrorItemViewModel> MapToViewModel(IEnumerable<ValidationErrorItem> errors)
+    public static ValidationViewModel MapToViewModel(ValidationResponse validationResponse)
     {
-        return errors.Select(e => new ErrorItemViewModel
+        return new ValidationViewModel
         {
-            PropertyName = e.PropertyName,
-            ErrorMessage = e.ErrorMessage
-        });
+            Errors = validationResponse.Errors?.Select(e => new ErrorItemViewModel
+            {
+                PropertyName = e.PropertyName,
+                ErrorMessage = e.ErrorMessage
+            })
+        };
     }
 }

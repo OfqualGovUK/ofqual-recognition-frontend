@@ -1,0 +1,14 @@
+@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model ParagraphContentViewModel
+
+<p class="@Model.Size.ToGovUkTextClass()">
+    @if (!string.IsNullOrWhiteSpace(Model.Text))
+    {
+        @Model.Text
+    }
+    else if (Model.Link is not null)
+    {
+        @Model.TextBeforeLink <a href="@Model.Link.Url" class="govuk-link">@Model.Link.Text</a> @Model.TextAfterLink
+    }
+</p>

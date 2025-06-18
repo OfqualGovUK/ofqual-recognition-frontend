@@ -1,0 +1,24 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Constants
+@model QuestionViewModel
+
+@{
+    var cancelLinkUrl = Model.FromPreEngagement 
+        ? RouteConstants.PreEngagementConstants.PRE_ENGAGEMENT_PATH 
+        : RouteConstants.ApplicationConstants.TASK_LIST_PATH;
+}
+
+@if (Model.QuestionContent.FormGroup != null)
+{
+    <form class="form" method="post">
+        @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/Elements/_{Model.QuestionTypeName}.cshtml", Model)
+
+        @Html.AntiForgeryToken()
+        <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button">
+                Save and continue
+            </button>
+            <a class="govuk-link" href="@cancelLinkUrl">Cancel</a>
+        </div>
+    </form>
+}

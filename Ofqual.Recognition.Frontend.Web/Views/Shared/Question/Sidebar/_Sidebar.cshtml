@@ -1,0 +1,9 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model SidebarViewModel
+
+@if (Model?.Help != null)
+{
+    <div class="govuk-grid-column-one-third">
+        @await Html.PartialAsync("~/Views/Shared/Question/Sidebar/Help/_Help.cshtml", Model.Help)
+    </div>
+}

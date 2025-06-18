@@ -95,12 +95,7 @@ public class PreEngagementService : IPreEngagementService
             if (validationResponse == null)
             {
                 Log.Warning("Pre-engagement validation response was null. QuestionId: {QuestionId}, StatusCode: {StatusCode}", questionId, response.StatusCode);
-                return new ValidationResponse { Message = "We could not validate your pre-engagement answer. Please try again." };
-            }
-
-            if (!string.IsNullOrWhiteSpace(validationResponse.Message))
-            {
-                Log.Warning("Pre-engagement validation failed with message. QuestionId: {QuestionId}. Message: {Message}", questionId, validationResponse.Message);
+                return null;
             }
 
             return validationResponse;
@@ -108,7 +103,7 @@ public class PreEngagementService : IPreEngagementService
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while validating the pre-engagement answer for QuestionId: {QuestionId}", questionId);
-            return new ValidationResponse { Message = "An unexpected error occurred while validating your pre-engagement answer. Please try again."};
+            return null;
         }
     }
 }

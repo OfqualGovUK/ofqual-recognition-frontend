@@ -1,0 +1,48 @@
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model ConditionalTextInputViewModel
+
+@{
+    var input = Model.Input;
+    var value = ViewHelpers.GetAnswerValue(input?.Name, Model.AnswerJson);
+    var error = Model.Errors?.FirstOrDefault(e => e.PropertyName == input?.Name);
+    var hasError = error != null;
+    var errorId = $"{input?.Name}-error";
+    var hintId = $"{input?.Name}-hint";
+
+    var describedBy = new List<string>();
+    if (!string.IsNullOrWhiteSpace(input?.Hint)) describedBy.Add(hintId);
+    if (hasError) describedBy.Add(errorId);
+}
+
+<div class="govuk-form-group @(hasError ? "govuk-form-group--error" : "")">
+
+    @if (!string.IsNullOrEmpty(input?.Label))
+    {
+        <label class="govuk-label" for="@input?.Name">
+            @input?.Label
+        </label>
+    }
+
+    @if (!string.IsNullOrEmpty(input?.Hint))
+    {
+        <div id="@hintId" class="govuk-hint">
+            @input.Hint
+        </div>
+    }
+
+    @if (hasError)
+    {
+        <p id="@errorId" class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span> @error?.ErrorMessage
+        </p>
+    }
+
+    <input class="govuk-input @(hasError ? "govuk-input--error" : "")"
+           id="@input?.Name"
+           name="@input?.Name"
+           type="@input?.InputType"
+           value="@value"
+           aria-describedby="@string.Join(" ", describedBy)"
+           disabled="@(input?.Disabled ?? false)" />
+</div>
