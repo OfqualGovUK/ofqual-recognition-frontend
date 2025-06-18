@@ -88,13 +88,13 @@ public class PreEngagementService : IPreEngagementService
             var response = await client.PostAsJsonAsync($"/pre-engagement/questions/{questionId}/validate", payload);
             if (response.IsSuccessStatusCode)
             {
-                return null;
+                return new ValidationResponse();
             }
 
             ValidationResponse? validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponse>();
             if (validationResponse == null)
             {
-                Log.Warning("Pre-engagement validation response was null. QuestionId: {QuestionId}, StatusCode: {StatusCode}", questionId, response.StatusCode);
+                Log.Warning("Unable to deserialise the validation response from the pre-engagement API. QuestionId: {QuestionId}, StatusCode: {StatusCode}, Reason: {ReasonPhrase}", questionId, response.StatusCode, response.ReasonPhrase);
                 return null;
             }
 

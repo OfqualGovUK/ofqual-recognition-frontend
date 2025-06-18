@@ -66,13 +66,13 @@ public class QuestionService : IQuestionService
                 _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
                 _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
 
-                return null;
+                return new ValidationResponse();
             }
 
             var validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponse>();
             if (validationResponse == null)
             {
-                Log.Warning("Validation response was null while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}, StatusCode: {StatusCode}", questionId, taskId, applicationId, response.StatusCode);
+                Log.Warning("Unable to deserialise the validation response from the application answer submission. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}, StatusCode: {StatusCode}, Reason: {ReasonPhrase}", questionId, taskId, applicationId, response.StatusCode, response.ReasonPhrase);
                 return null;
             }
 

@@ -22,7 +22,7 @@ public class AttachmentService : IAttachmentService
     {
         try
         {
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
 
             using var content = new MultipartFormDataContent();
             if (file != null && file.Length > 0)
@@ -54,7 +54,7 @@ public class AttachmentService : IAttachmentService
     {
         try
         {
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
 
             var response = await client.GetAsync($"/files/linked/{linkType}/{linkId}/application/{applicationId}");
             if (!response.IsSuccessStatusCode)
@@ -77,7 +77,7 @@ public class AttachmentService : IAttachmentService
     {
         try
         {
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
 
             var response = await client.GetAsync($"/files/linked/{linkType}/{linkId}/attachment/{attachmentId}/application/{applicationId}");
             if (!response.IsSuccessStatusCode)
@@ -99,7 +99,7 @@ public class AttachmentService : IAttachmentService
     {
         try
         {
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
 
             var response = await client.DeleteAsync($"/files/linked/{linkType}/{linkId}/attachment/{attachmentId}/application/{applicationId}");
             if (!response.IsSuccessStatusCode)
