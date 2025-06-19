@@ -55,12 +55,14 @@ public class FileUploadController : Controller
         {
             foreach (var file in files)
             {
+                var fieldName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files";
+
                 if (file == null || file.Length == 0)
                 {
                     validationErrors.Add(new ErrorItemViewModel
                     {
-                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
-                        ErrorMessage = "The selected file is empty."
+                        PropertyName = fieldName,
+                        ErrorMessage = $"The file \"{file?.FileName}\" is empty."
                     });
                     continue;
                 }
@@ -69,8 +71,8 @@ public class FileUploadController : Controller
                 {
                     validationErrors.Add(new ErrorItemViewModel
                     {
-                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
-                        ErrorMessage = "The selected file must be smaller than 25MB."
+                        PropertyName = fieldName,
+                        ErrorMessage = $"The file \"{file.FileName}\" must be smaller than 25MB."
                     });
                     continue;
                 }
@@ -79,8 +81,8 @@ public class FileUploadController : Controller
                 {
                     validationErrors.Add(new ErrorItemViewModel
                     {
-                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
-                        ErrorMessage = "Unsupported file type or content."
+                        PropertyName = fieldName,
+                        ErrorMessage = $"The file \"{file.FileName}\" has an unsupported type or content."
                     });
                     continue;
                 }
@@ -89,7 +91,7 @@ public class FileUploadController : Controller
                 {
                     validationErrors.Add(new ErrorItemViewModel
                     {
-                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
+                        PropertyName = fieldName,
                         ErrorMessage = $"The file \"{file.FileName}\" has already been uploaded."
                     });
                     continue;
@@ -105,8 +107,8 @@ public class FileUploadController : Controller
                 {
                     validationErrors.Add(new ErrorItemViewModel
                     {
-                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
-                        ErrorMessage = $"Failed to upload \"{file.FileName}\"."
+                        PropertyName = fieldName,
+                        ErrorMessage = $"Failed to upload the file \"{file.FileName}\"."
                     });
                 }
             }
@@ -136,6 +138,8 @@ public class FileUploadController : Controller
         {
             return BadRequest();
         }
+
+        _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{application.ApplicationId}/{questionDetails.TaskId}");
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
