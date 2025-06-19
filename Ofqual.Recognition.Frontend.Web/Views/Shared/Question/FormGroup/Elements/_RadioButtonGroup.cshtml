@@ -81,38 +81,39 @@
                         {
                             <div id="@optionHintId" class="govuk-hint govuk-radios__hint">@option.Hint</div>
                         }
+                    
+
+                        @if (hasConditional)
+                        {
+                            <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="@conditionalId">
+                                @if (option.ConditionalInputs != null)
+                                {
+                                    foreach (var input in option.ConditionalInputs)
+                                    {
+                                        @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Conditionals/_TextInput.cshtml", new ConditionalTextInputViewModel
+                                        {
+                                            Input = input,
+                                            AnswerJson = Model?.AnswerJson,
+                                            Errors = Model?.Validation?.Errors
+                                        })
+                                    }
+                                }
+
+                                @if (option.ConditionalSelects != null)
+                                {
+                                    foreach (var select in option.ConditionalSelects)
+                                    {
+                                        @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Conditionals/_Select.cshtml", new ConditionalSelectViewModel
+                                        {
+                                            Select = select,
+                                            AnswerJson = Model?.AnswerJson,
+                                            Errors = Model?.Validation?.Errors
+                                        })
+                                    }
+                                }
+                            </div>
+                        }
                     </div>
-
-                    @if (hasConditional)
-                    {
-                        <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="@conditionalId">
-                            @if (option.ConditionalInputs != null)
-                            {
-                                foreach (var input in option.ConditionalInputs)
-                                {
-                                    @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Conditionals/_TextInput.cshtml", new ConditionalTextInputViewModel
-                                    {
-                                        Input = input,
-                                        AnswerJson = Model?.AnswerJson,
-                                        Errors = Model?.Validation?.Errors
-                                    })
-                                }
-                            }
-
-                            @if (option.ConditionalSelects != null)
-                            {
-                                foreach (var select in option.ConditionalSelects)
-                                {
-                                    @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Conditionals/_Select.cshtml", new ConditionalSelectViewModel
-                                    {
-                                        Select = select,
-                                        AnswerJson = Model?.AnswerJson,
-                                        Errors = Model?.Validation?.Errors
-                                    })
-                                }
-                            }
-                        </div>
-                    }
                 }
             </div>
         </fieldset>

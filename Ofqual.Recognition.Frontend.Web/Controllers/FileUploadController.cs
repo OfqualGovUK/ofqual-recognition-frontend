@@ -327,10 +327,10 @@ public class FileUploadController : Controller
                 var fileId = Guid.NewGuid();
                 AttachmentStore.TryAdd(sessionId, questionId, fileId, attachment);
 
-                response[fileId] = new
+                response[fileId] = new Dictionary<string, object>
                 {
-                    fileName = attachment.FileName,
-                    length = attachment.FileSize
+                    ["fileName"] = attachment.FileName,
+                    ["length"] = attachment.FileSize
                 };
             }
         }

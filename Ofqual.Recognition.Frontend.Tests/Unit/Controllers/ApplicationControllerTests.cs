@@ -2,6 +2,7 @@ using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Controllers;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
+using Ofqual.Recognition.Frontend.Tests.Helpers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.Extensions.Primitives;
@@ -17,6 +18,7 @@ public class ApplicationControllerTests
     private readonly Mock<ITaskService> _taskServiceMock;
     private readonly Mock<ISessionService> _sessionServiceMock;
     private readonly Mock<IQuestionService> _questionServiceMock;
+    private readonly Mock<IAttachmentService> _attachmentServiceMock;
     private readonly ApplicationController _controller;
 
     public ApplicationControllerTests()
@@ -25,8 +27,18 @@ public class ApplicationControllerTests
         _taskServiceMock = new Mock<ITaskService>();
         _sessionServiceMock = new Mock<ISessionService>();
         _questionServiceMock = new Mock<IQuestionService>();
+        _attachmentServiceMock = new Mock<IAttachmentService>();
 
-        _controller = new ApplicationController(_applicationServiceMock.Object, _taskServiceMock.Object, _sessionServiceMock.Object, _questionServiceMock.Object);
+        _controller = new ApplicationController(_applicationServiceMock.Object, _taskServiceMock.Object, _sessionServiceMock.Object, _questionServiceMock.Object, _attachmentServiceMock.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Session = new FakeSession("test-session-id")
+                }
+            }
+        };
     }
 
     [Fact]
@@ -206,6 +218,7 @@ public class ApplicationControllerTests
     public async Task QuestionDetails_ReturnsViewResult_WhenDataIsValid()
     {
         // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
         var question = new QuestionDetails
         {
             QuestionId = Guid.NewGuid(),
@@ -215,14 +228,22 @@ public class ApplicationControllerTests
             CurrentQuestionUrl = "task/question"
         };
 
+        var answer = new QuestionAnswer { Answer = "{\"text\":\"sample\"}" };
+
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+            .Returns(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
 
+        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId))
+            .ReturnsAsync(answer);
+
         _sessionServiceMock.Setup(x => x.GetTaskStatusFromSession(question.TaskId))
             .Returns(TaskStatusEnum.InProgress);
+
+        _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
 
         // Act
         var result = await _controller.QuestionDetails("task", "question");
@@ -232,6 +253,7 @@ public class ApplicationControllerTests
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
         Assert.Equal(question.QuestionId, model.QuestionId);
         Assert.False(model.FromReview);
+        Assert.Equal(answer.Answer, model.AnswerJson);
     }
 
     [Fact]
@@ -239,6 +261,7 @@ public class ApplicationControllerTests
     public async Task QuestionDetails_Sets_FromReview_True_WhenProvided()
     {
         // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
         var question = new QuestionDetails
         {
             QuestionId = Guid.NewGuid(),
@@ -249,13 +272,19 @@ public class ApplicationControllerTests
         };
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+            .Returns(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
 
+        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId))
+            .ReturnsAsync(new QuestionAnswer { Answer = null });
+
         _sessionServiceMock.Setup(x => x.GetTaskStatusFromSession(question.TaskId))
             .Returns(TaskStatusEnum.Completed);
+
+        _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
 
         // Act
         var result = await _controller.QuestionDetails("task", "question", fromReview: true);
