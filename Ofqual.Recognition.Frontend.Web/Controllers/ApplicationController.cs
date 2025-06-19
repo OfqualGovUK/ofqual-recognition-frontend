@@ -107,12 +107,6 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
-        if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && nextQuestion == null)
-        {
-            return BadRequest();
-        }
-
         var jsonAnswer = JsonHelper.ConvertToJson(formdata);
         var existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
@@ -137,6 +131,12 @@ public class ApplicationController : Controller
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
+        }
+
+        var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
+        if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && nextQuestion == null)
+        {
+            return BadRequest();
         }
 
         return RedirectToAction(nameof(QuestionDetails), new

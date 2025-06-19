@@ -13,9 +13,10 @@
     var labelTag = label?.Size.ToHeadingTag();
     var labelClass = label?.Size.ToGovUkLabelClass();
 
-    var sizeCountId = $"{fieldName}-file-size-count";
-    var countId = $"{fieldName}-file-count";
-    var fileListId = $"{fieldName}-file-list";
+    var fileInput = $"{fieldName}-input";
+    var sizeCountId = $"{fieldName}-size-count";
+    var countId = $"{fieldName}-count";
+    var fileListId = $"{fieldName}-list";
     var ariaStatusId = $"{fieldName}-aria-status";
 }
 
@@ -24,7 +25,7 @@
     <div class="govuk-form-group">
         <text>
             @Html.Raw($"<{labelTag} class=\"govuk-label-wrapper\">" +
-                      $"<label class=\"govuk-label {labelClass}\" for=\"{fieldName}\">{labelText}</label>" +
+                      $"<label class=\"govuk-label {labelClass}\" for=\"{fileInput}\">{labelText}</label>" +
                       $"</{labelTag}>")
         </text>
 
@@ -32,8 +33,8 @@
 
         <div class="govuk-drop-zone" data-module="govuk-file-upload">
             <input class="govuk-file-upload"
-                   id="@fieldName"
-                   name="@fieldName"
+                   id="@fileInput"
+                   name="@fileInput"
                    type="file"
                    @(allowMultiple ? "multiple" : null) />
         </div>
@@ -41,15 +42,7 @@
 
     <div class="govuk-inset-text govuk-!-display-none" aria-live="polite" id="@countId"></div>
 
-    <ul class="ofqual-file-list" id="@fileListId" role="list"></ul>
-
     <div id="@ariaStatusId" class="govuk-visually-hidden" aria-live="assertive" aria-atomic="true"></div>
-}
-
-@section Styles {
-    <link rel="stylesheet" href="~/css/multi-file-upload.css" />
-}
-
-@section Scripts {
-    <script src="~/js/multi-file-upload.js"></script>
+    
+    <ul class="ofqual-file-list" id="@fileListId" role="list"></ul>
 }

@@ -6,9 +6,8 @@
     var hasErrors = errors != null && errors.Any();
 }
 
-<div class="govuk-error-summary"
+<div class="govuk-error-summary @(hasErrors ? "" : "govuk-!-display-none")"
      data-module="govuk-error-summary"
-     style="@(hasErrors ? "" : "display: none;")"
      id="error-summary">
 
     <div role="alert">
