@@ -22,6 +22,11 @@ const filesMap = new Map();
 // Event Handlers
 // ======================================
 document.addEventListener("DOMContentLoaded", () => {
+  const fallbackList = document.getElementById(`${fileList}-noscript`);
+  if (fallbackList) {
+    fallbackList.remove();
+  }
+
   updateButtonState();
   fetchAllFiles();
 });

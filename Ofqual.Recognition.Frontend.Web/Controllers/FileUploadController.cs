@@ -31,6 +31,7 @@ public class FileUploadController : Controller
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/file-submit")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitFile(string taskNameUrl, string questionNameUrl, [FromForm] List<IFormFile>? files)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
@@ -161,6 +162,7 @@ public class FileUploadController : Controller
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/upload")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UploadFile(string taskNameUrl, string questionNameUrl, IFormFile file, [FromForm] Guid fileId)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
@@ -220,6 +222,7 @@ public class FileUploadController : Controller
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/delete")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteFile(string taskNameUrl, string questionNameUrl, [FromForm] Guid fileId)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);

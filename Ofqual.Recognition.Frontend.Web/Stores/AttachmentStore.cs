@@ -14,6 +14,26 @@ public static class AttachmentStore
         return linkStore.Files.TryAdd(fileId, attachment);
     }
 
+    public static void TryAddRange(string sessionId, Guid linkId, IEnumerable<AttachmentDetails>? attachments)
+    {
+        if (attachments == null)
+        {
+            return;
+        }
+
+        var sessionStore = _store.GetOrAdd(sessionId, _ => new SessionAttachmentStore());
+        var linkStore = sessionStore.Links.GetOrAdd(linkId, _ => new AttachmentCollection());
+
+        foreach (var attachment in attachments)
+        {
+            if (!IsDuplicate(sessionId, linkId, attachment.FileName, attachment.FileSize))
+            {
+                var fileId = Guid.NewGuid();
+                linkStore.Files.TryAdd(fileId, attachment);
+            }
+        }
+    }
+
     public static bool IsDuplicate(string sessionId, Guid linkId, string fileName, long fileSize)
     {
         if (!_store.TryGetValue(sessionId, out var sessionStore))
@@ -58,15 +78,20 @@ public static class AttachmentStore
         return false;
     }
 
-    public static IReadOnlyCollection<AttachmentDetails> GetAll(string sessionId, Guid linkId)
+    public static IReadOnlyDictionary<Guid, AttachmentDetails> GetAll(string? sessionId, Guid? linkId)
     {
-        if (_store.TryGetValue(sessionId, out var sessionStore) &&
-            sessionStore.Links.TryGetValue(linkId, out var linkStore))
+        if (string.IsNullOrEmpty(sessionId) || linkId == null || linkId == Guid.Empty)
         {
-            return linkStore.Files.Values.ToList();
+            return new Dictionary<Guid, AttachmentDetails>();
         }
 
-        return Array.Empty<AttachmentDetails>();
+        if (_store.TryGetValue(sessionId, out var sessionStore) &&
+            sessionStore.Links.TryGetValue(linkId.Value, out var linkStore))
+        {
+            return new Dictionary<Guid, AttachmentDetails>(linkStore.Files);
+        }
+
+        return new Dictionary<Guid, AttachmentDetails>();
     }
 
     public static void Clear(string sessionId, Guid linkId)

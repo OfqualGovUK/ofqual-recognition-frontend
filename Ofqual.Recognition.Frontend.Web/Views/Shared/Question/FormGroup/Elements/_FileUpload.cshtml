@@ -1,5 +1,9 @@
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Core.Models
 @using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@using Ofqual.Recognition.Frontend.Web.Stores
 @using Ofqual.Recognition.Frontend.Core.Enums
 @model QuestionViewModel
 
@@ -17,6 +21,9 @@
     var countId = $"{fieldName}-count";
     var fileListId = $"{fieldName}-list";
     var ariaStatusId = $"{fieldName}-aria-status";
+    var currentQuestion = QuestionUrlHelper.Parse(Model?.CurrentQuestionUrl);
+
+    var linkedAttachments = AttachmentStore.GetAll(HttpContextAccessor.HttpContext?.Session.Id, Model?.QuestionId);
 }
 
 @if (fileUpload != null)
@@ -42,6 +49,49 @@
     <div class="govuk-inset-text govuk-!-display-none" aria-live="polite" id="@countId"></div>
 
     <div id="@ariaStatusId" class="govuk-visually-hidden" aria-live="assertive" aria-atomic="true"></div>
-    
+
     <ul class="ofqual-file-list" id="@fileListId" role="list"></ul>
+    
+    @if (fileUpload != null)
+    {
+        <ul class="ofqual-file-list" id="@fileListId-noscript" role="list">
+            @foreach (var kvp in linkedAttachments)
+            {
+                var fileId = kvp.Key;
+                var attachment = kvp.Value;
+                var readableSize = Math.Round((double)attachment.FileSize / (1024 * 1024), 1);
+
+                <li class="ofqual-file-list__item" role="listitem" id="@fileId">
+                    <div class="ofqual-file-list__header">
+                        <a href="@Url.Action("DownloadFile", "FileUpload", new {
+                                taskNameUrl = currentQuestion!.Value.taskNameUrl,
+                                questionNameUrl = currentQuestion!.Value.questionNameUrl,
+                                fileId = fileId
+                            })"
+                        class="ofqual-file-list__name govuk-link file-download-link">
+                            @attachment.FileName
+                            <span class="govuk-visually-hidden"> - download file</span>
+                        </a>
+                        <span class="ofqual-file-list__size">@readableSize MB</span>
+                    </div>
+
+                    <div class="ofqual-file-list__footer">
+                        <div class="ofqual-file-list__progress-wrapper ofqual-file-list__progress-wrapper--green">
+                            <div class="ofqual-file-list__progress-bar ofqual-file-list__progress-bar--green" style="width: 100%;"></div>
+                        </div>
+                        <a href="@Url.Action("DeleteFile", "FileUpload", new {
+                                taskNameUrl = currentQuestion!.Value.taskNameUrl,
+                                questionNameUrl = currentQuestion!.Value.questionNameUrl,
+                                fileId = fileId
+                            })"
+                        class="ofqual-file-list__action govuk-link file-remove-link">
+                            Remove<span class="govuk-visually-hidden"> @attachment.FileName</span>
+                        </a>
+                    </div>
+
+                    <div class="ofqual-file-list__status" aria-live="polite">Upload complete</div>
+                </li>
+            }
+        </ul>
+    }
 }
