@@ -4,10 +4,10 @@ const version = "0.0.1";
 // Initialisation
 // ======================================
 const requestVerificationToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-const fileInput = document.getElementById("file-upload-input");
-const fileList = document.getElementById("file-upload-list");
-const fileCount = document.getElementById("file-upload-count");
-const fileSizeCount = document.getElementById("file-upload-size-count");
+const fileInput = document.getElementById("files");
+const fileList = document.getElementById("files-list");
+const fileCount = document.getElementById("files-count");
+const fileSizeCount = document.getElementById("files-size-count");
 const submitButton = document.getElementById("submit-form-group");
 const errorSummary = document.getElementById("error-summary");
 
@@ -55,7 +55,7 @@ fileList.addEventListener("click", async (event) => {
 });
 
 submitButton.addEventListener("click", (event) => {
-  if (!hasUploadStarted()) {
+  if (filesMap.size > 0 && !hasUploadStarted()) {
     event.preventDefault();
     startUploadProcess();
   }
@@ -586,7 +586,7 @@ function clearFileErrorMessageSummary(fileId) {
 // ======================================
 function announceToScreenReader(message, options = {}) {
   const isPolite = options.polite || false;
-  const regionId = "file-upload-aria-status";
+  const regionId = "files-aria-status";
 
   let region = document.getElementById(regionId);
 

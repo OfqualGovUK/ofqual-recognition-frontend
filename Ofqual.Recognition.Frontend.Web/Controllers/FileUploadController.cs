@@ -1,6 +1,8 @@
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Core.Helpers;
+using Ofqual.Recognition.Frontend.Web.Mappers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Ofqual.Recognition.Frontend.Web.Stores;
@@ -28,8 +30,8 @@ public class FileUploadController : Controller
         _taskService = taskService;
     }
 
-    [HttpPost("{taskNameUrl}/{questionNameUrl}/submit")]
-    public async Task<IActionResult> Submit(string taskNameUrl, string questionNameUrl, [FromForm] List<IFormFile>? files)
+    [HttpPost("{taskNameUrl}/{questionNameUrl}/file-submit")]
+    public async Task<IActionResult> SubmitFile(string taskNameUrl, string questionNameUrl, [FromForm] List<IFormFile>? files)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
@@ -43,8 +45,11 @@ public class FileUploadController : Controller
             return NotFound();
         }
 
+        QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
+
         var sessionId = HttpContext.Session.Id;
         var questionId = questionDetails.QuestionId;
+        var validationErrors = new List<ErrorItemViewModel>();
 
         if (files != null && files.Any())
         {
@@ -52,21 +57,41 @@ public class FileUploadController : Controller
             {
                 if (file == null || file.Length == 0)
                 {
+                    validationErrors.Add(new ErrorItemViewModel
+                    {
+                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
+                        ErrorMessage = "The selected file is empty."
+                    });
                     continue;
                 }
 
                 if (file.Length > 25 * 1024 * 1024)
                 {
+                    validationErrors.Add(new ErrorItemViewModel
+                    {
+                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
+                        ErrorMessage = "The selected file must be smaller than 25MB."
+                    });
                     continue;
                 }
 
                 if (!FileValidationHelper.IsAllowedFile(file))
                 {
+                    validationErrors.Add(new ErrorItemViewModel
+                    {
+                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
+                        ErrorMessage = "Unsupported file type or content."
+                    });
                     continue;
                 }
 
                 if (AttachmentStore.IsDuplicate(sessionId, questionId, file.FileName, file.Length))
                 {
+                    validationErrors.Add(new ErrorItemViewModel
+                    {
+                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
+                        ErrorMessage = $"The file \"{file.FileName}\" has already been uploaded."
+                    });
                     continue;
                 }
 
@@ -76,7 +101,34 @@ public class FileUploadController : Controller
                     var fileId = Guid.NewGuid();
                     AttachmentStore.TryAdd(sessionId, questionId, fileId, attachment);
                 }
+                else
+                {
+                    validationErrors.Add(new ErrorItemViewModel
+                    {
+                        PropertyName = questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Name ?? "files",
+                        ErrorMessage = $"Failed to upload \"{file.FileName}\"."
+                    });
+                }
             }
+        }
+
+        if (questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Validation?.Required == true && !AttachmentStore.HasAny(sessionId, questionId))
+        {
+            validationErrors.Add(new ErrorItemViewModel
+            {
+                PropertyName = questionViewModel.QuestionContent.FormGroup.FileUpload.Name ?? "files",
+                ErrorMessage = "You must upload a file to continue."
+            });
+        }
+
+        if (validationErrors.Any())
+        {
+            questionViewModel!.Validation = new ValidationViewModel
+            {
+                Errors = validationErrors
+            };
+
+            return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);
         }
 
         bool hasTaskStatusUpdated = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, TaskStatusEnum.InProgress);
@@ -100,12 +152,12 @@ public class FileUploadController : Controller
         return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
         {
             nextQuestion!.Value.taskNameUrl,
-            nextQuestion.Value.questionNameUrl
+            nextQuestion!.Value.questionNameUrl
         });
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/upload")]
-    public async Task<IActionResult> Upload(string taskNameUrl, string questionNameUrl, IFormFile file, [FromForm] Guid fileId)
+    public async Task<IActionResult> UploadFile(string taskNameUrl, string questionNameUrl, IFormFile file, [FromForm] Guid fileId)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
@@ -164,7 +216,7 @@ public class FileUploadController : Controller
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/delete")]
-    public async Task<IActionResult> Delete(string taskNameUrl, string questionNameUrl, [FromForm] Guid fileId)
+    public async Task<IActionResult> DeleteFile(string taskNameUrl, string questionNameUrl, [FromForm] Guid fileId)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
@@ -196,7 +248,7 @@ public class FileUploadController : Controller
     }
 
     [HttpGet("{taskNameUrl}/{questionNameUrl}/download/{fileId}")]
-    public async Task<IActionResult> Download(string taskNameUrl, string questionNameUrl, Guid fileId)
+    public async Task<IActionResult> DownloadFile(string taskNameUrl, string questionNameUrl, Guid fileId)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
@@ -228,7 +280,7 @@ public class FileUploadController : Controller
     }
 
     [HttpGet("{taskNameUrl}/{questionNameUrl}/list")]
-    public async Task<IActionResult> List(string taskNameUrl, string questionNameUrl)
+    public async Task<IActionResult> ListFiles(string taskNameUrl, string questionNameUrl)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)

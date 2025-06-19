@@ -48,6 +48,16 @@ public static class AttachmentStore
         return linkStore.Files.TryRemove(fileId, out removed);
     }
 
+    public static bool HasAny(string sessionId, Guid linkId)
+    {
+        if (_store.TryGetValue(sessionId, out var sessionStore) && sessionStore.Links.TryGetValue(linkId, out var linkStore))
+        {
+            return !linkStore.Files.IsEmpty;
+        }
+
+        return false;
+    }
+
     public static IReadOnlyCollection<AttachmentDetails> GetAll(string sessionId, Guid linkId)
     {
         if (_store.TryGetValue(sessionId, out var sessionStore) &&

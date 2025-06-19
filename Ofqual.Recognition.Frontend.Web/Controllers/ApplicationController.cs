@@ -142,7 +142,7 @@ public class ApplicationController : Controller
         return RedirectToAction(nameof(QuestionDetails), new
         {
             nextQuestion!.Value.taskNameUrl,
-            nextQuestion.Value.questionNameUrl
+            nextQuestion!.Value.questionNameUrl
         });
     }
 
