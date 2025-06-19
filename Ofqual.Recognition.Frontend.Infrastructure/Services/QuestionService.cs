@@ -62,7 +62,6 @@ public class QuestionService : IQuestionService
             var response = await client.PostAsJsonAsync($"/applications/{applicationId}/tasks/{taskId}/questions/{questionId}", payload);
             if (response.IsSuccessStatusCode)
             {
-                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
                 _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
                 _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
 

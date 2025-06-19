@@ -76,6 +76,7 @@ public class TaskService : ITaskService
                 return false;
             }
 
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
             _sessionService.UpdateTaskStatusInSession(taskId, status);
             return true;
         }
