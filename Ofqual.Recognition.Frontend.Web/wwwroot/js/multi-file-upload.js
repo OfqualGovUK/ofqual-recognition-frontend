@@ -22,7 +22,7 @@ const filesMap = new Map();
 // Event Handlers
 // ======================================
 document.addEventListener("DOMContentLoaded", () => {
-  const fallbackList = document.getElementById(`${fileList}-noscript`);
+  const fallbackList = document.getElementById("files-list-noscript");
   if (fallbackList) {
     fallbackList.remove();
   }

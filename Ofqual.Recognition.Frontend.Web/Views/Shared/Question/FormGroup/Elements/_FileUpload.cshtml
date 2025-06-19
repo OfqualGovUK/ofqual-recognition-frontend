@@ -79,14 +79,20 @@
                         <div class="ofqual-file-list__progress-wrapper ofqual-file-list__progress-wrapper--green">
                             <div class="ofqual-file-list__progress-bar ofqual-file-list__progress-bar--green" style="width: 100%;"></div>
                         </div>
-                        <a href="@Url.Action("DeleteFile", "FileUpload", new {
-                                taskNameUrl = currentQuestion!.Value.taskNameUrl,
-                                questionNameUrl = currentQuestion!.Value.questionNameUrl,
-                                fileId = fileId
-                            })"
-                        class="ofqual-file-list__action govuk-link file-remove-link">
-                            Remove<span class="govuk-visually-hidden"> @attachment.FileName</span>
-                        </a>
+                        <form method="post"
+                            asp-action="DeleteFile"
+                            asp-controller="FileUpload"
+                            asp-route-taskNameUrl="@currentQuestion!.Value.taskNameUrl"
+                            asp-route-questionNameUrl="@currentQuestion!.Value.questionNameUrl"
+                            class="inline-delete-form">
+
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="fileId" value="@fileId" />
+
+                            <button type="submit" class="ofqual-file-list__action govuk-link file-remove-link">
+                                Remove<span class="govuk-visually-hidden"> @attachment.FileName</span>
+                            </button>
+                        </form>
                     </div>
 
                     <div class="ofqual-file-list__status" aria-live="polite">Upload complete</div>

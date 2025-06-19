@@ -114,7 +114,24 @@
     padding-left: 8px;
 }
 
+.ofqual-file-list__action-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 14px;
+    color: #1d70b8;
+    text-decoration: underline;
+    cursor: pointer;
+    white-space: nowrap;
+    padding-left: 8px;
+}
+
 .ofqual-file-list__action+.ofqual-file-list__action {
+    border-left: 1px solid #b1b4b6;
+}
+
+.ofqual-file-list__action-button+.ofqual-file-list__action-button {
     border-left: 1px solid #b1b4b6;
 }
 

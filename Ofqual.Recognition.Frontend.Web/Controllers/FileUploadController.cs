@@ -251,6 +251,13 @@ public class FileUploadController : Controller
             return BadRequest("Failed to delete file.");
         }
 
+        bool isHtmlRequest = Request.Headers["Accept"].Any(h => h != null && h.Contains("text/html", StringComparison.OrdinalIgnoreCase));
+        if (isHtmlRequest)
+        {
+            var viewModel = QuestionMapper.MapToViewModel(questionDetails);
+            return View("~/Views/Application/QuestionDetails.cshtml", viewModel);
+        }
+
         return Ok("File deleted successfully.");
     }
 
