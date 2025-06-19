@@ -1,5 +1,6 @@
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Http;
@@ -12,10 +13,12 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 public class AttachmentService : IAttachmentService
 {
     private readonly IRecognitionCitizenClient _client;
+    private readonly ISessionService _sessionService;
 
-    public AttachmentService(IRecognitionCitizenClient client)
+    public AttachmentService(IRecognitionCitizenClient client, ISessionService sessionService)
     {
         _client = client;
+        _sessionService = sessionService;
     }
 
     public async Task<AttachmentDetails?> UploadFileToLinkedRecord(LinkType linkType, Guid linkId, Guid applicationId, IFormFile file)
@@ -25,27 +28,30 @@ public class AttachmentService : IAttachmentService
             var client = await _client.GetClientAsync();
 
             using var content = new MultipartFormDataContent();
+
             if (file != null && file.Length > 0)
             {
-                var fileStream = file.OpenReadStream();
-                var fileContent = new StreamContent(fileStream);
-                fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                using var fileStream = file.OpenReadStream();
+                var fileContent = new StreamContent(fileStream)
+                {
+                    Headers = { ContentType = new MediaTypeHeaderValue(file.ContentType) }
+                };
                 content.Add(fileContent, "file", file.FileName);
             }
 
             var response = await client.PostAsync($"/files/linked/{linkType}/{linkId}/application/{applicationId}", content);
             if (!response.IsSuccessStatusCode)
             {
-                Log.Warning("File upload failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
+                Log.Warning("File upload failed. LinkType: {LinkType}, LinkId: {LinkId}, AppId: {AppId}, StatusCode: {StatusCode}, Reason: {Reason}", linkType, linkId, applicationId, response.StatusCode, response.ReasonPhrase);
                 return null;
             }
 
-            var result = await response.Content.ReadFromJsonAsync<AttachmentDetails>();
-            return result;
+            _sessionService.ClearFromSession($"{SessionKeys.UploadedFiles}/{linkType}/{linkId}");
+            return await response.Content.ReadFromJsonAsync<AttachmentDetails>();
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An unexpected error occurred while uploading the file.");
+            Log.Error(ex, "An exception occurred while uploading file. LinkType: {LinkType}, LinkId: {LinkId}, AppId: {AppId}", linkType, linkId, applicationId);
             return null;
         }
     }
@@ -54,21 +60,28 @@ public class AttachmentService : IAttachmentService
     {
         try
         {
-            var client = await _client.GetClientAsync();
+            var sessionKey = $"{SessionKeys.UploadedFiles}/{linkType}/{linkId}";
 
-            var response = await client.GetAsync($"/files/linked/{linkType}/{linkId}/application/{applicationId}");
-            if (!response.IsSuccessStatusCode)
+            if (_sessionService.HasInSession(sessionKey))
             {
-                Log.Warning("Failed to retrieve files. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
-                return null;
+                return _sessionService.GetFromSession<List<AttachmentDetails>>(sessionKey);
             }
 
-            var files = await response.Content.ReadFromJsonAsync<List<AttachmentDetails>>();
-            return files;
+            var client = await _client.GetClientAsync();
+
+            var result = await client.GetFromJsonAsync<List<AttachmentDetails>>($"/files/linked/{linkType}/{linkId}/application/{applicationId}");
+            if (result == null || result.Count == 0)
+            {
+                Log.Warning("No linked files returned for LinkType: {LinkType}, LinkId: {LinkId}, ApplicationId: {AppId}", linkType, linkId, applicationId);
+                result = new List<AttachmentDetails>();
+            }
+
+            _sessionService.SetInSession(sessionKey, result);
+            return result;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while fetching linked files.");
+            Log.Error(ex, "An error occurred while retrieving linked files for LinkType: {LinkType}, LinkId: {LinkId}, ApplicationId: {AppId}", linkType, linkId, applicationId);
             return null;
         }
     }
@@ -82,7 +95,7 @@ public class AttachmentService : IAttachmentService
             var response = await client.GetAsync($"/files/linked/{linkType}/{linkId}/attachment/{attachmentId}/application/{applicationId}");
             if (!response.IsSuccessStatusCode)
             {
-                Log.Warning("File download failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
+                Log.Warning("File download failed. LinkType: {LinkType}, LinkId: {LinkId}, AttachmentId: {AttachmentId}, AppId: {AppId}, StatusCode: {StatusCode}, Reason: {Reason}", linkType, linkId, attachmentId, applicationId, response.StatusCode, response.ReasonPhrase);
                 return null;
             }
 
@@ -90,7 +103,7 @@ public class AttachmentService : IAttachmentService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while downloading the file.");
+            Log.Error(ex, "An exception occurred while downloading file. LinkType: {LinkType}, LinkId: {LinkId}, AttachmentId: {AttachmentId}, AppId: {AppId}", linkType, linkId, attachmentId, applicationId);
             return null;
         }
     }
@@ -104,7 +117,7 @@ public class AttachmentService : IAttachmentService
             var response = await client.DeleteAsync($"/files/linked/{linkType}/{linkId}/attachment/{attachmentId}/application/{applicationId}");
             if (!response.IsSuccessStatusCode)
             {
-                Log.Warning("Failed to delete file. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
+                Log.Warning("Failed to delete file. LinkType: {LinkType}, LinkId: {LinkId}, AttachmentId: {AttachmentId}, AppId: {AppId}, StatusCode: {StatusCode}, Reason: {Reason}", linkType, linkId, attachmentId, applicationId, response.StatusCode, response.ReasonPhrase);
                 return false;
             }
 
@@ -112,7 +125,7 @@ public class AttachmentService : IAttachmentService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while deleting the file.");
+            Log.Error(ex, "An exception occurred while deleting file. LinkType: {LinkType}, LinkId: {LinkId}, AttachmentId: {AttachmentId}, AppId: {AppId}", linkType, linkId, attachmentId, applicationId);
             return false;
         }
     }
