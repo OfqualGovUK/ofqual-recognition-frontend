@@ -88,19 +88,14 @@ public class PreEngagementService : IPreEngagementService
             var response = await client.PostAsJsonAsync($"/pre-engagement/questions/{questionId}/validate", payload);
             if (response.IsSuccessStatusCode)
             {
-                return null;
+                return new ValidationResponse();
             }
 
             ValidationResponse? validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponse>();
             if (validationResponse == null)
             {
-                Log.Warning("Pre-engagement validation response was null. QuestionId: {QuestionId}, StatusCode: {StatusCode}", questionId, response.StatusCode);
-                return new ValidationResponse { Message = "We could not validate your pre-engagement answer. Please try again." };
-            }
-
-            if (!string.IsNullOrWhiteSpace(validationResponse.Message))
-            {
-                Log.Warning("Pre-engagement validation failed with message. QuestionId: {QuestionId}. Message: {Message}", questionId, validationResponse.Message);
+                Log.Warning("Unable to deserialise the validation response from the pre-engagement API. QuestionId: {QuestionId}, StatusCode: {StatusCode}, Reason: {ReasonPhrase}", questionId, response.StatusCode, response.ReasonPhrase);
+                return null;
             }
 
             return validationResponse;
@@ -108,7 +103,7 @@ public class PreEngagementService : IPreEngagementService
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while validating the pre-engagement answer for QuestionId: {QuestionId}", questionId);
-            return new ValidationResponse { Message = "An unexpected error occurred while validating your pre-engagement answer. Please try again."};
+            return null;
         }
     }
 }

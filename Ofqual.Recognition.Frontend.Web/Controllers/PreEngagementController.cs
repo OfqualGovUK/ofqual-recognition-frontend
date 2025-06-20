@@ -73,15 +73,15 @@ public class PreEngagementController : Controller
         string jsonAnswer = JsonHelper.ConvertToJson(formdata);
 
         ValidationResponse? validationResponse = await _preEngagementService.ValidatePreEngagementAnswer(questionDetails.QuestionId, jsonAnswer);
-        if (validationResponse != null)
+        if (validationResponse == null)
+        {
+            return BadRequest();
+        }
+
+        if (validationResponse.Errors != null && validationResponse.Errors.Any())
         {
             QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-            var errors = validationResponse.Errors != null
-                ? QuestionMapper.MapToViewModel(validationResponse.Errors)
-                : Enumerable.Empty<ErrorItemViewModel>();
-
-            questionViewModel.Errors = errors;
-            questionViewModel.ErrorMessage = validationResponse.Message;
+            questionViewModel.Validation = QuestionMapper.MapToViewModel(validationResponse);
             questionViewModel.AnswerJson = jsonAnswer;
 
             return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);

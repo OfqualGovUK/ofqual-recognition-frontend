@@ -2,6 +2,7 @@ using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Controllers;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
+using Ofqual.Recognition.Frontend.Tests.Helpers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.Extensions.Primitives;
@@ -17,6 +18,7 @@ public class ApplicationControllerTests
     private readonly Mock<ITaskService> _taskServiceMock;
     private readonly Mock<ISessionService> _sessionServiceMock;
     private readonly Mock<IQuestionService> _questionServiceMock;
+    private readonly Mock<IAttachmentService> _attachmentServiceMock;
     private readonly ApplicationController _controller;
 
     public ApplicationControllerTests()
@@ -25,8 +27,18 @@ public class ApplicationControllerTests
         _taskServiceMock = new Mock<ITaskService>();
         _sessionServiceMock = new Mock<ISessionService>();
         _questionServiceMock = new Mock<IQuestionService>();
+        _attachmentServiceMock = new Mock<IAttachmentService>();
 
-        _controller = new ApplicationController(_applicationServiceMock.Object, _taskServiceMock.Object, _sessionServiceMock.Object, _questionServiceMock.Object);
+        _controller = new ApplicationController(_applicationServiceMock.Object, _taskServiceMock.Object, _sessionServiceMock.Object, _questionServiceMock.Object, _attachmentServiceMock.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Session = new FakeSession("test-session-id")
+                }
+            }
+        };
     }
 
     [Fact]
@@ -198,7 +210,7 @@ public class ApplicationControllerTests
         // Assert
         var redirect = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("TaskReview", redirect.ActionName);
-        Assert.Equal("task", redirect.RouteValues["taskNameUrl"]);
+        Assert.Equal("task", redirect.RouteValues!["taskNameUrl"]);
     }
 
     [Fact]
@@ -206,6 +218,7 @@ public class ApplicationControllerTests
     public async Task QuestionDetails_ReturnsViewResult_WhenDataIsValid()
     {
         // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
         var question = new QuestionDetails
         {
             QuestionId = Guid.NewGuid(),
@@ -215,14 +228,22 @@ public class ApplicationControllerTests
             CurrentQuestionUrl = "task/question"
         };
 
+        var answer = new QuestionAnswer { Answer = "{\"text\":\"sample\"}" };
+
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+            .Returns(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
 
+        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId))
+            .ReturnsAsync(answer);
+
         _sessionServiceMock.Setup(x => x.GetTaskStatusFromSession(question.TaskId))
             .Returns(TaskStatusEnum.InProgress);
+
+        _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
 
         // Act
         var result = await _controller.QuestionDetails("task", "question");
@@ -232,6 +253,7 @@ public class ApplicationControllerTests
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
         Assert.Equal(question.QuestionId, model.QuestionId);
         Assert.False(model.FromReview);
+        Assert.Equal(answer.Answer, model.AnswerJson);
     }
 
     [Fact]
@@ -239,6 +261,7 @@ public class ApplicationControllerTests
     public async Task QuestionDetails_Sets_FromReview_True_WhenProvided()
     {
         // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
         var question = new QuestionDetails
         {
             QuestionId = Guid.NewGuid(),
@@ -249,13 +272,19 @@ public class ApplicationControllerTests
         };
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+            .Returns(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
 
+        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId))
+            .ReturnsAsync(new QuestionAnswer { Answer = null });
+
         _sessionServiceMock.Setup(x => x.GetTaskStatusFromSession(question.TaskId))
             .Returns(TaskStatusEnum.Completed);
+
+        _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
 
         // Act
         var result = await _controller.QuestionDetails("task", "question", fromReview: true);
@@ -268,12 +297,11 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_Should_RedirectToHome_WhenApplicationIsNull()
+    public async Task PostQuestionDetails_Should_RedirectToHome_WhenApplicationIsNull()
     {
         // Arrange
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns((Application?)null);
-        
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
         // Act
@@ -286,17 +314,16 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_Should_ReturnNotFound_WhenQuestionIsNull()
+    public async Task PostQuestionDetails_Should_ReturnNotFound_WhenQuestionIsNull()
     {
         // Arrange
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns(new Application());
-        
+
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync((QuestionDetails?)null);
-        
         var formData = new FormCollection(new Dictionary<string, StringValues>());
-        
+
         // Act
         var result = await _controller.QuestionDetails("task", "question", formData);
 
@@ -306,7 +333,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_Should_ReturnBadRequest_WhenNextQuestionUrlIsInvalid()
+    public async Task PostQuestionDetails_Should_ReturnBadRequest_WhenNextQuestionUrlIsInvalid()
     {
         // Arrange
         var application = new Application { ApplicationId = Guid.NewGuid() };
@@ -322,6 +349,109 @@ public class ApplicationControllerTests
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        var formData = new FormCollection(new Dictionary<string, StringValues>());
+
+        // Act
+        var result = await _controller.QuestionDetails("task", "question", formData);
+
+        // Assert
+        Assert.IsType<BadRequestResult>(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task PostQuestionDetails_Should_SkipSubmission_AndRedirect_WhenAnswersAreSame()
+    {
+        // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+        var question = new QuestionDetails
+        {
+            QuestionId = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            QuestionTypeName = "Text",
+            QuestionContent = "{}",
+            CurrentQuestionUrl = "current",
+            NextQuestionUrl = "nextTask/nextQuestion"
+        };
+        var existingAnswer = new QuestionAnswer { Answer = "{\"key\":\"value\"}" };
+
+        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync(existingAnswer);
+
+        var formData = new FormCollection(new Dictionary<string, StringValues> { { "key", "value" } });
+
+        // Act
+        var result = await _controller.QuestionDetails("task", "question", formData);
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("QuestionDetails", redirect.ActionName);
+        Assert.Equal("nextTask", redirect.RouteValues!["taskNameUrl"]);
+        Assert.Equal("nextQuestion", redirect.RouteValues["questionNameUrl"]);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task PostQuestionDetails_Should_ReturnViewWithErrors_WhenValidationFails()
+    {
+        // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+        var question = new QuestionDetails
+        {
+            QuestionId = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            QuestionTypeName = "Text",
+            QuestionContent = "{}",
+            CurrentQuestionUrl = "current"
+        };
+        var validationResponse = new ValidationResponse
+        {
+            Errors = new List<ValidationErrorItem>
+            {
+                new() { PropertyName = "field", ErrorMessage = "Error message" }
+            }
+        };
+
+        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
+        _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
+            .ReturnsAsync(validationResponse);
+
+        var formData = new FormCollection(new Dictionary<string, StringValues> { { "field", "value" } });
+
+        // Act
+        var result = await _controller.QuestionDetails("task", "question", formData);
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsAssignableFrom<QuestionViewModel>(viewResult.Model);
+        Assert.NotNull(model.Validation!.Errors);
+        Assert.Contains(model.Validation.Errors, e => e.PropertyName == "field" && e.ErrorMessage == "Error message");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task PostQuestionDetails_Should_ReturnBadRequest_WhenValidationResponseIsNull()
+    {
+        // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+        var question = new QuestionDetails
+        {
+            QuestionId = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            QuestionTypeName = "Text",
+            QuestionContent = "{}",
+            CurrentQuestionUrl = "current",
+            NextQuestionUrl = "nextTask/nextQuestion"
+        };
+
+        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
+        _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
+            .ReturnsAsync((ValidationResponse?)null);
 
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
@@ -334,84 +464,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_Should_SkipSubmission_And_Redirect_WhenAnswersAreSame()
-    {
-        // Arrange
-        var application = new Application { ApplicationId = Guid.NewGuid() };
-        var question = new QuestionDetails
-        {
-            QuestionId = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
-            QuestionContent = "{}",
-            CurrentQuestionUrl = "current",
-            NextQuestionUrl = "nextTask/nextQuestion"
-        };
-
-        var existingAnswer = new QuestionAnswer { Answer = "{\"key\":\"value\"}" };
-
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
-        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
-        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync(existingAnswer);
-
-        var formData = new FormCollection(new Dictionary<string, StringValues> { { "key", "value" } });
-
-        // Act
-        var result = await _controller.QuestionDetails("task", "question", formData);
-        
-        // Assert
-        var redirect = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("QuestionDetails", redirect.ActionName);
-        Assert.Equal("nextTask", redirect.RouteValues["taskNameUrl"]);
-        Assert.Equal("nextQuestion", redirect.RouteValues["questionNameUrl"]);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public async Task QuestionDetails_Should_ReturnView_WithValidationErrors_WhenSubmissionFails()
-    {
-        // Arrange
-        var application = new Application { ApplicationId = Guid.NewGuid() };
-        var question = new QuestionDetails
-        {
-            QuestionId = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
-            QuestionContent = "{}",
-            CurrentQuestionUrl = "current"
-        };
-
-        var validationResponse = new ValidationResponse
-        {
-            Message = "We couldn't submit your answer. Please try again.",
-            Errors = new List<ValidationErrorItem>
-            {
-                new() { PropertyName = "field", ErrorMessage = "Error message" }
-            }
-        };
-
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
-        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
-        _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
-        _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync(validationResponse);
-        
-        var formData = new FormCollection(new Dictionary<string, StringValues> { { "field", "value" } });
-
-        // Act
-        var result = await _controller.QuestionDetails("task", "question", formData);
-
-        // Assert
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsAssignableFrom<QuestionViewModel>(viewResult.Model);
-        Assert.Equal(validationResponse.Message, model.ErrorMessage);
-        Assert.NotNull(model.Errors);
-        Assert.Contains(model.Errors, e => e.PropertyName == "field" && e.ErrorMessage == "Error message");
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public async Task QuestionDetails_Should_SubmitAnswer_AndRedirectToNextQuestion()
+    public async Task PostQuestionDetails_Should_SubmitAnswer_AndRedirectToNextQuestion()
     {
         // Arrange
         var application = new Application { ApplicationId = Guid.NewGuid() };
@@ -429,23 +482,23 @@ public class ApplicationControllerTests
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
         _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync((ValidationResponse?)null);
-        
+            .ReturnsAsync(new ValidationResponse { Errors = Enumerable.Empty<ValidationErrorItem>() });
+
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
         // Act
         var result = await _controller.QuestionDetails("task", "question", formData);
-        
+
         // Assert
         var redirect = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("QuestionDetails", redirect.ActionName);
-        Assert.Equal("nextTask", redirect.RouteValues["taskNameUrl"]);
+        Assert.Equal("nextTask", redirect.RouteValues!["taskNameUrl"]);
         Assert.Equal("nextQuestion", redirect.RouteValues["questionNameUrl"]);
     }
-    
+
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_Should_SubmitAnswer_AndRedirectToReview_WhenNoNextQuestion()
+    public async Task PostQuestionDetails_Should_SubmitAnswer_AndRedirectToReview_WhenNoNextQuestion()
     {
         // Arrange
         var application = new Application { ApplicationId = Guid.NewGuid() };
@@ -458,18 +511,22 @@ public class ApplicationControllerTests
             CurrentQuestionUrl = "current",
             NextQuestionUrl = null
         };
+
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
         _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync((ValidationResponse?)null);
+            .ReturnsAsync(new ValidationResponse { Errors = Enumerable.Empty<ValidationErrorItem>() });
+
         var formData = new FormCollection(new Dictionary<string, StringValues>());
+
         // Act
         var result = await _controller.QuestionDetails("task", "question", formData);
+
         // Assert
         var redirect = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("TaskReview", redirect.ActionName);
-        Assert.Equal("task", redirect.RouteValues["taskNameUrl"]);
+        Assert.Equal("task", redirect.RouteValues!["taskNameUrl"]);
     }
 
     [Fact]

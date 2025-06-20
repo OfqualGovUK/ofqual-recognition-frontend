@@ -1,0 +1,84 @@
+﻿@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@model QuestionViewModel
+
+@{
+    var textInputGroup = Model?.QuestionContent?.FormGroup?.TextInputGroup;
+    var fields = textInputGroup?.Fields;
+    var isSingle = fields?.Count == 1;
+}
+
+@if (fields != null && fields.Any())
+{
+    <fieldset class="govuk-fieldset">
+
+        @if (!string.IsNullOrEmpty(textInputGroup?.Heading?.Text))
+        {
+            var heading = textInputGroup.Heading;
+            var headingTag = heading.Size.ToHeadingTag();
+            var legendClass = heading.Size.ToGovUkLegendClass();
+
+            <legend class="govuk-fieldset__legend @legendClass">
+                <text>
+                    @Html.Raw($"<{headingTag} class=\"govuk-fieldset__heading\">{heading.Text}</{headingTag}>")
+                </text>
+            </legend>
+        }
+
+        @foreach (var field in fields)
+        {
+            var value = ViewHelpers.GetAnswerValue(field?.Name, Model?.AnswerJson);
+            var error = Model?.Validation?.Errors?.FirstOrDefault(e => e.PropertyName == field?.Name);
+            var hasError = error != null;
+            var errorId = $"{field?.Name}-error";
+            var hintId = $"{field?.Name}-hint";
+
+            var describedByParts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(field?.Hint)) describedByParts.Add(hintId);
+            if (hasError) describedByParts.Add(errorId);
+            var describedBy = string.Join(" ", describedByParts);
+
+            <div class="govuk-form-group @(hasError ? "govuk-form-group--error" : "")">
+
+                @if (isSingle)
+                {
+                    <h1 class="govuk-label-wrapper">
+                        <label class="govuk-label govuk-label--l" for="@field?.Name">
+                            @field?.Label
+                        </label>
+                    </h1>
+                }
+                else
+                {
+                    <label class="govuk-label" for="@field?.Name">
+                        @field?.Label
+                    </label>
+                }
+
+                @if (!string.IsNullOrEmpty(field?.Hint))
+                {
+                    <div id="@hintId" class="govuk-hint">@field.Hint</div>
+                }
+
+                @if (hasError)
+                {
+                    <p id="@errorId" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> @error?.ErrorMessage
+                    </p>
+                }
+
+                <input class="govuk-input @(hasError ? "govuk-input--error" : "")"
+                       id="@field?.Name"
+                       name="@field?.Name"
+                       type="@field?.InputType"
+                       value="@value"
+                       aria-describedby="@describedBy"
+                       maxlength="@field?.Validation?.MaxLength"
+                       minlength="@field?.Validation?.MinLength"
+                       pattern="@field?.Validation?.Pattern"
+                       @(field?.Disabled == true ? "disabled" : "") />
+            </div>
+        }
+    </fieldset>
+}

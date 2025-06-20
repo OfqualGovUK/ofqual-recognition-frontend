@@ -8,6 +8,7 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Ofqual.Recognition.Frontend.Web.Stores;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -20,13 +21,15 @@ public class ApplicationController : Controller
     private readonly ITaskService _taskService;
     private readonly ISessionService _sessionService;
     private readonly IQuestionService _questionService;
+    private readonly IAttachmentService _attachmentService;
 
-    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService)
+    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService, IAttachmentService attachmentService)
     {
         _applicationService = applicationService;
         _taskService = taskService;
         _sessionService = sessionService;
         _questionService = questionService;
+        _attachmentService = attachmentService;
     }
 
     [HttpGet]
@@ -83,6 +86,10 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
+        var sessionId = HttpContext.Session.Id;
+        var linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+        AttachmentStore.TryAddRange(sessionId, questionDetails.QuestionId, linkedAttachments);
+
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.FromReview = fromReview;
         questionViewModel.AnswerJson = questionAnswer?.Answer;
@@ -107,33 +114,21 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
-        if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && nextQuestion == null)
-        {
-            return BadRequest();
-        }
-
         var jsonAnswer = JsonHelper.ConvertToJson(formdata);
         var existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
         if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
-            ValidationResponse? validationResponse = await _questionService.SubmitQuestionAnswer(
-                application.ApplicationId,
-                questionDetails.TaskId,
-                questionDetails.QuestionId,
-                jsonAnswer
-            );
+            ValidationResponse? validationResponse = await _questionService.SubmitQuestionAnswer(application.ApplicationId, questionDetails.TaskId, questionDetails.QuestionId, jsonAnswer);
+            if (validationResponse == null)
+            {
+                return BadRequest();
+            }
 
-            if (validationResponse != null)
+            if (validationResponse.Errors != null && validationResponse.Errors.Any())
             {
                 QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-                var errors = validationResponse.Errors != null
-                    ? QuestionMapper.MapToViewModel(validationResponse.Errors)
-                    : Enumerable.Empty<ErrorItemViewModel>();
-
-                questionViewModel.Errors = errors;
-                questionViewModel.ErrorMessage = validationResponse.Message;
+                questionViewModel.Validation = QuestionMapper.MapToViewModel(validationResponse);
                 questionViewModel.AnswerJson = jsonAnswer;
 
                 return View(questionViewModel);
@@ -145,10 +140,16 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
+        var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
+        if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && nextQuestion == null)
+        {
+            return BadRequest();
+        }
+
         return RedirectToAction(nameof(QuestionDetails), new
         {
             nextQuestion!.Value.taskNameUrl,
-            nextQuestion.Value.questionNameUrl
+            nextQuestion!.Value.questionNameUrl
         });
     }
 

@@ -11,7 +11,6 @@ public class QuestionViewModel
     public string? PreviousQuestionUrl { get; set; }
     public bool FromReview { get; set; }
     public bool FromPreEngagement { get; set; }
-
-    public string? ErrorMessage { get; set; }
-    public IEnumerable<ErrorItemViewModel>? Errors { get; set; }
+    
+    public ValidationViewModel? Validation { get; set; }
 }

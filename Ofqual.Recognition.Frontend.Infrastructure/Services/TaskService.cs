@@ -55,6 +55,12 @@ public class TaskService : ITaskService
     {
         try
         {
+            TaskStatusEnum? currentStatus = _sessionService.GetTaskStatusFromSession(taskId);
+            if (currentStatus.HasValue && currentStatus.Value == status)
+            {
+                return true;
+            }
+
             var client = await _client.GetClientAsync();
             var newTaskStatus = new UpdateTaskStatus
             {
@@ -71,7 +77,7 @@ public class TaskService : ITaskService
             }
 
             _sessionService.UpdateTaskStatusInSession(taskId, status);
-            return response.IsSuccessStatusCode;
+            return true;
         }
         catch (Exception ex)
         {

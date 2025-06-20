@@ -144,13 +144,7 @@ public class PreEngagementControllerTests
         var result = await _controller.PreEngagementQuestionDetails("task1", "question1", formData);
 
         // Assert
-        _sessionServiceMock.Verify(x =>
-            x.UpsertPreEngagementAnswer(questionDetails.QuestionId, questionDetails.TaskId, It.IsAny<string>()), Times.Once);
-
-        var redirect = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("PreEngagementQuestionDetails", redirect.ActionName);
-        Assert.Equal("task2", redirect.RouteValues!["taskNameUrl"]);
-        Assert.Equal("question2", redirect.RouteValues["questionNameUrl"]);
+        var badRequest = Assert.IsType<BadRequestResult>(result);
     }
 
     [Fact]
@@ -172,7 +166,7 @@ public class PreEngagementControllerTests
             .ReturnsAsync(questionDetails);
 
         _preEngagementServiceMock.Setup(x => x.ValidatePreEngagementAnswer(questionDetails.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync((ValidationResponse?)null);
+            .ReturnsAsync(new ValidationResponse { Errors = Enumerable.Empty<ValidationErrorItem>() });
 
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
@@ -204,7 +198,7 @@ public class PreEngagementControllerTests
             .ReturnsAsync(questionDetails);
 
         _preEngagementServiceMock.Setup(x => x.ValidatePreEngagementAnswer(questionDetails.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync((ValidationResponse?)null);
+            .ReturnsAsync(new ValidationResponse { Errors = Enumerable.Empty<ValidationErrorItem>() });
 
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
@@ -250,7 +244,6 @@ public class PreEngagementControllerTests
 
         var validationResponse = new ValidationResponse
         {
-            Message = "A general validation error occurred.",
             Errors = new List<ValidationErrorItem>
             {
                 new ValidationErrorItem { PropertyName = "field", ErrorMessage = "Field is required." }
@@ -273,7 +266,7 @@ public class PreEngagementControllerTests
         Assert.Equal("~/Views/Application/QuestionDetails.cshtml", viewResult.ViewName);
 
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
-        Assert.Equal("A general validation error occurred.", model.ErrorMessage);
-        Assert.Single(model.Errors!);
+        Assert.Single(model.Validation!.Errors!);
+        Assert.Equal("Field is required.", model.Validation!.Errors!.First().ErrorMessage);
     }
 }

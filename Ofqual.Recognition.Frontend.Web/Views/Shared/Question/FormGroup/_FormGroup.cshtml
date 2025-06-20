@@ -1,0 +1,51 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Constants
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@using Ofqual.Recognition.Frontend.Core.Enums
+@model QuestionViewModel
+
+@{
+    var cancelLinkUrl = Model.FromPreEngagement
+        ? RouteConstants.PreEngagementConstants.PRE_ENGAGEMENT_PATH
+        : RouteConstants.ApplicationConstants.TASK_LIST_PATH;
+
+    var isFileUpload = Model.QuestionContent.FormGroup?.FileUpload != null;
+    var enctypeAttr = isFileUpload ? "multipart/form-data" : null;
+    var currentQuestion = QuestionUrlHelper.Parse(Model.CurrentQuestionUrl);
+
+    var controllerName = isFileUpload ? "FileUpload" : "Application";
+    var actionName = isFileUpload ? "SubmitFile" : "QuestionDetails";
+}
+
+@if (isFileUpload)
+{
+    <link rel="stylesheet" href="~/css/multi-file-upload.css" asp-append-version="true" />
+}
+
+@if (Model.QuestionContent.FormGroup != null)
+{
+    <form class="form"
+          method="post"
+          enctype="@enctypeAttr"
+          asp-controller="@controllerName"
+          asp-action="@actionName"
+          asp-route-taskNameUrl="@currentQuestion!.Value.taskNameUrl"
+          asp-route-questionNameUrl="@currentQuestion!.Value.questionNameUrl">
+
+        @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/Elements/_{Model.QuestionTypeName}.cshtml", Model)
+
+        @Html.AntiForgeryToken()
+
+        <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button" id="submit-form-group">
+                Save and continue
+            </button>
+            <a class="govuk-link" href="@cancelLinkUrl">Cancel</a>
+        </div>
+    </form>
+}
+
+@if (isFileUpload)
+{
+    <script src="~/js/multi-file-upload.js" asp-append-version="true"></script>
+}

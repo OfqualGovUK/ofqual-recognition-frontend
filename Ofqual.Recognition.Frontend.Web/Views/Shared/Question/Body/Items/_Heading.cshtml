@@ -1,0 +1,12 @@
+@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@model HeadingContentViewModel
+
+@{
+    var tag = Model.Size.ToHeadingTag();
+    var cssClass = Model.Size.ToGovUkHeadingClass();
+}
+
+<text>
+    @Html.Raw($"<{tag} class=\"{cssClass}\">{Model.Text}</{tag}>")
+</text>

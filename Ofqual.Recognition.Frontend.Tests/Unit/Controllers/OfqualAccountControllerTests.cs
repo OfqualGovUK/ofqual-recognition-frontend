@@ -1,95 +1,120 @@
 ﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Ofqual.Recognition.Frontend.Web.Controllers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Ofqual.Recognition.Frontend.Tests.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using System.Security.Claims;
+using Moq;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class OfqualAccountControllerTests
 {
     private readonly Mock<IOptionsMonitor<MicrosoftIdentityOptions>> _optionsMock;
-    private readonly Mock<IUrlHelper> _urlHelperMock;
-    private readonly Mock<IAuthenticationService> _authenticationMock;
-    private readonly Mock<IHttpContextAccessor> _contextMock;
     private readonly Mock<ISessionService> _sessionServiceMock;
+    private readonly Mock<IUrlHelper> _urlHelperMock;
+    private readonly OfqualAccountController _controller;
 
     public OfqualAccountControllerTests()
     {
         _optionsMock = new Mock<IOptionsMonitor<MicrosoftIdentityOptions>>();
-        _urlHelperMock = new Mock<IUrlHelper>();
-        _authenticationMock = new Mock<IAuthenticationService>();
         _sessionServiceMock = new Mock<ISessionService>();
-        _contextMock = new Mock<IHttpContextAccessor>();
+        _urlHelperMock = new Mock<IUrlHelper>();
 
-        const string scheme = "test_scheme";
-
-        _optionsMock
-            .Setup(x => x.CurrentValue)
-            .Returns(() => new MicrosoftIdentityOptions { SignUpSignInPolicyId = "B2C_Test_SUSI" });
-
-        _urlHelperMock
-            .Setup(x => x.Content(It.IsAny<string?>()))
-            .Returns<string?>(_ => "http://localhost/home/index");
-
-        _authenticationMock
-            .Setup(x => x.AuthenticateAsync(_contextMock.Object.HttpContext!, scheme))
-            .ReturnsAsync(() =>
-            {
-                var result = AuthenticateResult.Success(
-                    new AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(), scheme));
-
-                result.Properties!.StoreTokens([ new AuthenticationToken
-                {
-                    Name = "id_token",
-                    Value = Guid.NewGuid().ToString()
-                }]);
-
-                return result;
-            });
-
-        _contextMock
-            .Setup(x => x.HttpContext!.RequestServices.GetService(typeof(IAuthenticationService)))
-            .Returns(_authenticationMock.Object);
-    }
-
-    [Fact]
-    public void SignIn_ReturnsChallenge()
-    {
-        //Arrange
-        var controller = new OfqualAccountController(_optionsMock.Object, _sessionServiceMock.Object)
+        _controller = new OfqualAccountController(_optionsMock.Object, _sessionServiceMock.Object)
         {
             Url = _urlHelperMock.Object
         };
-
-        //Act
-        var result = controller.SignIn(It.IsAny<string>());
-
-        //Assert
-        Assert.IsType<ChallengeResult>(result);
     }
 
     [Fact]
-    public async Task SignOut_ReturnsSignOut()
+    [Trait("Category", "Unit")]
+    public void SignIn_ReturnsChallenge_WithCorrectSchemeAndRedirect()
     {
-        //Arrange
-        var controller = new OfqualAccountController(_optionsMock.Object, _sessionServiceMock.Object)
+        // Arrange
+        var scheme = "custom-scheme";
+        var expectedRedirect = "/application";
+        var expectedPolicy = "test-policy";
+
+        _urlHelperMock.Setup(u => u.Content(It.IsAny<string>())).Returns(expectedRedirect);
+        _optionsMock.Setup(o => o.CurrentValue).Returns(new MicrosoftIdentityOptions
         {
-            Url = _urlHelperMock.Object,
-            ControllerContext = new ControllerContext() 
-            { 
-                HttpContext = _contextMock.Object.HttpContext! 
+            SignUpSignInPolicyId = expectedPolicy
+        });
+
+        // Act
+        var result = _controller.SignIn(scheme);
+
+        // Assert
+        var challengeResult = Assert.IsType<ChallengeResult>(result);
+        Assert.Equal(scheme, challengeResult.AuthenticationSchemes.Single());
+
+        var redirectUri = challengeResult.Properties?.RedirectUri;
+        var policyItem = challengeResult.Properties?.Items["policy"];
+
+        Assert.Equal(expectedRedirect, redirectUri);
+        Assert.Equal(expectedPolicy, policyItem);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task SignOutAsync_ReturnsSignOutResult_AndClearsSession()
+    {
+        // Arrange
+        var sessionServiceMock = new Mock<ISessionService>();
+        var optionsMonitorMock = new Mock<IOptionsMonitor<MicrosoftIdentityOptions>>();
+        var options = new MicrosoftIdentityOptions
+        {
+            SignUpSignInPolicyId = "B2C_1_SignIn"
+        };
+        optionsMonitorMock.Setup(o => o.CurrentValue).Returns(options);
+
+        var authServiceMock = new Mock<IAuthenticationService>();
+
+        authServiceMock.Setup(a => a.AuthenticateAsync(It.IsAny<HttpContext>(), null))
+            .ReturnsAsync(AuthenticateResult.Success(new AuthenticationTicket(
+                new ClaimsPrincipal(new ClaimsIdentity(new[]
+                {
+                new Claim("id_token", "mock-id-token")
+                }, "mockAuth")), "mockAuth")));
+
+        var services = new ServiceCollection();
+        services.AddSingleton(authServiceMock.Object);
+        services.AddAuthentication("mockAuth").AddCookie("mockAuth");
+        var serviceProvider = services.BuildServiceProvider();
+
+        var httpContext = new DefaultHttpContext
+        {
+            Session = new FakeSession("test-session"),
+            RequestServices = serviceProvider
+        };
+
+        var urlHelperMock = new Mock<IUrlHelper>();
+        urlHelperMock.Setup(u => u.Content(It.IsAny<string>())).Returns("/signed-out");
+
+        var controller = new OfqualAccountController(optionsMonitorMock.Object, sessionServiceMock.Object)
+        {
+            Url = urlHelperMock.Object,
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
             }
-        };     
+        };
 
-        //Act
-        var result = await controller.SignOutAsync(It.IsAny<string>());
+        // Act
+        var result = await controller.SignOutAsync(null!);
 
-        //Assert
-        Assert.IsType<SignOutResult>(result);
-    }   
+        // Assert
+        var signOutResult = Assert.IsType<SignOutResult>(result);
+        Assert.Contains(CookieAuthenticationDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
+        Assert.Contains(OpenIdConnectDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
+
+        sessionServiceMock.Verify(s => s.ClearAllSession(), Times.Once);
+    }
 }

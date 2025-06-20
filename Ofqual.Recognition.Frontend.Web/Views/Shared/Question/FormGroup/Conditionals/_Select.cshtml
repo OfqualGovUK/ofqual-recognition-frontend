@@ -1,0 +1,56 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@model ConditionalSelectViewModel
+
+@{
+    var select = Model.Select;
+    var value = ViewHelpers.GetAnswerValue(select?.Name, Model.AnswerJson);
+    var error = Model.Errors?.FirstOrDefault(e => e.PropertyName == select?.Name);
+    var hasError = error != null;
+    var errorId = $"{select?.Name}-error";
+    var hintId = $"{select?.Name}-hint";
+
+    var describedBy = new List<string>();
+    if (!string.IsNullOrWhiteSpace(select?.Hint)) describedBy.Add(hintId);
+    if (hasError) describedBy.Add(errorId);
+}
+
+<div class="govuk-form-group @(hasError ? "govuk-form-group--error" : "")">
+    
+    @if (!string.IsNullOrEmpty(select?.Label))
+    {
+        <label class="govuk-label" for="@select?.Name">
+            @select?.Label
+        </label>
+    }
+
+    @if (!string.IsNullOrEmpty(select?.Hint))
+    {
+        <div id="@hintId" class="govuk-hint">
+            @select.Hint
+        </div>
+    }
+
+    @if (hasError)
+    {
+        <p id="@errorId" class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span> @error?.ErrorMessage
+        </p>
+    }
+
+    <select class="govuk-select @(hasError ? "govuk-select--error" : "")"
+            id="@select?.Name"
+            name="@select?.Name"
+            aria-describedby="@string.Join(" ", describedBy)"
+            disabled="@(select?.Disabled ?? false)">
+        
+        @foreach (var option in select?.Options ?? Enumerable.Empty<SelectOptionViewModel>())
+        {
+            var isSelected = option.Value == value || option.Selected;
+
+            <option value="@option.Value" selected="@(isSelected ? "selected" : null)">
+                @option.Label
+            </option>
+        }
+    </select>
+</div>

@@ -66,19 +66,14 @@ public class QuestionService : IQuestionService
                 _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
                 _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
 
-                return null;
+                return new ValidationResponse();
             }
 
             var validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponse>();
             if (validationResponse == null)
             {
-                Log.Warning("Validation response was null while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}, StatusCode: {StatusCode}", questionId, taskId, applicationId, response.StatusCode);
-                return new ValidationResponse { Message = "We could not validate your answer. Please try again." };
-            }
-
-            if (!string.IsNullOrWhiteSpace(validationResponse.Message))
-            {
-                Log.Warning("Validation failed with message for QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}. Message: {Message}", questionId, taskId, applicationId, validationResponse.Message);
+                Log.Warning("Unable to deserialise the validation response from the application answer submission. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}, StatusCode: {StatusCode}, Reason: {ReasonPhrase}", questionId, taskId, applicationId, response.StatusCode, response.ReasonPhrase);
+                return null;
             }
 
             return validationResponse;
@@ -86,7 +81,7 @@ public class QuestionService : IQuestionService
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}", questionId, taskId, applicationId);
-            return new ValidationResponse { Message = "Something went wrong. Please try again." };
+            return null;
         }
     }
 
