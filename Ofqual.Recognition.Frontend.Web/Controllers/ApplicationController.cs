@@ -198,19 +198,7 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("confirm-submission")]
-    public async Task<IActionResult> ConfirmSubmission() 
-    {
-        /*  We have no means of identifying declaration and submit tasks other than using the TaskURL. 
-         *  ideally we should be checking for any incomplete declaration tasks or checking the overall
-         *  application status is complete.
-        */
-        var confirmTask = await _taskService.GetTaskDetailsByTaskNameUrl("declare-submit");
-               
-        return confirmTask != null && 
-            _sessionService.GetTaskStatusFromSession(confirmTask.TaskId) == TaskStatusEnum.Completed
-        ? View()
-        : NotFound();
-    }
+    public IActionResult ConfirmSubmission() => View();
 
     [HttpPost("{taskNameUrl}/review-your-answers")]
     [ValidateAntiForgeryToken]
