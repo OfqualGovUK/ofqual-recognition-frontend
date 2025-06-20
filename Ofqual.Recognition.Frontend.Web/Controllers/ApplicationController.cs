@@ -5,12 +5,10 @@ using Ofqual.Recognition.Frontend.Core.Helpers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Mappers;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Ofqual.Recognition.Frontend.Web.Stores;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
