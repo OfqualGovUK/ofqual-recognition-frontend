@@ -2,7 +2,6 @@ using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Controllers;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
-using Ofqual.Recognition.Frontend.Tests.Helpers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.Extensions.Primitives;
@@ -29,16 +28,7 @@ public class ApplicationControllerTests
         _questionServiceMock = new Mock<IQuestionService>();
         _attachmentServiceMock = new Mock<IAttachmentService>();
 
-        _controller = new ApplicationController(_applicationServiceMock.Object, _taskServiceMock.Object, _sessionServiceMock.Object, _questionServiceMock.Object, _attachmentServiceMock.Object)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Session = new FakeSession("test-session-id")
-                }
-            }
-        };
+        _controller = new ApplicationController(_applicationServiceMock.Object, _taskServiceMock.Object, _sessionServiceMock.Object, _questionServiceMock.Object, _attachmentServiceMock.Object);
     }
 
     [Fact]

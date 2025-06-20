@@ -1,9 +1,7 @@
-@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @using Ofqual.Recognition.Frontend.Core.Extensions
 @using Ofqual.Recognition.Frontend.Core.Models
 @using Ofqual.Recognition.Frontend.Web.ViewModels
 @using Ofqual.Recognition.Frontend.Core.Helpers
-@using Ofqual.Recognition.Frontend.Web.Stores
 @using Ofqual.Recognition.Frontend.Core.Enums
 @model QuestionViewModel
 
@@ -22,8 +20,6 @@
     var fileListId = $"{fieldName}-list";
     var ariaStatusId = $"{fieldName}-aria-status";
     var currentQuestion = QuestionUrlHelper.Parse(Model?.CurrentQuestionUrl);
-
-    var linkedAttachments = AttachmentStore.GetAll(HttpContextAccessor.HttpContext?.Session.Id, Model?.QuestionId);
 }
 
 @if (fileUpload != null)
@@ -55,10 +51,9 @@
     @if (fileUpload != null)
     {
         <ul class="ofqual-file-list" id="@fileListId-noscript" role="list">
-            @foreach (var kvp in linkedAttachments)
+            @foreach (var attachment in Model?.Attachments ?? new List<AttachmentDetailsViewModel>())
             {
-                var fileId = kvp.Key;
-                var attachment = kvp.Value;
+                var fileId = attachment.AttachmentId;
                 var readableSize = Math.Round((double)attachment.FileSize / (1024 * 1024), 1);
 
                 <li class="ofqual-file-list__item" role="listitem" id="@fileId">
@@ -66,7 +61,7 @@
                         <a href="@Url.Action("DownloadFile", "FileUpload", new {
                                 taskNameUrl = currentQuestion!.Value.taskNameUrl,
                                 questionNameUrl = currentQuestion!.Value.questionNameUrl,
-                                fileId = fileId
+                                attachmentId = fileId
                             })"
                         class="ofqual-file-list__name govuk-link file-download-link">
                             @attachment.FileName
@@ -79,14 +74,14 @@
                         <div class="ofqual-file-list__progress-wrapper ofqual-file-list__progress-wrapper--green">
                             <div class="ofqual-file-list__progress-bar ofqual-file-list__progress-bar--green" style="width: 100%;"></div>
                         </div>
+
                         <button type="submit"
                                 formaction="@Url.Action("DeleteFile", "FileUpload", new {
                                     taskNameUrl = currentQuestion!.Value.taskNameUrl,
-                                    questionNameUrl = currentQuestion!.Value.questionNameUrl
+                                    questionNameUrl = currentQuestion!.Value.questionNameUrl,
+                                    attachmentId = fileId
                                 })"
                                 formmethod="post"
-                                name="fileId"
-                                value="@fileId"
                                 class="ofqual-file-list__action-button govuk-link file-remove-link">
                             Remove<span class="govuk-visually-hidden"> @attachment.FileName</span>
                         </button>

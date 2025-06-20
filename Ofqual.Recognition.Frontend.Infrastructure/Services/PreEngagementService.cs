@@ -23,7 +23,6 @@ public class PreEngagementService : IPreEngagementService
         try
         {
             var sessionKey = SessionKeys.FirstPreEngagementQuestion;
-
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<PreEngagementQuestion>(sessionKey);
@@ -52,8 +51,7 @@ public class PreEngagementService : IPreEngagementService
     {
         try
         {
-            var sessionKey = $"{SessionKeys.PreEngagementQuestionDetails}/{taskNameUrl}/{questionNameUrl}";
-
+            var sessionKey = $"{SessionKeys.PreEngagementQuestionDetails}:{taskNameUrl}:{questionNameUrl}";
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<QuestionDetails>(sessionKey);

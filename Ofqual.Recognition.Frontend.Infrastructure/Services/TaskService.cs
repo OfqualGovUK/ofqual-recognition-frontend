@@ -26,7 +26,6 @@ public class TaskService : ITaskService
         try
         {
             var sessionKey = SessionKeys.ApplicationTaskList;
-
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<List<TaskItemStatusSection>>(sessionKey) ?? new List<TaskItemStatusSection>();
@@ -90,8 +89,7 @@ public class TaskService : ITaskService
     {
         try
         {
-            var sessionKey = $"{SessionKeys.ApplicationTaskDetails}/{taskNameUrl}";
-
+            var sessionKey = $"{SessionKeys.ApplicationTaskDetails}:{taskNameUrl}";
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<TaskDetails>(sessionKey);

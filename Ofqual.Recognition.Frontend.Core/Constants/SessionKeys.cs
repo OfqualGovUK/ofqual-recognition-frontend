@@ -14,5 +14,4 @@ public static class SessionKeys
     public const string FirstPreEngagementQuestion = "FirstPreEngagementQuestion";
     public const string PreEngagementQuestionDetails = "PreEngagementQuestionDetails";
     public const string PreEngagementAnswers = "PreEngagementAnswers";
-    public const string UploadedFiles = "UploadedFiles";
 }

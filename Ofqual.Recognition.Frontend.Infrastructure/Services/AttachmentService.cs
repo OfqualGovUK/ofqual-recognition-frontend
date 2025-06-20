@@ -13,29 +13,29 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 public class AttachmentService : IAttachmentService
 {
     private readonly IRecognitionCitizenClient _client;
-    private readonly ISessionService _sessionService;
+    private readonly IMemoryCacheService _memoryCacheService;
 
-    public AttachmentService(IRecognitionCitizenClient client, ISessionService sessionService)
+    public AttachmentService(IRecognitionCitizenClient client, IMemoryCacheService memoryCacheService)
     {
         _client = client;
-        _sessionService = sessionService;
+        _memoryCacheService = memoryCacheService;
     }
 
     public async Task<AttachmentDetails?> UploadFileToLinkedRecord(LinkType linkType, Guid linkId, Guid applicationId, IFormFile file)
     {
         try
         {
+            var cacheKey = $"{MemoryCacheKeys.UploadedFilesByQuestion}:{linkType}:{linkId}:{applicationId}";
             var client = await _client.GetClientAsync();
 
- 
-           using var content = new MultipartFormDataContent();
+            using var content = new MultipartFormDataContent();
 
             if (file != null && file.Length > 0)
             {
                 var fileStream = file.OpenReadStream();
                 var fileContent = new StreamContent(fileStream);
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-                
+
                 content.Add(fileContent, "file", file.FileName);
             }
 
@@ -46,8 +46,13 @@ public class AttachmentService : IAttachmentService
                 return null;
             }
 
-            _sessionService.ClearFromSession($"{SessionKeys.UploadedFiles}/{linkType}/{linkId}");
-            return await response.Content.ReadFromJsonAsync<AttachmentDetails>();
+            var uploadedAttachment = await response.Content.ReadFromJsonAsync<AttachmentDetails>();
+            if (uploadedAttachment != null)
+            {
+                _memoryCacheService.AddOrAppendToList(cacheKey, uploadedAttachment);
+            }
+
+            return uploadedAttachment;
         }
         catch (Exception ex)
         {
@@ -56,15 +61,14 @@ public class AttachmentService : IAttachmentService
         }
     }
 
-    public async Task<List<AttachmentDetails>?> GetAllLinkedFiles(LinkType linkType, Guid linkId, Guid applicationId)
+    public async Task<List<AttachmentDetails>> GetAllLinkedFiles(LinkType linkType, Guid linkId, Guid applicationId)
     {
         try
         {
-            var sessionKey = $"{SessionKeys.UploadedFiles}/{linkType}/{linkId}";
-
-            if (_sessionService.HasInSession(sessionKey))
+            var memoryCacheKey = $"{MemoryCacheKeys.UploadedFilesByQuestion}:{linkType}:{linkId}:{applicationId}";
+            if (_memoryCacheService.HasInMemoryCache(memoryCacheKey))
             {
-                return _sessionService.GetFromSession<List<AttachmentDetails>>(sessionKey);
+                return _memoryCacheService.Get<List<AttachmentDetails>>(memoryCacheKey) ?? new List<AttachmentDetails>();
             }
 
             var client = await _client.GetClientAsync();
@@ -76,13 +80,13 @@ public class AttachmentService : IAttachmentService
                 result = new List<AttachmentDetails>();
             }
 
-            _sessionService.SetInSession(sessionKey, result);
+            _memoryCacheService.Set(memoryCacheKey, result);
             return result;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving linked files for LinkType: {LinkType}, LinkId: {LinkId}, ApplicationId: {AppId}", linkType, linkId, applicationId);
-            return null;
+            return new List<AttachmentDetails>();
         }
     }
 
@@ -112,6 +116,7 @@ public class AttachmentService : IAttachmentService
     {
         try
         {
+            var cacheKey = $"{MemoryCacheKeys.UploadedFilesByQuestion}:{linkType}:{linkId}:{applicationId}";
             var client = await _client.GetClientAsync();
 
             var response = await client.DeleteAsync($"/files/linked/{linkType}/{linkId}/attachment/{attachmentId}/application/{applicationId}");
@@ -121,6 +126,7 @@ public class AttachmentService : IAttachmentService
                 return false;
             }
 
+            _memoryCacheService.RemoveFromList<AttachmentDetails>(cacheKey, a => a.AttachmentId == attachmentId);
             return true;
         }
         catch (Exception ex)
