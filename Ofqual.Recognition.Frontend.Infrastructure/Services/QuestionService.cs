@@ -19,23 +19,23 @@ public class QuestionService : IQuestionService
         _sessionService = sessionService;
     }
 
-    public async Task<QuestionDetails?> GetQuestionDetails(string taskName, string questionName)
+    public async Task<QuestionDetails?> GetQuestionDetails(string taskNameUrl, string questionNameUrl)
     {
         try
         {
-            var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}/{taskName}/{questionName}";
-            
+            var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}/{taskNameUrl}/{questionNameUrl}";
+
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
             }
 
-            var client = _client.GetClient();
-            var result = await client.GetFromJsonAsync<QuestionDetails>($"/questions/{taskName}/{questionName}");
+            var client = await _client.GetClientAsync();
+            var result = await client.GetFromJsonAsync<QuestionDetails>($"/questions/{taskNameUrl}/{questionNameUrl}");
 
             if (result == null)
             {
-                Log.Warning("No question found with URL: {taskName}/{questionName}", taskName, questionName);
+                Log.Warning("No question found with URL: {taskName}/{questionName}", taskNameUrl, questionNameUrl);
                 return result;
             }
 
@@ -44,39 +44,43 @@ public class QuestionService : IQuestionService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while retrieving question for URL: {taskName}/{questionName}", taskName, questionName);
+            Log.Error(ex, "An error occurred while retrieving question for URL: {taskName}/{questionName}", taskNameUrl, questionNameUrl);
             return null;
         }
     }
 
-    public async Task<QuestionAnswerSubmissionResponse?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
+    public async Task<ValidationResponse?> SubmitQuestionAnswer(Guid applicationId, Guid taskId, Guid questionId, string answer)
     {
         try
         {
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var payload = new QuestionAnswerSubmission
             {
                 Answer = answer
             };
 
             var response = await client.PostAsJsonAsync($"/applications/{applicationId}/tasks/{taskId}/questions/{questionId}", payload);
-
-            if (!response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                Log.Warning("Failed to submit answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
+                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
+                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
+                _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
+
+                return new ValidationResponse();
+            }
+
+            var validationResponse = await response.Content.ReadFromJsonAsync<ValidationResponse>();
+            if (validationResponse == null)
+            {
+                Log.Warning("Unable to deserialise the validation response from the application answer submission. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}, StatusCode: {StatusCode}, Reason: {ReasonPhrase}", questionId, taskId, applicationId, response.StatusCode, response.ReasonPhrase);
                 return null;
             }
 
-            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
-            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
-            _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);            
-            
-            var result = await response.Content.ReadFromJsonAsync<QuestionAnswerSubmissionResponse>();
-            return result;
+            return validationResponse;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while submitting answer for question {QuestionId} in task {TaskId} of application {ApplicationId}", questionId, taskId, applicationId);
+            Log.Error(ex, "An error occurred while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}", questionId, taskId, applicationId);
             return null;
         }
     }
@@ -92,7 +96,7 @@ public class QuestionService : IQuestionService
                 return _sessionService.GetFromSession<List<QuestionAnswerSection>>(sessionKey);
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<List<QuestionAnswerSection>>($"/applications/{applicationId}/tasks/{taskId}/questions/answers");
 
             if (result == null)
@@ -119,21 +123,21 @@ public class QuestionService : IQuestionService
 
             if (_sessionService.HasInSession(sessionKey))
             {
-               return _sessionService.GetFromSession<QuestionAnswer>(sessionKey);
+                return _sessionService.GetFromSession<QuestionAnswer>(sessionKey);
             }
 
-            var client = _client.GetClient();
+            var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<QuestionAnswer>($"/applications/{applicationId}/questions/{questionId}/answer");
 
             if (result == null)
-            { 
+            {
                 Log.Warning("No question answer found for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
                 return null;
             }
 
             _sessionService.SetInSession(sessionKey, result);
             return result;
-        } 
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving answers for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);

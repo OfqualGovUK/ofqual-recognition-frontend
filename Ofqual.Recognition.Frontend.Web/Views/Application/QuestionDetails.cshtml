@@ -5,12 +5,14 @@
 
 @{
     var currentTaskNameUrl = QuestionUrlHelper.Parse(Model.CurrentQuestionUrl)!.Value.taskNameUrl;
-
+    
     var backLinkUrl = Model.FromReview
         ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{currentTaskNameUrl}/review-your-answers"
-        : (Model.PreviousQuestionUrl != null
-            ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.PreviousQuestionUrl}"
-            : RouteConstants.ApplicationConstants.TASK_LIST_PATH);
+        : Model.PreviousQuestionUrl != null
+        ? $"../{Model.PreviousQuestionUrl}"
+        : Model.FromPreEngagement
+        ? RouteConstants.PreEngagementConstants.PRE_ENGAGEMENT_PATH
+        : RouteConstants.ApplicationConstants.TASK_LIST_PATH;
 }
 
 @section BackLink {
@@ -18,29 +20,13 @@
 }
 
 <div class="govuk-grid-row">
-
     <div class="govuk-grid-column-two-thirds">
+        @await Html.PartialAsync($"~/Views/Shared/Question/Validation/_ErrorSummary.cshtml", Model.Validation)      
 
-        @if (!string.IsNullOrEmpty(Model.QuestionContent.Heading))
-        {
-            <h1 class="govuk-heading-l">@Model.QuestionContent.Heading</h1>
-        }
+        @await Html.PartialAsync($"~/Views/Shared/Question/Body/_Body.cshtml", Model.QuestionContent.Body)
 
-        @await Html.PartialAsync($"~/Views/PartialViews/_BodyPartial.cshtml", Model)
-
-        @if (Model.QuestionContent.FormGroup != null)
-        {
-            <form class="form" method="post">
-
-                @await Html.PartialAsync($"~/Views/PartialViews/_{Model.QuestionTypeName}Partial.cshtml", Model)
-
-                @Html.AntiForgeryToken()
-                @await Html.PartialAsync($"~/Views/PartialViews/_ButtonGroupPartial.cshtml", Model)
-
-            </form>
-        }
+        @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/_FormGroup.cshtml", Model)
     </div>
 
-    @await Html.PartialAsync($"~/Views/PartialViews/_HelpPartial.cshtml", Model)
-
+    @await Html.PartialAsync($"~/Views/Shared/Question/Sidebar/_Sidebar.cshtml", Model.QuestionContent.Sidebar)
 </div>

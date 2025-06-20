@@ -1,0 +1,29 @@
+@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Enums
+@model List<BodyItemViewModel>
+
+@if (Model?.Any() == true)
+{
+    foreach (var item in Model)
+    {
+        switch (item.Type)
+        {
+            case BodyItemType.Heading when item.HeadingContent is not null:
+                @await Html.PartialAsync("~/Views/Shared/Question/Body/Items/_Heading.cshtml", item.HeadingContent)
+                break;
+
+            case BodyItemType.Paragraph when item.ParagraphContent is not null:
+                @await Html.PartialAsync("~/Views/Shared/Question/Body/Items/_Paragraph.cshtml", item.ParagraphContent)
+                break;
+
+            case BodyItemType.List when item.ListContent is not null:
+                @await Html.PartialAsync("~/Views/Shared/Question/Body/Items/_List.cshtml", item.ListContent)
+                break;
+
+            case BodyItemType.Button when item.ButtonContent is not null:
+                @await Html.PartialAsync("~/Views/Shared/Question/Body/Items/_Button.cshtml", item.ButtonContent)
+                break;
+        }
+    }
+}

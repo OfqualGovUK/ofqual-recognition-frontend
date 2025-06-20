@@ -1,0 +1,34 @@
+@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Enums
+@model HelpItemViewModel
+
+<div class="govuk-inset-text">
+    <h3 class="govuk-heading-s">Help with this section</h3>
+
+    @if (Model.Links?.Any() == true)
+    {
+        foreach (var link in Model.Links)
+        {
+            <p class="govuk-body-s">
+                <a href="@link.Url" class="govuk-link" target="_blank">@link.Text (opens in a new tab)</a>
+            </p>
+        }
+    }
+
+    @if (Model.Content?.Any() == true)
+    {
+        foreach (var block in Model.Content)
+        {
+            switch (block.Type)
+            {
+                case BodyItemType.Heading:
+                    @await Html.PartialAsync("~/Views/Shared/Question/Body/Items/_Heading.cshtml", block.HeadingContent)
+                    break;
+                case BodyItemType.Paragraph:
+                    @await Html.PartialAsync("~/Views/Shared/Question/Body/Items/_Paragraph.cshtml", block.ParagraphContent)
+                    break;
+            }
+        }
+    }
+</div>

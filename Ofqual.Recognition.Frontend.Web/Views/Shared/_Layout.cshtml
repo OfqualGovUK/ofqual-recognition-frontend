@@ -3,7 +3,6 @@
     ViewData["HeaderTitle"] = "Apply to have your qualifications regulated";
     ViewData["FeedBackUrl"] = $"https://forms.office.com/Pages/ResponsePage.aspx?id=aWQzjmscC0ugbHSKfFhvfATsksjOCgNFm2yr1lfODUxUQVlHNUFXNEFRSjJBNTlKRUwzQ1lQVEVONSQlQCN0PWcu&rffa74bd1e4fe42d88ef9994c4304d570={ViewData["HeaderTitle"]}";
 
-
     Layout = "_GovUkPageTemplate";
 }
 
@@ -25,10 +24,10 @@
         })();
     </script>
     <!-- End Matomo -->
-    @await Html.PartialAsync("_AnalyticsCookieBannerPartial.cshtml")
-    @await Html.PartialAsync("_HeaderPartial.cshtml")
+    @await Html.PartialAsync("Layout/_AnalyticsCookieBanner.cshtml")
+    @await Html.PartialAsync("Layout/_Header.cshtml")
     <div class="govuk-width-container">
-        @await Html.PartialAsync("_PhaseBannerPartial.cshtml")
+        @await Html.PartialAsync("Layout/_PhaseBanner.cshtml")
         @await RenderSectionAsync("Backlink", required: false)
     </div>
 }
@@ -36,7 +35,7 @@
 @RenderBody()
 
 @section Footer {
-    @await Html.PartialAsync("_FooterPartial.cshtml")
+    @await Html.PartialAsync("Layout/_Footer.cshtml")
     @await RenderSectionAsync("Scripts", required: false)
     <script type="text/javascript" src="~/js/analytics.js" asp-append-version="true"></script>
     <script type="text/javascript">

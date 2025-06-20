@@ -47,38 +47,57 @@ public class SessionServiceTests
         _sessionMock.Verify(s => s.Set(key, It.Is<byte[]>(b => b.SequenceEqual(expectedBytes))), Times.Once);
     }
 
-    [Theory]
+    [Fact]
     [Trait("Category", "Unit")]
-    [MemberData(nameof(SessionServiceTestCases.GetFromSessionTestCases), MemberType = typeof(SessionServiceTestCases))]
-    public void GetFromSession_ShouldReturnExpectedResult(string key, SessionServiceTestCases.TestData? testData, bool isSessionNull)
+    public void GetFromSession_ShouldReturnNull_WhenSessionIsNull()
     {
-        if (isSessionNull)
-        {
-            _httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext)null!);
-        }
-        else
-        {
-            byte[]? sessionBytes = testData != null
-                ? Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(testData))
-                : null;
+        // Arrange
+        _httpContextAccessorMock.Setup(x => x.HttpContext).Returns((HttpContext?)null);
 
-            _sessionMock.Setup(s => s.TryGetValue(key, out sessionBytes))
-                        .Returns(sessionBytes != null);
-        }
+        var service = new SessionService(_httpContextAccessorMock.Object);
+
+        // Act
+        var result = service.GetFromSession<SessionServiceTestCases.TestData>("anyKey");
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GetFromSession_ShouldReturnNull_WhenKeyNotFound()
+    {
+        // Arrange
+        var key = "missingKey";
+        byte[]? outBytes = null;
+
+        _sessionMock.Setup(s => s.TryGetValue(key, out outBytes)).Returns(false);
 
         // Act
         var result = _sessionService.GetFromSession<SessionServiceTestCases.TestData>(key);
 
         // Assert
-        if (isSessionNull || testData == null)
-        {
-            Assert.Null(result);
-        }
-        else
-        {
-            Assert.NotNull(result);
-            Assert.Equal(testData.Name, result!.Name);
-        }
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void GetFromSession_ShouldReturnDeserializedObject_WhenKeyExists()
+    {
+        // Arrange
+        var key = "validKey";
+        var testData = new SessionServiceTestCases.TestData { Name = "Expected" };
+        var jsonData = JsonConvert.SerializeObject(testData);
+        var bytes = Encoding.UTF8.GetBytes(jsonData);
+
+        byte[]? outBytes = bytes;
+        _sessionMock.Setup(s => s.TryGetValue(key, out outBytes)).Returns(true);
+
+        // Act
+        var result = _sessionService.GetFromSession<SessionServiceTestCases.TestData>(key);
+        
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("Expected", result!.Name);
     }
 
     [Theory]
@@ -117,6 +136,21 @@ public class SessionServiceTests
         _sessionMock.Verify(s => s.Remove(key), Times.Once);
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ClearAllSession_ShouldClearAllSessionData()
+    {
+        // Arrange
+        _sessionMock.Setup(s => s.Clear())
+            .Verifiable();
+
+        // Act
+        _sessionService.ClearAllSession();
+
+        // Assert
+        _sessionMock.Verify(s => s.Clear(), Times.Once);
+    }
+
     [Theory]
     [Trait("Category", "Unit")]
     [InlineData(TaskStatusEnum.CannotStartYet, TaskStatusEnum.Completed)]
@@ -125,7 +159,7 @@ public class SessionServiceTests
     {
         // Arrange
         var taskId = Guid.NewGuid();
-        
+
         var task = new TaskItemStatus
         {
             TaskId = taskId,
@@ -133,7 +167,7 @@ public class SessionServiceTests
             Status = originalStatus,
             FirstQuestionURL = "/application-details/contact-details"
         };
-        
+
         var section = new TaskItemStatusSection
         {
             SectionId = Guid.NewGuid(),
@@ -147,11 +181,11 @@ public class SessionServiceTests
 
         _sessionMock.Setup(s => s.TryGetValue(SessionKeys.ApplicationTaskList, out sessionBytes))
             .Returns(true);
-        
+
         byte[]? updatedBytes = null;
         _sessionMock.Setup(s => s.Set(SessionKeys.ApplicationTaskList, It.IsAny<byte[]>()))
             .Callback<string, byte[]>((_, bytes) => updatedBytes = bytes);
-        
+
         // Act
         _sessionService.UpdateTaskStatusInSession(taskId, newStatus);
 
@@ -263,5 +297,96 @@ public class SessionServiceTests
 
         // Assert
         Assert.Null(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void UpsertPreEngagementAnswer_ShouldAddNewAnswer_WhenNotExists()
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var answerJson = "{\"value\":\"test\"}";
+
+        byte[]? sessionBytes = null;
+        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.PreEngagementAnswers, out sessionBytes))
+            .Returns(false);
+
+        byte[]? storedBytes = null;
+        _sessionMock.Setup(s => s.Set(SessionKeys.PreEngagementAnswers, It.IsAny<byte[]>()))
+            .Callback<string, byte[]>((_, bytes) => storedBytes = bytes);
+
+        // Act
+        _sessionService.UpsertPreEngagementAnswer(questionId, taskId, answerJson);
+
+        // Assert
+        Assert.NotNull(storedBytes);
+        var stored = JsonConvert.DeserializeObject<List<PreEngagementAnswer>>(Encoding.UTF8.GetString(storedBytes!));
+        Assert.Single(stored!);
+        Assert.Equal(questionId, stored[0].QuestionId);
+        Assert.Equal(taskId, stored[0].TaskId);
+        Assert.Equal(answerJson, stored[0].AnswerJson);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    [Trait("Category", "Unit")]
+    public void UpsertPreEngagementAnswer_ShouldThrowException_WhenAnswerIsNullOrWhiteSpace(string? badJson)
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() =>
+            _sessionService.UpsertPreEngagementAnswer(questionId, taskId, badJson!));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void UpsertPreEngagementAnswer_ShouldNotUpdate_WhenJsonIsEmptyObject()
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var emptyJson = "{}";
+
+        // Act
+        _sessionService.UpsertPreEngagementAnswer(questionId, taskId, emptyJson);
+
+        // Assert
+        _sessionMock.Verify(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()), Times.Never);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void UpsertPreEngagementAnswer_ShouldNotSet_WhenAnswerUnchanged()
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var answerJson = "{\"value\":\"same\"}";
+
+        var existing = new List<PreEngagementAnswer>
+        {
+            new PreEngagementAnswer { QuestionId = questionId, TaskId = taskId, AnswerJson = answerJson }
+        };
+
+        var serialized = JsonConvert.SerializeObject(existing);
+        var sessionBytes = Encoding.UTF8.GetBytes(serialized);
+
+        _sessionMock.Setup(s => s.TryGetValue(SessionKeys.PreEngagementAnswers, out sessionBytes))
+            .Returns(true);
+
+        _sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+            .Verifiable();
+
+        // Act
+        _sessionService.UpsertPreEngagementAnswer(questionId, taskId, answerJson);
+
+        // Assert
+        _sessionMock.Verify(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()), Times.Never);
     }
 }

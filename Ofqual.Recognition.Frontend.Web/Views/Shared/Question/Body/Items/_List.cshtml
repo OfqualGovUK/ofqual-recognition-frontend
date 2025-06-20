@@ -1,0 +1,18 @@
+@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Enums
+@model ListContentViewModel
+
+@{
+    var tag = Model.Style == BodyListStyle.Numbered ? "ol" : "ul";
+    var cssClass = $"govuk-list {Model.Style.ToGovUkClass()}";
+}
+
+<text>
+    @Html.Raw($"<{tag} class=\"{cssClass}\">")
+    @foreach (var item in Model.Items ?? Enumerable.Empty<string>())
+    {
+        @Html.Raw($"<li>{item}</li>")
+    }
+    @Html.Raw($"</{tag}>")
+</text>

@@ -5,53 +5,56 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
 using Serilog;
 
-namespace Ofqual.Recognition.Frontend.Infrastructure.Services
+namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
+
+public class ApplicationService : IApplicationService
 {
-    public class ApplicationService : IApplicationService
+    private readonly IRecognitionCitizenClient _client;
+    private readonly ISessionService _sessionService;
+
+    public ApplicationService(IRecognitionCitizenClient client, ISessionService sessionService)
     {
-        private readonly IRecognitionCitizenClient _client;
-        private readonly ISessionService _sessionService;
+        _client = client;
+        _sessionService = sessionService;
+    }
 
-        public ApplicationService(IRecognitionCitizenClient client, ISessionService sessionService)
+    public async Task<Application?> SetUpApplication()
+    {
+        try
         {
-            _client = client;
-            _sessionService = sessionService;
-        }
+            var applicationSessionKey = SessionKeys.Application;
+            var preEngagementAnswersSessionKey = SessionKeys.PreEngagementAnswers;
 
-        public async Task<Application?> SetUpApplication()
-        {
-            try
+            if (_sessionService.HasInSession(applicationSessionKey))
             {
-                var sessionKey = SessionKeys.Application;
-
-                if (_sessionService.HasInSession(sessionKey))
-                {
-                    return _sessionService.GetFromSession<Application>(sessionKey);
-                }
-
-                var client = _client.GetClient();
-                var response = await client.PostAsync("/applications", null);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Log.Warning("API request to create application failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
-                    return null;
-                }
-
-                var result = await response.Content.ReadFromJsonAsync<Application>();
-
-                if (result != null)
-                {
-                    _sessionService.SetInSession(sessionKey, result);
-                }
-
-                return result;
+                return _sessionService.GetFromSession<Application>(applicationSessionKey);
             }
-            catch (Exception ex)
+
+            var preEngagementAnswers = _sessionService.GetFromSession<List<PreEngagementAnswer>>(preEngagementAnswersSessionKey);
+
+            var client = await _client.GetClientAsync();
+            var response = await client.PostAsJsonAsync("/applications", preEngagementAnswers);
+
+            if (!response.IsSuccessStatusCode)
             {
-                Log.Error(ex, "An unexpected error occurred while setting up the application.");
+                Log.Warning("API request to create application failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
                 return null;
             }
+
+            var result = await response.Content.ReadFromJsonAsync<Application>();
+
+            if (result != null)
+            {
+                _sessionService.SetInSession(applicationSessionKey, result);
+                _sessionService.ClearFromSession(preEngagementAnswersSessionKey);
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An unexpected error occurred while setting up the application.");
+            return null;
         }
     }
 }

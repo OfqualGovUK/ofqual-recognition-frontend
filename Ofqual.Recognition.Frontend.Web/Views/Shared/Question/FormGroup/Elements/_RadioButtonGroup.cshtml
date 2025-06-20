@@ -1,0 +1,121 @@
+@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@model QuestionViewModel
+
+@{
+    var radioBtnGroup = Model?.QuestionContent?.FormGroup?.RadioButtonGroup;
+    var options = radioBtnGroup?.Options;
+    var fieldName = radioBtnGroup?.Name;
+
+    var hintId = $"{fieldName}-hint";
+    var errorId = $"{fieldName}-error";
+    var selectedValue = ViewHelpers.GetAnswerValue(fieldName, Model?.AnswerJson);
+    var error = Model?.Validation?.Errors?.FirstOrDefault(e => e.PropertyName == fieldName);
+    var hasError = error != null;
+
+    var describedByParts = new List<string>();
+    if (!string.IsNullOrWhiteSpace(radioBtnGroup?.Hint)) describedByParts.Add(hintId);
+    if (hasError) describedByParts.Add(errorId);
+    var describedBy = string.Join(" ", describedByParts);
+}
+
+@if (options?.Any() == true)
+{
+    <div class="govuk-form-group @(hasError ? "govuk-form-group--error" : "")">
+        <fieldset class="govuk-fieldset" aria-describedby="@describedBy">
+
+            @if (!string.IsNullOrEmpty(radioBtnGroup?.Heading?.Text))
+            {
+                var size = radioBtnGroup.Heading.Size;
+                var headingTag = size.ToHeadingTag();
+                var headingText = radioBtnGroup.Heading.Text;
+                var legendClass = size.ToGovUkLegendClass();
+
+                <legend class="govuk-fieldset__legend @legendClass">
+                    <text>
+                        @Html.Raw($"<{headingTag} class=\"govuk-fieldset__heading\">{headingText}</{headingTag}>")
+                    </text>
+                </legend>
+            }
+
+            @if (!string.IsNullOrEmpty(radioBtnGroup?.Hint))
+            {
+                <div id="@hintId" class="govuk-hint">@radioBtnGroup.Hint</div>
+            }
+
+            @if (hasError)
+            {
+                <p id="@errorId" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> @error!.ErrorMessage
+                </p>
+            }
+
+            @if (!string.IsNullOrEmpty(radioBtnGroup?.Paragraph))
+            {
+                <p class="govuk-body">@radioBtnGroup.Paragraph</p>
+            }
+
+            <div class="govuk-radios" data-module="govuk-radios">
+                @for (int i = 0; i < options.Count; i++)
+                {
+                    var option = options[i];
+                    var optionId = i == 0 ? fieldName : $"{fieldName}-{i}";
+                    var optionHintId = $"{optionId}-hint";
+                    var hasConditional = (option.ConditionalInputs?.Any() ?? false) || (option.ConditionalSelects?.Any() ?? false);
+                    var conditionalId = $"{optionId}-conditional";
+
+                    <div class="govuk-radios__item">
+                        <input class="govuk-radios__input"
+                               id="@optionId"
+                               name="@fieldName"
+                               type="radio"
+                               value="@option.Value"
+                               data-aria-controls="@(hasConditional ? conditionalId : null)"
+                               aria-describedby="@(string.IsNullOrEmpty(option.Hint) ? null : optionHintId)"
+                               @(option.Value == selectedValue ? "checked" : "") />
+
+                        <label class="govuk-label govuk-radios__label" for="@optionId">@option.Label</label>
+
+                        @if (!string.IsNullOrEmpty(option.Hint))
+                        {
+                            <div id="@optionHintId" class="govuk-hint govuk-radios__hint">@option.Hint</div>
+                        }
+                    
+
+                        @if (hasConditional)
+                        {
+                            <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="@conditionalId">
+                                @if (option.ConditionalInputs != null)
+                                {
+                                    foreach (var input in option.ConditionalInputs)
+                                    {
+                                        @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Conditionals/_TextInput.cshtml", new ConditionalTextInputViewModel
+                                        {
+                                            Input = input,
+                                            AnswerJson = Model?.AnswerJson,
+                                            Errors = Model?.Validation?.Errors
+                                        })
+                                    }
+                                }
+
+                                @if (option.ConditionalSelects != null)
+                                {
+                                    foreach (var select in option.ConditionalSelects)
+                                    {
+                                        @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Conditionals/_Select.cshtml", new ConditionalSelectViewModel
+                                        {
+                                            Select = select,
+                                            AnswerJson = Model?.AnswerJson,
+                                            Errors = Model?.Validation?.Errors
+                                        })
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </fieldset>
+    </div>
+}

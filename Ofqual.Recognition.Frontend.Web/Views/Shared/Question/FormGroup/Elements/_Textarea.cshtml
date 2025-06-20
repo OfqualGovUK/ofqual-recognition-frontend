@@ -1,0 +1,71 @@
+﻿@using Ofqual.Recognition.Frontend.Core.Extensions
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@model QuestionViewModel
+
+@{
+    var textarea = Model?.QuestionContent?.FormGroup?.Textarea;
+    var validation = textarea?.Validation;
+
+    var countWords = validation?.CountWords == true;
+    var maxLimit = validation?.MaxLength;
+    var infoId = $"{textarea?.Name}-info";
+    var hintId = $"{textarea?.Name}-hint";
+    var errorId = $"{textarea?.Name}-error";
+    var value = ViewHelpers.GetAnswerValue(textarea?.Name, Model?.AnswerJson);
+    var error = Model?.Validation?.Errors?.FirstOrDefault(e => e.PropertyName == textarea?.Name);
+    var hasError = error != null;
+
+    var describedByParts = new List<string>();
+    if (!string.IsNullOrWhiteSpace(textarea?.Hint)) describedByParts.Add(hintId);
+    if (hasError) describedByParts.Add(errorId);
+    if (maxLimit.HasValue) describedByParts.Add(infoId);
+    var describedBy = string.Join(" ", describedByParts);
+}
+
+@if (textarea != null)
+{
+    <div class="govuk-form-group govuk-character-count @(hasError ? "govuk-form-group--error" : "")"
+         data-module="govuk-character-count"
+         @(countWords && maxLimit.HasValue ? $"data-maxwords={maxLimit}" : "")
+         @(!countWords && maxLimit.HasValue ? $"data-maxlength={maxLimit}" : "")>
+
+        @if (!string.IsNullOrEmpty(textarea.Label?.Text))
+        {
+            var labelSize = textarea.Label.Size;
+            var labelTag = labelSize.ToHeadingTag();
+            var labelClass = labelSize.ToGovUkLabelClass();
+            var labelText = textarea.Label.Text;
+
+            <text>
+                @Html.Raw($"<{labelTag} class=\"govuk-label-wrapper\"><label class=\"govuk-label {labelClass}\" for=\"{textarea.Name}\">{labelText}</label></{labelTag}>")
+            </text>
+        }
+
+        @if (!string.IsNullOrEmpty(textarea.Hint))
+        {
+            <div id="@hintId" class="govuk-hint">@textarea.Hint</div>
+        }
+
+        @if (hasError)
+        {
+            <p id="@errorId" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> @error!.ErrorMessage
+            </p>
+        }
+
+        <textarea class="govuk-textarea govuk-js-character-count @(hasError ? "govuk-textarea--error" : "")"
+                  id="@textarea.Name"
+                  name="@textarea.Name"
+                  spellcheck="@textarea.SpellCheck?.ToString().ToLower()"
+                  rows="@textarea.Rows"
+                  aria-describedby="@describedBy">@value</textarea>
+
+        @if (maxLimit.HasValue)
+        {
+            <div id="@infoId" class="govuk-hint govuk-character-count__message">
+                You can enter up to @maxLimit @(countWords ? "words" : "characters")
+            </div>
+        }
+    </div>
+}

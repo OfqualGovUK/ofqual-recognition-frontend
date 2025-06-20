@@ -5,7 +5,7 @@ namespace Ofqual.Recognition.Frontend.Core.Extensions;
 public static class TaskStatusEnumExtensions
 {
     /// <summary>
-    /// Gets the corresponding GOV.UK tag CSS class for a given task status.
+    /// Maps the task status to a GOV.UK tag class.
     /// </summary>
     public static string GetTagClass(this TaskStatusEnum status)
     {
@@ -20,7 +20,7 @@ public static class TaskStatusEnumExtensions
     }
 
     /// <summary>
-    /// Gets the user-friendly display name for a given task status.
+    /// Maps the task status to a user-friendly label.
     /// </summary>
     public static string GetDisplayName(this TaskStatusEnum status)
     {

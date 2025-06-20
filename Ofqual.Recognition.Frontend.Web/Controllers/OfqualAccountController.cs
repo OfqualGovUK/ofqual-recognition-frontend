@@ -1,26 +1,29 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Web.Stores;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
-using Ofqual.Recognition.Frontend.Core.Constants;
-
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 [AllowAnonymous]
 [Area("MicrosoftIdentity")]
-[Controller()]
+[Controller]
 [Route("[Area]/[Controller]/[Action]")]
 public class OfqualAccountController : Controller
 {
     private readonly IOptionsMonitor<MicrosoftIdentityOptions> _optionsMonitor;
-    
-    public OfqualAccountController(IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor)
+    private readonly ISessionService _sessionService;
+
+    public OfqualAccountController(IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, ISessionService sessionService)
     {
-        _optionsMonitor = optionsMonitor;        
+        _optionsMonitor = optionsMonitor;
+        _sessionService = sessionService;
     }
 
     [HttpGet("{scheme?}")]
@@ -29,7 +32,7 @@ public class OfqualAccountController : Controller
         scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
         var properties = new AuthenticationProperties
         {
-            RedirectUri = Url.Content("~/")
+            RedirectUri = Url.Content(RouteConstants.ApplicationConstants.APPLICATION_PATH)
         };
         properties.Items["policy"] = _optionsMonitor.CurrentValue.SignUpSignInPolicyId;
 
@@ -40,14 +43,19 @@ public class OfqualAccountController : Controller
     public async Task<IActionResult> SignOutAsync([FromRoute] string scheme)
     {
         scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+        var sessionId = HttpContext.Session.Id;
+
+        AttachmentStore.ClearAll(sessionId);
+        _sessionService.ClearAllSession();
 
         // obtain the id_token
         var idToken = await HttpContext.GetTokenAsync("id_token");
         // send the id_token value to the authentication middleware
         var properties = new AuthenticationProperties
         {
-            RedirectUri = Url.Content("~/home/signed-out")
+            RedirectUri = Url.Content(RouteConstants.AuthConstants.SIGNED_OUT_PATH)
         };
+
         properties.Items[AuthConstants.TokenHintIdentifier] = idToken;
 
         return SignOut(properties, CookieAuthenticationDefaults.AuthenticationScheme, scheme);
