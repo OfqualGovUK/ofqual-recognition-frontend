@@ -27,15 +27,15 @@ public class AttachmentService : IAttachmentService
         {
             var client = await _client.GetClientAsync();
 
-            using var content = new MultipartFormDataContent();
+ 
+           using var content = new MultipartFormDataContent();
 
             if (file != null && file.Length > 0)
             {
-                using var fileStream = file.OpenReadStream();
-                var fileContent = new StreamContent(fileStream)
-                {
-                    Headers = { ContentType = new MediaTypeHeaderValue(file.ContentType) }
-                };
+                var fileStream = file.OpenReadStream();
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                
                 content.Add(fileContent, "file", file.FileName);
             }
 
