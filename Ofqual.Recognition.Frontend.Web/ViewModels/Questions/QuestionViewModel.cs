@@ -8,6 +8,7 @@ public class QuestionViewModel
     public required QuestionContentViewModel QuestionContent { get; set; }
     public required string CurrentQuestionUrl { get; set; }
     public string? AnswerJson { get; set; }
+    public List<AttachmentDetailsViewModel>? Attachments { get; set; }
     public string? PreviousQuestionUrl { get; set; }
     public bool FromReview { get; set; }
     public bool FromPreEngagement { get; set; }

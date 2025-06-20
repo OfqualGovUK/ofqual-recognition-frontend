@@ -108,6 +108,7 @@ function handleFileSelection(file) {
   const status = errorMessage ? "failed" : "ready";
 
   filesMap.set(fileId, {
+    attachmentId: null,
     file,
     status,
     uploadPercent: 0,
@@ -180,7 +181,6 @@ async function uploadSingleFile(fileId) {
 
   const formData = new FormData();
   formData.append("file", entry.file);
-  formData.append("fileId", fileId);
 
   const xhr = new XMLHttpRequest();
   xhr.open("POST", `${window.location.pathname}/upload`);
@@ -196,10 +196,18 @@ async function uploadSingleFile(fileId) {
     if (xhr.readyState !== XMLHttpRequest.DONE) return;
 
     if (xhr.status === 200) {
-      entry.status = "uploaded";
-      entry.uploadPercent = 100;
-      entry.errorMessage = null;
-      clearFileErrorMessageSummary(fileId);
+      try {
+        const attachmentId = JSON.parse(xhr.responseText);
+        entry.status = "uploaded";
+        entry.uploadPercent = 100;
+        entry.errorMessage = null;
+        entry.attachmentId = attachmentId;
+        clearFileErrorMessageSummary(fileId);
+      } catch {
+        entry.status = "failed";
+        entry.errorMessage = "Upload succeeded but returned invalid response";
+        showFileErrorMessageSummary(fileId);
+      }
     } else {
       entry.status = "failed";
       entry.errorMessage = xhr.responseText || "Upload failed";
@@ -225,56 +233,66 @@ async function downloadSingleFile(target) {
   const fileId = target.closest(".ofqual-file-list__item")?.id;
   if (!fileId) return;
 
-  const response = await fetch(`${window.location.pathname}/download/${fileId}`, {
-    method: "GET",
-    headers: {
-      RequestVerificationToken: requestVerificationToken,
-    },
-  });
-
-  if (!response.ok) return;
-
-  const blob = await response.blob();
   const entry = filesMap.get(fileId);
-  const fileName = entry?.fileName || entry?.file?.name || "download";
+  if (!entry || !entry.attachmentId) return;
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+  try {
+    const response = await fetch(
+      `${window.location.pathname}/download/${entry.attachmentId}`,
+      {
+        method: "GET",
+        headers: {
+          RequestVerificationToken: requestVerificationToken,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Failed to download file");
+      return;
+    }
+
+    const blob = await response.blob();
+    const fileName = entry.fileName || entry.file?.name || "download";
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch {
+    console.error("Download failed");
+  }
 }
 
 async function deleteSingleFile(fileId) {
-  const formData = new FormData();
-  formData.append("fileId", fileId);
+  const entry = filesMap.get(fileId);
+  if (!entry || !entry.attachmentId) return;
 
   try {
-    const response = await fetch(`${window.location.pathname}/delete`, {
-      method: "POST",
-      body: formData,
-      headers: { RequestVerificationToken: requestVerificationToken },
-    });
+    const response = await fetch(
+      `${window.location.pathname}/delete/${entry.attachmentId}`,
+      {
+        method: "POST",
+        headers: {
+          RequestVerificationToken: requestVerificationToken,
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorMessage = await response.text();
-      const entry = filesMap.get(fileId);
-      if (entry) {
-        entry.status = "failed";
-        entry.errorMessage = errorMessage || "Failed to delete";
-        renderFileItem(fileId);
-      }
-    }
-  } catch {
-    const entry = filesMap.get(fileId);
-    if (entry) {
       entry.status = "failed";
-      entry.errorMessage = "Failed to remove";
+      entry.errorMessage = errorMessage || "Failed to delete";
       renderFileItem(fileId);
     }
+  } catch {
+    entry.status = "failed";
+    entry.errorMessage = "Failed to remove";
+    renderFileItem(fileId);
   }
 }
 
@@ -289,13 +307,17 @@ async function fetchAllFiles() {
 
     const attachments = await response.json();
 
-    for (const [fileId, fileInfo] of Object.entries(attachments)) {
+    for (const fileInfo of attachments) {
+      const fileId = crypto.randomUUID();
       filesMap.set(fileId, {
+        attachmentId: fileInfo.attachmentId,
         file: null,
-        fileName: fileInfo.fileName,
+        fileName: fileInfo.fieldName,
         fileSize: fileInfo.length,
         status: "uploaded",
+        uploadPercent: 100,
       });
+
       renderFileToList(fileId);
     }
 
@@ -502,9 +524,7 @@ function updateButtonState() {
   );
 
   submitButton.disabled =
-    hasErrors ||
-    totalSizeBytes > MAX_TOTAL_SIZE_BYTES ||
-    uploadingCount > 0;
+    hasErrors || totalSizeBytes > MAX_TOTAL_SIZE_BYTES || uploadingCount > 0;
 
   if (uploadingCount > 0) {
     submitButton.innerText = "Uploading...";

@@ -7,9 +7,9 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Ofqual.Recognition.Frontend.Web.Stores;
+using Newtonsoft.Json;
 using System.Text;
+using Moq;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
@@ -32,10 +32,7 @@ public class FileUploadControllerTests
         {
             ControllerContext = new ControllerContext
             {
-                HttpContext = new DefaultHttpContext
-                {
-                    Session = new FakeSession("test-session")
-                }
+                HttpContext = new DefaultHttpContext()
             }
         };
     }
@@ -45,7 +42,8 @@ public class FileUploadControllerTests
     public async Task SubmitFile_Returns_Unauthorised_When_Application_Is_Null()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns((Application?)null);
+        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns((Application?)null);
 
         // Act
         var result = await _controller.SubmitFile("task", "question", new List<IFormFile>());
@@ -59,8 +57,11 @@ public class FileUploadControllerTests
     public async Task SubmitFile_Returns_NotFound_When_Question_Is_Null()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(new Application());
-        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync((QuestionDetails?)null);
+        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(new Application());
+
+        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
+            .ReturnsAsync((QuestionDetails?)null);
 
         // Act
         var result = await _controller.SubmitFile("task", "question", new List<IFormFile>());
@@ -97,7 +98,8 @@ public class FileUploadControllerTests
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
-        Assert.NotEmpty(model.Validation!.Errors!);
+        Assert.NotEmpty(model.Validation?.Errors!);
+        Assert.Contains(model.Validation?.Errors!, e => e.ErrorMessage!.Contains("is empty"));
     }
 
     [Fact]
@@ -124,13 +126,16 @@ public class FileUploadControllerTests
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
-        _attachmentServiceMock.Setup(x => x.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file)).ReturnsAsync(new AttachmentDetails
-        {
-            AttachmentId = Guid.NewGuid(),
-            FileName = "file.txt",
-            FileMIMEtype = "text/plain",
-            FileSize = 100
-        });
+        _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
+        _attachmentServiceMock.Setup(x => x.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
+            .ReturnsAsync(new AttachmentDetails
+            {
+                AttachmentId = Guid.NewGuid(),
+                FileName = "file.txt",
+                FileMIMEtype = "text/plain",
+                FileSize = 100
+            });
         _taskServiceMock.Setup(x => x.UpdateTaskStatus(application.ApplicationId, question.TaskId, TaskStatusEnum.InProgress)).ReturnsAsync(true);
 
         // Act
@@ -165,13 +170,16 @@ public class FileUploadControllerTests
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
-        _attachmentServiceMock.Setup(x => x.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file)).ReturnsAsync(new AttachmentDetails
-        {
-            AttachmentId = Guid.NewGuid(),
-            FileName = "file.txt",
-            FileMIMEtype = "text/plain",
-            FileSize = 100
-        });
+        _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
+        _attachmentServiceMock.Setup(x => x.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
+            .ReturnsAsync(new AttachmentDetails
+            {
+                AttachmentId = Guid.NewGuid(),
+                FileName = "file.txt",
+                FileMIMEtype = "text/plain",
+                FileSize = 100
+            });
         _taskServiceMock.Setup(x => x.UpdateTaskStatus(application.ApplicationId, question.TaskId, TaskStatusEnum.InProgress)).ReturnsAsync(false);
 
         // Act
@@ -186,10 +194,11 @@ public class FileUploadControllerTests
     public async Task UploadFile_ReturnsUnauthorised_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns((Application?)null);
+        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns((Application?)null);
 
         // Act
-        var result = await _controller.UploadFile("task", "question", null!, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", null!);
 
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
@@ -200,11 +209,14 @@ public class FileUploadControllerTests
     public async Task UploadFile_ReturnsNotFound_WhenQuestionDetailsIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(new Application());
-        _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync((QuestionDetails?)null);
+        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(new Application());
+
+        _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
+            .ReturnsAsync((QuestionDetails?)null);
 
         // Act
-        var result = await _controller.UploadFile("task", "question", null!, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", null!);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -235,7 +247,7 @@ public class FileUploadControllerTests
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
 
         // Act
-        var result = await _controller.UploadFile("task", "question", file, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -267,7 +279,7 @@ public class FileUploadControllerTests
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
 
         // Act
-        var result = await _controller.UploadFile("task", "question", file, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -299,7 +311,7 @@ public class FileUploadControllerTests
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
 
         // Act
-        var result = await _controller.UploadFile("task", "question", file, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -329,19 +341,21 @@ public class FileUploadControllerTests
             ContentType = "text/plain"
         };
 
-        AttachmentStore.TryAdd("test-session", questionId, Guid.NewGuid(), new AttachmentDetails
+        var existingAttachment = new AttachmentDetails
         {
             AttachmentId = Guid.NewGuid(),
             FileName = "file.txt",
-            FileMIMEtype = "text/plain",
-            FileSize = 100
-        });
+            FileSize = 100,
+            FileMIMEtype = "text/plain"
+        };
 
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        _attachmentServiceMock.Setup(a => a.GetAllLinkedFiles(LinkType.Question, questionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails> { existingAttachment });
 
         // Act
-        var result = await _controller.UploadFile("task", "question", file, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -371,11 +385,13 @@ public class FileUploadControllerTests
 
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        _attachmentServiceMock.Setup(a => a.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
         _attachmentServiceMock.Setup(a => a.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
-                              .ReturnsAsync((AttachmentDetails?)null);
+            .ReturnsAsync((AttachmentDetails?)null);
 
         // Act
-        var result = await _controller.UploadFile("task", "question", file, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -413,13 +429,15 @@ public class FileUploadControllerTests
 
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        _attachmentServiceMock.Setup(a => a.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
         _attachmentServiceMock.Setup(a => a.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
-                              .ReturnsAsync(attachment);
+            .ReturnsAsync(attachment);
         _taskServiceMock.Setup(t => t.UpdateTaskStatus(application.ApplicationId, question.TaskId, TaskStatusEnum.InProgress))
-                        .ReturnsAsync(false);
+            .ReturnsAsync(false);
 
         // Act
-        var result = await _controller.UploadFile("task", "question", file, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
         Assert.IsType<BadRequestResult>(result);
@@ -456,22 +474,24 @@ public class FileUploadControllerTests
 
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        _attachmentServiceMock.Setup(a => a.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
         _attachmentServiceMock.Setup(a => a.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
-                              .ReturnsAsync(attachment);
+            .ReturnsAsync(attachment);
         _taskServiceMock.Setup(t => t.UpdateTaskStatus(application.ApplicationId, question.TaskId, TaskStatusEnum.InProgress))
-                        .ReturnsAsync(true);
+            .ReturnsAsync(true);
 
         // Act
-        var result = await _controller.UploadFile("task", "question", file, Guid.NewGuid());
+        var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal("File uploaded successfully.", ok.Value);
+        Assert.Equal(attachment.AttachmentId, ok.Value);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task DeleteFile_ReturnsUnauthorized_WhenApplicationIsNull()
+    public async Task DeleteFile_ReturnsUnauthorised_WhenApplicationIsNull()
     {
         // Arrange
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
@@ -504,101 +524,19 @@ public class FileUploadControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task DeleteFile_ReturnsNotFound_WhenAttachmentNotFound()
-    {
-        // Arrange
-        var questionId = Guid.NewGuid();
-
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
-
-        _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
-            .ReturnsAsync(new QuestionDetails
-            {
-                QuestionId = questionId,
-                TaskId = Guid.NewGuid(),
-                QuestionTypeName = "File",
-                QuestionContent = "{}",
-                CurrentQuestionUrl = "task/question"
-            });
-
-        AttachmentStore.Clear("test-session", questionId); // Ensure file is not found
-
-        // Act
-        var result = await _controller.DeleteFile("task", "question", Guid.NewGuid());
-
-        // Assert
-        var notFound = Assert.IsType<NotFoundObjectResult>(result);
-        Assert.Equal("File not found.", notFound.Value);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
     public async Task DeleteFile_ReturnsBadRequest_WhenDeletionFails()
     {
         // Arrange
-        var fileId = Guid.NewGuid();
         var questionId = Guid.NewGuid();
+        var attachmentId = Guid.NewGuid();
         var application = new Application { ApplicationId = Guid.NewGuid() };
-        var attachment = new AttachmentDetails
-        {
-            AttachmentId = Guid.NewGuid(),
-            FileName = "test.txt",
-            FileSize = 1000,
-            FileMIMEtype = "text/plain"
-        };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
-
-        _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
-            .ReturnsAsync(new QuestionDetails
-            {
-                QuestionId = questionId,
-                TaskId = Guid.NewGuid(),
-                QuestionTypeName = "File",
-                QuestionContent = "{}",
-                CurrentQuestionUrl = "task/question"
-            });
-
-        AttachmentStore.Clear("test-session", questionId);
-        AttachmentStore.TryAdd("test-session", questionId, fileId, attachment);
-
-        _attachmentServiceMock.Setup(a =>
-            a.DeleteLinkedFile(LinkType.Question, questionId, attachment.AttachmentId, application.ApplicationId))
-            .ReturnsAsync(false);
-
-        // Act
-        var result = await _controller.DeleteFile("task", "question", fileId);
-
-        // Assert
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Failed to delete file.", badRequest.Value);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public async Task DeleteFile_ReturnsHtmlView_WhenHtmlRequest()
-    {
-        // Arrange
-        var fileId = Guid.NewGuid();
-        var questionId = Guid.NewGuid();
-        var application = new Application { ApplicationId = Guid.NewGuid() };
         var questionDetails = new QuestionDetails
         {
             QuestionId = questionId,
-            TaskId = Guid.NewGuid(),
-            QuestionTypeName = "File",
-            QuestionContent = "{}",
-            CurrentQuestionUrl = "task/question"
-        };
-
-        var attachment = new AttachmentDetails
-        {
-            AttachmentId = Guid.NewGuid(),
-            FileName = "test.txt",
-            FileSize = 1000,
-            FileMIMEtype = "text/plain"
+            CurrentQuestionUrl = "task/question",
+            QuestionTypeName = "fileUpload",
+            QuestionContent = "{}"
         };
 
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
@@ -607,21 +545,56 @@ public class FileUploadControllerTests
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync(questionDetails);
 
-        AttachmentStore.Clear("test-session", questionId);
-        AttachmentStore.TryAdd("test-session", questionId, fileId, attachment);
+        _attachmentServiceMock.Setup(a =>
+            a.DeleteLinkedFile(LinkType.Question, questionId, attachmentId, application.ApplicationId))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _controller.DeleteFile("task", "question", attachmentId);
+
+        // Assert
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Failed to delete file.", badRequest.Value);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task DeleteFile_RedirectsToQuestionDetails_WhenHtmlRequest()
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var attachmentId = Guid.NewGuid();
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+
+        var questionDetails = new QuestionDetails
+        {
+            QuestionId = questionId,
+            CurrentQuestionUrl = "task/question",
+            QuestionTypeName = "fileUpload",
+            QuestionContent = "{}"
+        };
+
+        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
+            .ReturnsAsync(questionDetails);
 
         _attachmentServiceMock.Setup(a =>
-            a.DeleteLinkedFile(LinkType.Question, questionId, attachment.AttachmentId, application.ApplicationId))
+            a.DeleteLinkedFile(LinkType.Question, questionId, attachmentId, application.ApplicationId))
             .ReturnsAsync(true);
 
         _controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "text/html";
 
         // Act
-        var result = await _controller.DeleteFile("task", "question", fileId);
+        var result = await _controller.DeleteFile("task", "question", attachmentId);
 
         // Assert
-        var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.Equal("~/Views/Application/QuestionDetails.cshtml", viewResult.ViewName);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("QuestionDetails", redirect.ActionName);
+        Assert.Equal("Application", redirect.ControllerName);
+        Assert.Equal("task", redirect.RouteValues!["taskNameUrl"]);
+        Assert.Equal("question", redirect.RouteValues["questionNameUrl"]);
     }
 
     [Fact]
@@ -629,41 +602,32 @@ public class FileUploadControllerTests
     public async Task DeleteFile_ReturnsOk_WhenSuccessful()
     {
         // Arrange
-        var fileId = Guid.NewGuid();
         var questionId = Guid.NewGuid();
+        var attachmentId = Guid.NewGuid();
         var application = new Application { ApplicationId = Guid.NewGuid() };
-        var attachment = new AttachmentDetails
+
+        var questionDetails = new QuestionDetails
         {
-            AttachmentId = Guid.NewGuid(),
-            FileName = "test.txt",
-            FileSize = 1000,
-            FileMIMEtype = "text/plain"
+            QuestionId = questionId,
+            CurrentQuestionUrl = "task/question",
+            QuestionTypeName = "fileUpload",
+            QuestionContent = "{}"
         };
 
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
             .Returns(application);
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
-            .ReturnsAsync(new QuestionDetails
-            {
-                QuestionId = questionId,
-                TaskId = Guid.NewGuid(),
-                QuestionTypeName = "File",
-                QuestionContent = "{}",
-                CurrentQuestionUrl = "task/question"
-            });
-
-        AttachmentStore.Clear("test-session", questionId);
-        AttachmentStore.TryAdd("test-session", questionId, fileId, attachment);
+            .ReturnsAsync(questionDetails);
 
         _attachmentServiceMock.Setup(a =>
-            a.DeleteLinkedFile(LinkType.Question, questionId, attachment.AttachmentId, application.ApplicationId))
+            a.DeleteLinkedFile(LinkType.Question, questionId, attachmentId, application.ApplicationId))
             .ReturnsAsync(true);
 
         _controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/json";
 
         // Act
-        var result = await _controller.DeleteFile("task", "question", fileId);
+        var result = await _controller.DeleteFile("task", "question", attachmentId);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -672,7 +636,7 @@ public class FileUploadControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task DownloadFile_ReturnsUnauthorized_WhenApplicationIsNull()
+    public async Task DownloadFile_ReturnsUnauthorised_WhenApplicationIsNull()
     {
         // Arrange
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
@@ -705,56 +669,11 @@ public class FileUploadControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task DownloadFile_ReturnsNotFound_WhenAttachmentNotFoundInStore()
+    public async Task DownloadFile_ReturnsNotFound_WhenAttachmentNotInList()
     {
         // Arrange
         var questionId = Guid.NewGuid();
-
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
-
-        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
-            .ReturnsAsync(new QuestionDetails
-            {
-                QuestionId = questionId,
-                TaskId = Guid.NewGuid(),
-                QuestionTypeName = "File",
-                QuestionContent = "{}",
-                CurrentQuestionUrl = "task/question"
-            });
-
-        AttachmentStore.Clear("test-session", questionId);
-
-        // Act
-        var result = await _controller.DownloadFile("task", "question", Guid.NewGuid());
-
-        // Assert
-        var notFound = Assert.IsType<NotFoundObjectResult>(result);
-        Assert.Equal("File not found.", notFound.Value);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public async Task DownloadFile_ReturnsBadRequest_WhenStreamIsNull()
-    {
-        // Arrange
-        var fileId = Guid.NewGuid();
-        var questionId = Guid.NewGuid();
-        var applicationId = Guid.NewGuid();
-        var attachmentId = Guid.NewGuid();
-
-        var application = new Application { ApplicationId = applicationId };
-
-        var attachment = new AttachmentDetails
-        {
-            FileName = "test.txt",
-            FileSize = 1234,
-            FileMIMEtype = "text/plain",
-            AttachmentId = attachmentId
-        };
-
-        AttachmentStore.Clear("test-session", questionId);
-        AttachmentStore.TryAdd("test-session", questionId, fileId, attachment);
+        var application = new Application { ApplicationId = Guid.NewGuid() };
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns(application);
@@ -770,11 +689,56 @@ public class FileUploadControllerTests
             });
 
         _attachmentServiceMock.Setup(x =>
-            x.DownloadLinkedFile(LinkType.Question, questionId, attachmentId, applicationId))
+            x.GetAllLinkedFiles(LinkType.Question, questionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>()); // No matching attachment
+
+        // Act
+        var result = await _controller.DownloadFile("task", "question", Guid.NewGuid());
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task DownloadFile_ReturnsBadRequest_WhenStreamIsNull()
+    {
+        // Arrange
+        var questionId = Guid.NewGuid();
+        var attachmentId = Guid.NewGuid();
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+
+        var attachment = new AttachmentDetails
+        {
+            AttachmentId = attachmentId,
+            FileName = "file.txt",
+            FileMIMEtype = "text/plain",
+            FileSize = 1000
+        };
+
+        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
+            .ReturnsAsync(new QuestionDetails
+            {
+                QuestionId = questionId,
+                TaskId = Guid.NewGuid(),
+                QuestionTypeName = "File",
+                QuestionContent = "{}",
+                CurrentQuestionUrl = "task/question"
+            });
+
+        _attachmentServiceMock.Setup(x =>
+            x.GetAllLinkedFiles(LinkType.Question, questionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails> { attachment });
+
+        _attachmentServiceMock.Setup(x =>
+            x.DownloadLinkedFile(LinkType.Question, questionId, attachmentId, application.ApplicationId))
             .ReturnsAsync((Stream?)null);
 
         // Act
-        var result = await _controller.DownloadFile("task", "question", fileId);
+        var result = await _controller.DownloadFile("task", "question", attachmentId);
 
         // Assert
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -786,23 +750,17 @@ public class FileUploadControllerTests
     public async Task DownloadFile_ReturnsFileResult_WhenSuccessful()
     {
         // Arrange
-        var fileId = Guid.NewGuid();
         var questionId = Guid.NewGuid();
-        var applicationId = Guid.NewGuid();
         var attachmentId = Guid.NewGuid();
+        var application = new Application { ApplicationId = Guid.NewGuid() };
 
         var attachment = new AttachmentDetails
         {
+            AttachmentId = attachmentId,
             FileName = "example.txt",
-            FileSize = 2048,
             FileMIMEtype = "text/plain",
-            AttachmentId = attachmentId
+            FileSize = 2048
         };
-
-        var application = new Application { ApplicationId = applicationId };
-
-        AttachmentStore.Clear("test-session", questionId);
-        AttachmentStore.TryAdd("test-session", questionId, fileId, attachment);
 
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns(application);
@@ -817,14 +775,18 @@ public class FileUploadControllerTests
                 CurrentQuestionUrl = "task/question"
             });
 
-        var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello file content"));
+        _attachmentServiceMock.Setup(x =>
+            x.GetAllLinkedFiles(LinkType.Question, questionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails> { attachment });
+
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes("File content"));
 
         _attachmentServiceMock.Setup(x =>
-            x.DownloadLinkedFile(LinkType.Question, questionId, attachmentId, applicationId))
-            .ReturnsAsync(memoryStream);
+            x.DownloadLinkedFile(LinkType.Question, questionId, attachmentId, application.ApplicationId))
+            .ReturnsAsync(stream);
 
         // Act
-        var result = await _controller.DownloadFile("task", "question", fileId);
+        var result = await _controller.DownloadFile("task", "question", attachmentId);
 
         // Assert
         var fileResult = Assert.IsType<FileStreamResult>(result);
@@ -832,10 +794,9 @@ public class FileUploadControllerTests
         Assert.Equal("example.txt", fileResult.FileDownloadName);
     }
 
-
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task ListFiles_ReturnsUnauthorized_WhenApplicationIsNull()
+    public async Task ListFiles_ReturnsUnauthorised_WhenApplicationIsNull()
     {
         // Arrange
         _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
@@ -889,16 +850,15 @@ public class FileUploadControllerTests
 
         _attachmentServiceMock
             .Setup(a => a.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId))
-            .ReturnsAsync((List<AttachmentDetails>?)null);
-
+            .ReturnsAsync(new List<AttachmentDetails>());
 
         // Act
         var result = await _controller.ListFiles("task", "question");
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var dictionary = Assert.IsAssignableFrom<Dictionary<Guid, object>>(okResult.Value);
-        Assert.Empty(dictionary);
+        var response = Assert.IsAssignableFrom<IEnumerable<object>>(okResult.Value);
+        Assert.Empty(response);
     }
 
     [Fact]
@@ -951,14 +911,18 @@ public class FileUploadControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsAssignableFrom<Dictionary<Guid, object>>(okResult.Value);
-        Assert.Equal(2, response.Count);
 
-        foreach (var value in response.Values)
+        var responseList = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(
+            JsonConvert.SerializeObject(okResult.Value)
+        );
+
+        Assert.Equal(2, responseList!.Count);
+
+        foreach (var item in responseList)
         {
-            var file = Assert.IsAssignableFrom<Dictionary<string, object>>(value);
-            Assert.True(file.ContainsKey("fileName"));
-            Assert.True(file.ContainsKey("length"));
+            Assert.True(item.ContainsKey("fieldName"));
+            Assert.True(item.ContainsKey("length"));
+            Assert.True(item.ContainsKey("attachmentId"));
         }
     }
 }

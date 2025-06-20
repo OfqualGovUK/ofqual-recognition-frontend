@@ -8,7 +8,6 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Ofqual.Recognition.Frontend.Web.Stores;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -86,13 +85,12 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
-        var sessionId = HttpContext.Session.Id;
         var linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
-        AttachmentStore.TryAddRange(sessionId, questionDetails.QuestionId, linkedAttachments);
-
+ 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.FromReview = fromReview;
         questionViewModel.AnswerJson = questionAnswer?.Answer;
+        questionViewModel.Attachments = AttachmentMapper.MapToViewModel(linkedAttachments);
 
         return View(questionViewModel);
     }
