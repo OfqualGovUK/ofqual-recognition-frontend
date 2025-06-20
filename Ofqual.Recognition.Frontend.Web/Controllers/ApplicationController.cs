@@ -1,11 +1,11 @@
-﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Web.ViewModels;
+﻿using Microsoft.AspNetCore.Mvc;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Helpers;
-using Ofqual.Recognition.Frontend.Web.Mappers;
-using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
-using Microsoft.AspNetCore.Mvc;
+using Ofqual.Recognition.Frontend.Core.Helpers;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.Mappers;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -94,6 +94,9 @@ public class ApplicationController : Controller
         return View(questionViewModel);
     }
 
+    [HttpGet("confirm-submission")]
+    public IActionResult ConfirmSubmission() => View();
+    
     [HttpPost("{taskNameUrl}/{questionNameUrl}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitAnswers(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
