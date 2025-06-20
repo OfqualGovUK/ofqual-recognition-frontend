@@ -23,7 +23,12 @@ public class ApplicationController : Controller
     private readonly IQuestionService _questionService;
     private readonly IAttachmentService _attachmentService;
 
-    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService, IAttachmentService attachmentService)
+    public ApplicationController(
+        IApplicationService applicationService, 
+        ITaskService taskService, 
+        ISessionService sessionService, 
+        IQuestionService questionService, 
+        IAttachmentService attachmentService)
     {
         _applicationService = applicationService;
         _taskService = taskService;
@@ -190,6 +195,21 @@ public class ApplicationController : Controller
         taskReview.IsCompletedStatus = status == TaskStatusEnum.Completed;
         taskReview.Answer = (TaskStatusEnum)status;
         return View(taskReview);
+    }
+
+    [HttpGet("confirm-submission")]
+    public async Task<IActionResult> ConfirmSubmission() 
+    {
+        /*  We have no means of identifying declaration and submit tasks other than using the TaskURL. 
+         *  ideally we should be checking for any incomplete declaration tasks or checking the overall
+         *  application status is complete.
+        */
+        var confirmTask = await _taskService.GetTaskDetailsByTaskNameUrl("declare-submit");
+               
+        return confirmTask != null && 
+            _sessionService.GetTaskStatusFromSession(confirmTask.TaskId) == TaskStatusEnum.Completed
+        ? View()
+        : NotFound();
     }
 
     [HttpPost("{taskNameUrl}/review-your-answers")]
