@@ -198,7 +198,16 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("confirm-submission")]
-    public IActionResult ConfirmSubmission() => View();
+    public IActionResult ConfirmSubmission() 
+    {
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page instead of home
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+        return View(); 
+    }
 
     [HttpPost("{taskNameUrl}/review-your-answers")]
     [ValidateAntiForgeryToken]
