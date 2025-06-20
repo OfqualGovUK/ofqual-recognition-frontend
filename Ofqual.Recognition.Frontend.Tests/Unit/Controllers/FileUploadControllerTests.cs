@@ -89,8 +89,17 @@ public class FileUploadControllerTests
         fileMock.Setup(f => f.Length).Returns(0);
         fileMock.Setup(f => f.FileName).Returns("test.pdf");
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
-        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _questionServiceMock
+            .Setup(x => x.GetQuestionDetails("task", "question"))
+            .ReturnsAsync(question);
+
+        _attachmentServiceMock
+            .Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+            .ReturnsAsync(new List<AttachmentDetails>());
 
         // Act
         var result = await _controller.SubmitFile("task", "question", new List<IFormFile> { fileMock.Object });

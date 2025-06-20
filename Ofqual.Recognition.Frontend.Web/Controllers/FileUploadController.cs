@@ -47,6 +47,9 @@ public class FileUploadController : Controller
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
 
+        var existingAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+
+        var allAttachments = new List<AttachmentDetails>(existingAttachments);
         var validationErrors = new List<ErrorItemViewModel>();
 
         if (files != null && files.Any())
@@ -87,7 +90,7 @@ public class FileUploadController : Controller
 
                 var attachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
 
-                bool isDuplicate = attachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
+                bool isDuplicate = allAttachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
                 if (isDuplicate)
                 {
                     validationErrors.Add(new ErrorItemViewModel
@@ -99,7 +102,11 @@ public class FileUploadController : Controller
                 }
 
                 var attachment = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionDetails.QuestionId, application.ApplicationId, file);
-                if (attachment == null)
+                if (attachment != null)
+                {
+                    allAttachments.Add(attachment);
+                }
+                else
                 {
                     validationErrors.Add(new ErrorItemViewModel
                     {
@@ -110,7 +117,7 @@ public class FileUploadController : Controller
             }
         }
 
-        if (questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Validation?.Required == true)
+        if (questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Validation?.Required == true && !validationErrors.Any())
         {
             validationErrors.Add(new ErrorItemViewModel
             {
@@ -121,11 +128,12 @@ public class FileUploadController : Controller
 
         if (validationErrors.Any())
         {
+            questionViewModel!.Attachments = AttachmentMapper.MapToViewModel(allAttachments);
             questionViewModel!.Validation = new ValidationViewModel
             {
                 Errors = validationErrors
             };
-            
+
             return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);
         }
 
