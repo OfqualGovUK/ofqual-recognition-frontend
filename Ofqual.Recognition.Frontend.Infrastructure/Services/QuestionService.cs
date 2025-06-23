@@ -23,8 +23,7 @@ public class QuestionService : IQuestionService
     {
         try
         {
-            var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}/{taskNameUrl}/{questionNameUrl}";
-
+            var sessionKey = $"{SessionKeys.ApplicationQuestionDetails}:{taskNameUrl}:{questionNameUrl}";
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
@@ -62,8 +61,8 @@ public class QuestionService : IQuestionService
             var response = await client.PostAsJsonAsync($"/applications/{applicationId}/tasks/{taskId}/questions/{questionId}", payload);
             if (response.IsSuccessStatusCode)
             {
-                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}");
-                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer");
+                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{applicationId}:{taskId}");
+                _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}:{questionId}:answer");
                 _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
 
                 return new ValidationResponse();
@@ -89,8 +88,7 @@ public class QuestionService : IQuestionService
     {
         try
         {
-            var sessionKey = $"{SessionKeys.ApplicationQuestionReview}/{applicationId}/{taskId}";
-
+            var sessionKey = $"{SessionKeys.ApplicationQuestionReview}:{applicationId}:{taskId}";
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<List<QuestionAnswerSection>>(sessionKey);
@@ -119,8 +117,7 @@ public class QuestionService : IQuestionService
     {
         try
         {
-            var sessionKey = $"{SessionKeys.ApplicationQuestionAnswer}/{questionId}/answer";
-
+            var sessionKey = $"{SessionKeys.ApplicationQuestionAnswer}:{questionId}:answer";
             if (_sessionService.HasInSession(sessionKey))
             {
                 return _sessionService.GetFromSession<QuestionAnswer>(sessionKey);

@@ -2,7 +2,6 @@ using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Web.Stores;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -43,9 +42,7 @@ public class OfqualAccountController : Controller
     public async Task<IActionResult> SignOutAsync([FromRoute] string scheme)
     {
         scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-        var sessionId = HttpContext.Session.Id;
 
-        AttachmentStore.ClearAll(sessionId);
         _sessionService.ClearAllSession();
 
         // obtain the id_token

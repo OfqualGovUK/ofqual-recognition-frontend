@@ -5,7 +5,6 @@ using Ofqual.Recognition.Frontend.Core.Helpers;
 using Ofqual.Recognition.Frontend.Web.Mappers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
-using Ofqual.Recognition.Frontend.Web.Stores;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
@@ -48,8 +47,9 @@ public class FileUploadController : Controller
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
 
-        var sessionId = HttpContext.Session.Id;
-        var questionId = questionDetails.QuestionId;
+        var existingAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+
+        var allAttachments = new List<AttachmentDetails>(existingAttachments);
         var validationErrors = new List<ErrorItemViewModel>();
 
         if (files != null && files.Any())
@@ -88,7 +88,10 @@ public class FileUploadController : Controller
                     continue;
                 }
 
-                if (AttachmentStore.IsDuplicate(sessionId, questionId, file.FileName, file.Length))
+                var attachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+
+                bool isDuplicate = allAttachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
+                if (isDuplicate)
                 {
                     validationErrors.Add(new ErrorItemViewModel
                     {
@@ -98,11 +101,10 @@ public class FileUploadController : Controller
                     continue;
                 }
 
-                var attachment = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionId, application.ApplicationId, file);
+                var attachment = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionDetails.QuestionId, application.ApplicationId, file);
                 if (attachment != null)
                 {
-                    var fileId = Guid.NewGuid();
-                    AttachmentStore.TryAdd(sessionId, questionId, fileId, attachment);
+                    allAttachments.Add(attachment);
                 }
                 else
                 {
@@ -115,7 +117,7 @@ public class FileUploadController : Controller
             }
         }
 
-        if (questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Validation?.Required == true && !AttachmentStore.HasAny(sessionId, questionId))
+        if (questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Validation?.Required == true && !validationErrors.Any())
         {
             validationErrors.Add(new ErrorItemViewModel
             {
@@ -126,6 +128,7 @@ public class FileUploadController : Controller
 
         if (validationErrors.Any())
         {
+            questionViewModel!.Attachments = AttachmentMapper.MapToViewModel(allAttachments);
             questionViewModel!.Validation = new ValidationViewModel
             {
                 Errors = validationErrors
@@ -140,12 +143,10 @@ public class FileUploadController : Controller
             return BadRequest();
         }
 
-        _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}/{application.ApplicationId}/{questionDetails.TaskId}");
-
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{application.ApplicationId}:{questionDetails.TaskId}");
             return RedirectToAction(nameof(ApplicationController.TaskReview), "Application", new { taskNameUrl });
-
         }
 
         var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
@@ -163,7 +164,7 @@ public class FileUploadController : Controller
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/upload")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UploadFile(string taskNameUrl, string questionNameUrl, IFormFile file, [FromForm] Guid fileId)
+    public async Task<IActionResult> UploadFile(string taskNameUrl, string questionNameUrl, IFormFile file)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
@@ -192,24 +193,18 @@ public class FileUploadController : Controller
             return BadRequest("Unsupported file type or content.");
         }
 
-        var sessionId = HttpContext.Session.Id;
-        var questionId = questionDetails.QuestionId;
+        var attachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
 
-        if (AttachmentStore.IsDuplicate(sessionId, questionId, file.FileName, file.Length))
+        bool isDuplicate = attachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
+        if (isDuplicate)
         {
             return BadRequest("This file has already been uploaded.");
         }
 
-        AttachmentDetails? attachmentDetails = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionId, application.ApplicationId, file);
+        AttachmentDetails? attachmentDetails = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionDetails.QuestionId, application.ApplicationId, file);
         if (attachmentDetails == null)
         {
             return BadRequest("Failed to upload file.");
-        }
-
-        bool isAdded = AttachmentStore.TryAdd(sessionId, questionId, fileId, attachmentDetails);
-        if (!isAdded)
-        {
-            return Conflict("This file has already been uploaded.");
         }
 
         bool hasTaskStatusUpdated = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, TaskStatusEnum.InProgress);
@@ -218,12 +213,13 @@ public class FileUploadController : Controller
             return BadRequest();
         }
 
-        return Ok("File uploaded successfully.");
+        _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{application.ApplicationId}:{questionDetails.TaskId}");
+        return Ok(attachmentDetails.AttachmentId);
     }
 
-    [HttpPost("{taskNameUrl}/{questionNameUrl}/delete")]
+    [HttpPost("{taskNameUrl}/{questionNameUrl}/delete/{attachmentId}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteFile(string taskNameUrl, string questionNameUrl, [FromForm] Guid fileId)
+    public async Task<IActionResult> DeleteFile(string taskNameUrl, string questionNameUrl, Guid attachmentId)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
@@ -237,15 +233,7 @@ public class FileUploadController : Controller
             return NotFound();
         }
 
-        var sessionId = HttpContext.Session.Id;
-        var questionId = questionDetails.QuestionId;
-
-        if (!AttachmentStore.TryRemove(sessionId, questionId, fileId, out var attachment) || attachment == null)
-        {
-            return NotFound("File not found.");
-        }
-
-        bool isDeleted = await _attachmentService.DeleteLinkedFile(LinkType.Question, questionId, attachment.AttachmentId, application.ApplicationId);
+        bool isDeleted = await _attachmentService.DeleteLinkedFile(LinkType.Question, questionDetails.QuestionId, attachmentId, application.ApplicationId);
         if (!isDeleted)
         {
             return BadRequest("Failed to delete file.");
@@ -254,55 +242,32 @@ public class FileUploadController : Controller
         bool isHtmlRequest = Request.Headers["Accept"].Any(h => h != null && h.Contains("text/html", StringComparison.OrdinalIgnoreCase));
         if (isHtmlRequest)
         {
-            var viewModel = QuestionMapper.MapToViewModel(questionDetails);
-            return View("~/Views/Application/QuestionDetails.cshtml", viewModel);
+            var currentQuestion = QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl);
+            if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && currentQuestion == null)
+            {
+                return BadRequest();
+            }
+
+            return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
+            {
+                currentQuestion!.Value.taskNameUrl,
+                currentQuestion!.Value.questionNameUrl
+            });
         }
 
         return Ok("File deleted successfully.");
     }
 
-    [HttpGet("{taskNameUrl}/{questionNameUrl}/download/{fileId}")]
-    public async Task<IActionResult> DownloadFile(string taskNameUrl, string questionNameUrl, Guid fileId)
+    [HttpGet("{taskNameUrl}/{questionNameUrl}/download/{attachmentId}")]
+    public async Task<IActionResult> DownloadFile(string taskNameUrl, string questionNameUrl, Guid attachmentId)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
             return Unauthorized();
         }
 
-        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
-        if (questionDetails == null)
-        {
-            return NotFound();
-        }
-
-        var sessionId = HttpContext.Session.Id;
-        var questionId = questionDetails.QuestionId;
-
-        if (!AttachmentStore.TryRemove(sessionId, questionId, fileId, out var attachment) || attachment == null)
-        {
-            return NotFound("File not found.");
-        }
-
-        Stream? stream = await _attachmentService.DownloadLinkedFile(LinkType.Question, questionId, attachment.AttachmentId, application.ApplicationId);
-        if (stream == null)
-        {
-            return BadRequest("Failed to retrieve file.");
-        }
-
-        return File(stream, attachment.FileMIMEtype, attachment.FileName);
-    }
-
-    [HttpGet("{taskNameUrl}/{questionNameUrl}/list")]
-    public async Task<IActionResult> ListFiles(string taskNameUrl, string questionNameUrl)
-    {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-        if (application == null)
-        {
-            return Unauthorized();
-        }
-
-        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
+        var questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
         if (questionDetails == null)
         {
             return NotFound();
@@ -314,26 +279,48 @@ public class FileUploadController : Controller
             application.ApplicationId
         );
 
-        var sessionId = HttpContext.Session.Id;
-        var questionId = questionDetails.QuestionId;
-
-        AttachmentStore.Clear(sessionId, questionId);
-
-        var response = new Dictionary<Guid, object>();
-        if (attachments != null)
+        var attachment = attachments.FirstOrDefault(a => a.AttachmentId == attachmentId);
+        if (attachment == null)
         {
-            foreach (var attachment in attachments)
-            {
-                var fileId = Guid.NewGuid();
-                AttachmentStore.TryAdd(sessionId, questionId, fileId, attachment);
-
-                response[fileId] = new Dictionary<string, object>
-                {
-                    ["fileName"] = attachment.FileName,
-                    ["length"] = attachment.FileSize
-                };
-            }
+            return NotFound();
         }
+
+        var stream = await _attachmentService.DownloadLinkedFile(LinkType.Question, questionDetails.QuestionId, attachmentId, application.ApplicationId);
+        if (stream == null)
+        {
+            return BadRequest("Failed to retrieve file.");
+        }
+
+        return File(stream, attachment.FileMIMEtype, attachment.FileName);
+    }
+
+    [HttpGet("{taskNameUrl}/{questionNameUrl}/list")]
+    public async Task<IActionResult> ListFiles(string taskNameUrl, string questionNameUrl)
+    {
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            return Unauthorized();
+        }
+
+        var questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
+        if (questionDetails == null)
+        {
+            return NotFound();
+        }
+
+        var attachments = await _attachmentService.GetAllLinkedFiles(
+            LinkType.Question,
+            questionDetails.QuestionId,
+            application.ApplicationId
+        );
+
+        var response = attachments.Select(a => new
+        {
+            fieldName = a.FileName,
+            length = a.FileSize,
+            attachmentId = a.AttachmentId
+        });
 
         return Ok(response);
     }
