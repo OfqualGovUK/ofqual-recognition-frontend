@@ -73,13 +73,14 @@ public class AttachmentService : IAttachmentService
 
             var client = await _client.GetClientAsync();
 
-            var result = await client.GetFromJsonAsync<List<AttachmentDetails>>($"/files/linked/{linkType}/{linkId}/application/{applicationId}");
-            if (result == null || result.Count == 0)
+            var response = await client.GetAsync($"/files/linked/{linkType}/{linkId}/application/{applicationId}");
+            if (!response.IsSuccessStatusCode)
             {
                 Log.Warning("No linked files returned for LinkType: {LinkType}, LinkId: {LinkId}, ApplicationId: {AppId}", linkType, linkId, applicationId);
-                result = new List<AttachmentDetails>();
+                return new List<AttachmentDetails>();
             }
 
+            var result = await response.Content.ReadFromJsonAsync<List<AttachmentDetails>>() ?? new List<AttachmentDetails>();
             _memoryCacheService.Set(memoryCacheKey, result);
             return result;
         }
