@@ -32,8 +32,8 @@ public class TaskService : ITaskService
             }
 
             var client = await _client.GetClientAsync();
-            var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/applications/{applicationId}/tasks");
 
+            var result = await client.GetFromJsonAsync<List<TaskItemStatusSection>>($"/applications/{applicationId}/tasks");
             if (result == null || result.Count == 0)
             {
                 Log.Warning("No tasks found for Application ID {ApplicationId}", applicationId);
