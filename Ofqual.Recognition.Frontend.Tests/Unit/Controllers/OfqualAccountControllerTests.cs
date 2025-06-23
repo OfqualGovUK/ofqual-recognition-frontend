@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Ofqual.Recognition.Frontend.Web.Controllers;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Ofqual.Recognition.Frontend.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -91,7 +90,6 @@ public class OfqualAccountControllerTests
 
         var httpContext = new DefaultHttpContext
         {
-            Session = new FakeSession("test-session"),
             RequestServices = serviceProvider
         };
 

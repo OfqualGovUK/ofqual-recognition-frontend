@@ -1,20 +1,20 @@
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Ofqual.Recognition.Frontend.Infrastructure.Services;
+using Ofqual.Recognition.Frontend.Infrastructure.Client;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Ofqual.Recognition.Frontend.Web.Middlewares;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Models;
 using CorrelationId.DependencyInjection;
 using GovUk.Frontend.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Serilog.Sinks.Http;
 using System.Reflection;
 using Serilog.Events;
 using CorrelationId;
 using Serilog;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
-using Ofqual.Recognition.Frontend.Infrastructure.Services;
-using Ofqual.Recognition.Frontend.Infrastructure.Client;
-using Ofqual.Recognition.Frontend.Web.Middlewares;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -107,6 +107,10 @@ builder.Services.AddHttpClient("RecognitionCitizen", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["RecognitionApi:BaseUrl"]!);
 });
+
+// Register in-memory caching
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<IMemoryCacheService, MemoryCacheService>();
 
 // Register session management
 builder.Services.AddSession(options =>

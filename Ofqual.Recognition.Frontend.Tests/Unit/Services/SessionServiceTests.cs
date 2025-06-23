@@ -109,7 +109,7 @@ public class SessionServiceTests
         // Arrange
         byte[] dummy = Encoding.UTF8.GetBytes("some value");
 
-        _sessionMock.Setup(s => s.TryGetValue(key, out dummy))
+        _sessionMock.Setup(s => s.TryGetValue(key, out dummy!))
                     .Returns(exists);
 
         // Act
@@ -323,7 +323,7 @@ public class SessionServiceTests
         Assert.NotNull(storedBytes);
         var stored = JsonConvert.DeserializeObject<List<PreEngagementAnswer>>(Encoding.UTF8.GetString(storedBytes!));
         Assert.Single(stored!);
-        Assert.Equal(questionId, stored[0].QuestionId);
+        Assert.Equal(questionId, stored![0].QuestionId);
         Assert.Equal(taskId, stored[0].TaskId);
         Assert.Equal(answerJson, stored[0].AnswerJson);
     }
