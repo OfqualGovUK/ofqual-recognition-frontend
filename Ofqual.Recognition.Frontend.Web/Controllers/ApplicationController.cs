@@ -22,7 +22,12 @@ public class ApplicationController : Controller
     private readonly IQuestionService _questionService;
     private readonly IAttachmentService _attachmentService;
 
-    public ApplicationController(IApplicationService applicationService, ITaskService taskService, ISessionService sessionService, IQuestionService questionService, IAttachmentService attachmentService)
+    public ApplicationController(
+        IApplicationService applicationService, 
+        ITaskService taskService, 
+        ISessionService sessionService, 
+        IQuestionService questionService, 
+        IAttachmentService attachmentService)
     {
         _applicationService = applicationService;
         _taskService = taskService;
@@ -188,6 +193,18 @@ public class ApplicationController : Controller
         taskReview.IsCompletedStatus = status == TaskStatusEnum.Completed;
         taskReview.Answer = (TaskStatusEnum)status;
         return View(taskReview);
+    }
+
+    [HttpGet("confirm-submission")]
+    public IActionResult ConfirmSubmission() 
+    {
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page instead of home
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+        return View(); 
     }
 
     [HttpPost("{taskNameUrl}/review-your-answers")]
