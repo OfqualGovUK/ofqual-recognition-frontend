@@ -5,24 +5,18 @@
 <div class="govuk-summary-list">
     @foreach (var item in Model.Items)
     {
-        var answer = ViewHelpers.GetAnswerValue(item.Answer);
+        var answer = ViewHelpers.GetAnswerValue(item.Question, item.Answer);
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">@item.Question</dt>
             <dd class="govuk-summary-list__value">
-                @if (answer is IEnumerable<string> collection)
-                {
-                    <ul class="govuk-list govuk-list--bullet">
-                        @foreach (var val in collection)
-                        {
-                            <li>@val</li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    @answer
-                }
+
+                <ul class="govuk-list govuk-list--bullet">
+                    @foreach (var val in answer)
+                    {
+                        <li>@val</li>
+                    }
+                </ul>
             </dd>
             @if (!Model.IsReadOnly)
             {

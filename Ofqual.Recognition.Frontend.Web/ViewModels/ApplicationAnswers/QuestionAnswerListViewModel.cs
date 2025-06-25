@@ -11,6 +11,6 @@ public class QuestionAnswerListViewModel : TaskListViewModel
 public class QuestionAnswerItemViewModel
 {
     public string Question { get; set; }
-    public object Answer { get; set; }
+    public string Answer { get; set; }
     public string ChangeUrl { get; set; }
 }
