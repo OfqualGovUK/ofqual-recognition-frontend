@@ -20,9 +20,6 @@
                                 @if (!task.IsLink)
                                 {
                                     <div>@task.TaskName</div>
-                                    <div class="govuk-task-list__hint">
-                                        You must complete all sections first
-                                    </div>
                                 }
                                 else
                                 {
@@ -30,6 +27,13 @@
                                         aria-describedby="task-@task.TaskId-status">
                                         @task.TaskName
                                     </a>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(task.Hint))
+                                {
+                                    <div class="govuk-task-list__hint">
+                                        @task.Hint
+                                    </div>
                                 }
                             </div>
                             <div class="govuk-task-list__status" id="task-@task.TaskId-status">

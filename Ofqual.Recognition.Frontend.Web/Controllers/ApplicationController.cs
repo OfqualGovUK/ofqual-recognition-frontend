@@ -37,9 +37,9 @@ public class ApplicationController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> StartApplication()
+    public async Task<IActionResult> InitialiseApplication()
     {
-        Application? application = await _applicationService.SetUpApplication();
+        Application? application = await _applicationService.InitialiseApplication();
         if (application == null)
         {
             // TODO: Redirect to login page and not home page

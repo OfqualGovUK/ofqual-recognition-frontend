@@ -91,7 +91,7 @@ public class PreEngagementController : Controller
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
-            return RedirectToAction(nameof(ApplicationController.StartApplication), "Application");
+            return RedirectToAction(nameof(ApplicationController.InitialiseApplication), "Application");
         }
 
         var next = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);

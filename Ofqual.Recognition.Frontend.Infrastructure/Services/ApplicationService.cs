@@ -18,7 +18,7 @@ public class ApplicationService : IApplicationService
         _sessionService = sessionService;
     }
 
-    public async Task<Application?> SetUpApplication()
+    public async Task<Application?> InitialiseApplication()
     {
         try
         {
@@ -37,7 +37,7 @@ public class ApplicationService : IApplicationService
 
             if (!response.IsSuccessStatusCode)
             {
-                Log.Warning("API request to create application failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
+                Log.Warning("API request to initialise application failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
                 return null;
             }
 
@@ -53,7 +53,7 @@ public class ApplicationService : IApplicationService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An unexpected error occurred while setting up the application.");
+            Log.Error(ex, "An unexpected error occurred while initialising the application.");
             return null;
         }
     }

@@ -33,7 +33,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task StartApplication_ReturnsRedirectToTaskList_WhenApplicationIsNotNull()
+    public async Task InitialiseApplication_ReturnsRedirectToTaskList_WhenApplicationIsNotNull()
     {
         // Arrange
         var application = new Application
@@ -41,11 +41,11 @@ public class ApplicationControllerTests
             ApplicationId = Guid.NewGuid()
         };
 
-        _applicationServiceMock.Setup(x => x.SetUpApplication())
+        _applicationServiceMock.Setup(x => x.InitialiseApplication())
             .ReturnsAsync(application);
 
         // Act
-        var result = await _controller.StartApplication();
+        var result = await _controller.InitialiseApplication();
 
         // Assert
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
@@ -54,14 +54,14 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task StartApplication_ReturnsRedirectToHome_WhenApplicationIsNull()
+    public async Task InitialiseApplication_ReturnsRedirectToHome_WhenApplicationIsNull()
     {
         // Arrange
-        _applicationServiceMock.Setup(x => x.SetUpApplication())
+        _applicationServiceMock.Setup(x => x.InitialiseApplication())
             .ReturnsAsync((Application?)null);
 
         // Act
-        var result = await _controller.StartApplication();
+        var result = await _controller.InitialiseApplication();
 
         // Assert
         var redirectResult = Assert.IsType<RedirectResult>(result);
