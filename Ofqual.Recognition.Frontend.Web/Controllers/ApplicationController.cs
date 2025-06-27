@@ -1,13 +1,14 @@
-﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Web.ViewModels;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Helpers;
-using Ofqual.Recognition.Frontend.Web.Mappers;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Core.Enums;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Enums;
+using Ofqual.Recognition.Frontend.Core.Helpers;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.Mappers;
+using Ofqual.Recognition.Frontend.Web.ViewModels;
+using System.Threading.Tasks;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -138,11 +139,23 @@ public class ApplicationController : Controller
             }
         }
 
+        //If there are no more questions, we need to check stage types and determine where to go
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
+            var taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
+
+            //if this is the application review, we can skip task review and go to list page
+            if (taskDetails != null 
+                && taskDetails.TaskStages
+                    .Intersect([TaskStage.Review, TaskStage.Information])
+                    .Any())
+                return Redirect(RouteConstants.HomeConstants.HOME_PATH);                
+
+            //otherwise go to the task review page
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
+        //more questions to do, go to the next in line
         var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
         if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && nextQuestion == null)
         {
@@ -186,7 +199,7 @@ public class ApplicationController : Controller
 
         var lastQuestionUrl = reviewAnswers.LastOrDefault()?
             .QuestionAnswers.LastOrDefault()?
-            .QuestionUrl;
+            .QuestionUrl;        
 
         TaskReviewViewModel taskReview = QuestionMapper.MapToViewModel(reviewAnswers);
         taskReview.LastQuestionUrl = lastQuestionUrl;
@@ -195,17 +208,7 @@ public class ApplicationController : Controller
         return View(taskReview);
     }
 
-    [HttpGet("confirm-submission")]
-    public IActionResult ConfirmSubmission() 
-    {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-        if (application == null)
-        {
-            // TODO: Redirect to login page instead of home
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
-        }
-        return View(); 
-    }
+
 
     [HttpPost("{taskNameUrl}/review-your-answers")]
     [ValidateAntiForgeryToken]
@@ -235,6 +238,27 @@ public class ApplicationController : Controller
             return BadRequest();
         }
 
+        //If this is a declaration, we go through to complete the application
+        if (taskDetails.TaskStages.Contains(TaskStage.Declare))
+        {
+            if (await _applicationService.CompleteApplication(application.ApplicationId))
+                return RedirectToAction(nameof(ConfirmSubmission));
+            return BadRequest("Failed to submit application for submission");
+        }
+
+
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
+    }
+
+    [HttpGet("confirm-submission")]
+    public IActionResult ConfirmSubmission()
+    {
+        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page instead of home
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+        return View();
     }
 }
