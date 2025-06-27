@@ -3,6 +3,7 @@ using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
@@ -56,5 +57,21 @@ public class ApplicationService : IApplicationService
             Log.Error(ex, "An unexpected error occurred while setting up the application.");
             return null;
         }
+    }
+
+    public async Task<bool> CompleteApplication(Guid applicationId)
+    {
+        try
+        {
+            var client = await _client.GetClientAsync();
+            var response = await client.PostAsync($"/applications/{applicationId.ToString()}/complete", null);
+            if (response.IsSuccessStatusCode)
+                return true;
+        }
+        catch(Exception ex)
+        {
+            Log.Error(ex, "Failed to Complete application");
+        }
+        return false;
     }
 }
