@@ -18,6 +18,7 @@ public static class TaskListMapper
                     TaskId = task.TaskId,
                     TaskName = task.TaskName,
                     Status = task.Status,
+                    Hint = task.Hint,
                     FirstQuestionURL = task.FirstQuestionURL,
                 }).ToList()
             }).ToList()

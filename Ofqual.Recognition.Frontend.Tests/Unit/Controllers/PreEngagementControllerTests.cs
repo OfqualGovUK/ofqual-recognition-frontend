@@ -149,7 +149,7 @@ public class PreEngagementControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task PostPreEngagementQuestionDetails_Should_RedirectToStartApplication_WhenNextIsNull()
+    public async Task PostPreEngagementQuestionDetails_Should_RedirectToInitialiseApplication_WhenNextIsNull()
     {
         // Arrange
         var questionDetails = new QuestionDetails
@@ -175,7 +175,7 @@ public class PreEngagementControllerTests
 
         // Assert
         var redirect = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("StartApplication", redirect.ActionName);
+        Assert.Equal("InitialiseApplication", redirect.ActionName);
         Assert.Equal("Application", redirect.ControllerName);
     }
 
