@@ -5,6 +5,7 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using System.Net.Http.Json;
 using Serilog;
+using Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -138,6 +139,35 @@ public class QuestionService : IQuestionService
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving answers for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
+            return null;
+        }
+    }
+
+    public async Task<List<TaskReviewSection?>> GetAllApplicationAnswers(Guid applicationId)
+    {
+        try
+        {
+            var sessionKey = $"{SessionKeys.ApplicationAnswersReview}:{applicationId}:applicationId";
+            //if (_sessionService.HasInSession(sessionKey))
+            //{
+            //    return _sessionService.GetFromSession<List<QuestionAnswerSection>>(sessionKey);
+            //}
+
+            var client = await _client.GetClientAsync();
+            var result = await client.GetFromJsonAsync<List<TaskReviewSection>>($"/applications/{applicationId}/tasks/answers");
+
+            if (result == null)
+            {
+                Log.Warning("No question answer found applicationId: {applicationId}",applicationId);
+                return null;
+            }
+
+            _sessionService.SetInSession(sessionKey, result);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while retrieving answers for applicationId: {applicationId}", applicationId);
             return null;
         }
     }

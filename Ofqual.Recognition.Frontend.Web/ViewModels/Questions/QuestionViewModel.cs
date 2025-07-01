@@ -1,4 +1,6 @@
-﻿namespace Ofqual.Recognition.Frontend.Web.ViewModels;
+﻿using Ofqual.Recognition.Frontend.Web.ViewModels.ApplicationAnswers;
+
+namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
 public class QuestionViewModel
 {
@@ -14,4 +16,6 @@ public class QuestionViewModel
     public bool FromPreEngagement { get; set; }
     
     public ValidationViewModel? Validation { get; set; }
+
+    public List<TaskReviewSectionViewModel>? TaskReviewSection{ get; set; }
 }

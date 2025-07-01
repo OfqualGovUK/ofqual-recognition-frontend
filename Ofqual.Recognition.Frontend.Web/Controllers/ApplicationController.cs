@@ -23,10 +23,10 @@ public class ApplicationController : Controller
     private readonly IAttachmentService _attachmentService;
 
     public ApplicationController(
-        IApplicationService applicationService, 
-        ITaskService taskService, 
-        ISessionService sessionService, 
-        IQuestionService questionService, 
+        IApplicationService applicationService,
+        ITaskService taskService,
+        ISessionService sessionService,
+        IQuestionService questionService,
         IAttachmentService attachmentService)
     {
         _applicationService = applicationService;
@@ -90,12 +90,17 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
+        // Copy this method of using the code and mapping
         var linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
- 
+
+        var allApplicationAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
+
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.FromReview = fromReview;
         questionViewModel.AnswerJson = questionAnswer?.Answer;
+        // Create your own mapper
         questionViewModel.Attachments = AttachmentMapper.MapToViewModel(linkedAttachments);
+        questionViewModel.TaskReviewSection = ApplicationAnswersMapper.MapToViewModel(allApplicationAnswers);
 
         return View(questionViewModel);
     }
@@ -196,7 +201,7 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("confirm-submission")]
-    public IActionResult ConfirmSubmission() 
+    public IActionResult ConfirmSubmission()
     {
         var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
@@ -204,7 +209,7 @@ public class ApplicationController : Controller
             // TODO: Redirect to login page instead of home
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
-        return View(); 
+        return View();
     }
 
     [HttpPost("{taskNameUrl}/review-your-answers")]

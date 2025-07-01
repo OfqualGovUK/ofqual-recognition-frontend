@@ -1,6 +1,6 @@
 namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
-public class QuestionAnswerReviewViewModel
+public class TaskReviewItemViewModel
 {
     public required string QuestionText { get; set; }
     public required List<string> AnswerValue { get; set; }

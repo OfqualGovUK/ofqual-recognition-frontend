@@ -5,7 +5,7 @@ namespace Ofqual.Recognition.Frontend.Web.ViewModels;
 
 public class TaskReviewViewModel
 {
-    public List<QuestionAnswerSectionViewModel> QuestionAnswerSections { get; set; } = new();
+    public List<TaskReviewGroupViewModel> QuestionAnswerSections { get; set; } = new();
     
     [ValidEnumValue(typeof(TaskStatusEnum), ErrorMessage = "The status provided is not valid.")]
     public TaskStatusEnum Answer { get; set; }
