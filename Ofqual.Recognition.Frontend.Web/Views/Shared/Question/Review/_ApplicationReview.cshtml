@@ -1,0 +1,54 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Constants
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@model QuestionViewModel
+
+@if (Model.TaskReviewSection != null && Model.TaskReviewSection.Any())
+{
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full-width">
+            @foreach (var taskSection in Model?.TaskReviewSection)
+            {
+                <h2 class="govuk-heading-m">@taskSection.SectionName</h2>
+
+                @foreach (var group in taskSection.TaskGroups)
+                {
+                    <div class="govuk-summary-card">
+                        <div class="govuk-summary-card__title-wrapper">
+
+                            <h2 class="govuk-summary-card__title">
+                                @group.SectionHeading
+                            </h2>
+                        </div>
+                        <div class="govuk-summary-card__content">
+                            <dl class="govuk-summary-list">
+                                @foreach (var item in group.QuestionAnswers)
+                                {
+                                    @foreach (var answer in item.AnswerValue)
+                                    {
+                                        <div class="govuk-summary-list__row">
+                                            <dt class="govuk-summary-list__key">
+                                                @item.QuestionText
+                                            </dt>
+                                            <dd class="govuk-summary-list__value">
+                                                @answer
+                                            </dd>
+                                            <dd class="govuk-summary-list__actions">
+                                                <a class="govuk-link"
+                                                   href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{item.QuestionUrl}?fromReview=true")">
+                                                    Change<span class="govuk-visually-hidden">@item.QuestionText</span>
+                                                </a>
+                                            </dd>
+
+                                        </div>
+                                    }
+                                }
+                            </dl>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+}

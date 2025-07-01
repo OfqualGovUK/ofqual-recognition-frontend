@@ -8,6 +8,7 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -90,15 +91,18 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
-        // Copy this method of using the code and mapping
         var linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
 
-        var allApplicationAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
+        var allApplicationAnswers = new List<TaskReviewSection?>();
+
+        if (questionNameUrl == "review-your-application")
+        {
+            allApplicationAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
+        }
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.FromReview = fromReview;
         questionViewModel.AnswerJson = questionAnswer?.Answer;
-        // Create your own mapper
         questionViewModel.Attachments = AttachmentMapper.MapToViewModel(linkedAttachments);
         questionViewModel.TaskReviewSection = ApplicationAnswersMapper.MapToViewModel(allApplicationAnswers);
 

@@ -15,65 +15,20 @@
         : RouteConstants.ApplicationConstants.TASK_LIST_PATH;
 }
 
-
 @section BackLink {
     <a href="@backLinkUrl" class="govuk-back-link">Back</a>
 }
-<main class="govuk-main-wrapper" id="main-content">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full-width">
-            <h1 class="govuk-heading-l">
-                Review your application
-            </h1>
-            @foreach (var taskSection in Model?.TaskReviewSection)
-            {
-                <h2 class="govuk-heading-m">@taskSection.SectionName</h2>
 
-                @foreach (var group in taskSection.TaskGroups)
-                {
-                    <div class="govuk-summary-card">
-                        <div class="govuk-summary-card__title-wrapper">
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        @await Html.PartialAsync($"~/Views/Shared/Question/Validation/_ErrorSummary.cshtml", Model.Validation)
 
-                            <h2 class="govuk-summary-card__title">
-                                @group.SectionHeading
-                            </h2>
-                        </div>
-                        <div class="govuk-summary-card__content">
-                            <dl class="govuk-summary-list">
-                                @foreach (var item in group.QuestionAnswers)
-                                {
-                                    @foreach (var answer in item.AnswerValue)
-                                    {
-                                        <div class="govuk-summary-list__row">
-                                            <dt class="govuk-summary-list__key">
-                                                @item.QuestionText
-                                            </dt>
-                                            <dd class="govuk-summary-list__value">
-                                                @answer
-                                            </dd>
-                                            <dd class="govuk-summary-list__actions">
-                                                <a class="govuk-link"
-                                                   href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{item.QuestionUrl}?fromReview=true")">
-                                                    Change<span class="govuk-visually-hidden">@item.QuestionText</span>
-                                                </a>
-                                            </dd>
+        @await Html.PartialAsync($"~/Views/Shared/Question/Body/_Body.cshtml", Model.QuestionContent.Body)
 
-                                        </div>
-                                    }
-                                }
-                            </dl>
-                        </div>
-                    </div>
-                }
-            }
+        @await Html.PartialAsync($"~/Views/Shared/Question/Review/_ApplicationReview.cshtml", Model)
 
-            @await Html.PartialAsync($"~/Views/Shared/Question/Validation/_ErrorSummary.cshtml", Model.Validation)
-
-            @await Html.PartialAsync($"~/Views/Shared/Question/Body/_Body.cshtml", Model.QuestionContent.Body)
-
-            @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/_FormGroup.cshtml", Model)
-        </div>
-
-        @await Html.PartialAsync($"~/Views/Shared/Question/Sidebar/_Sidebar.cshtml", Model.QuestionContent.Sidebar)
+        @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/_FormGroup.cshtml", Model)
     </div>
-</main>
+
+    @await Html.PartialAsync($"~/Views/Shared/Question/Sidebar/_Sidebar.cshtml", Model.QuestionContent.Sidebar)
+</div>
