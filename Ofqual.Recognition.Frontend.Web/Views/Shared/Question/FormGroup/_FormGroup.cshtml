@@ -13,9 +13,21 @@
     var enctypeAttr = isFileUpload ? "multipart/form-data" : null;
     var currentQuestion = QuestionUrlHelper.Parse(Model.CurrentQuestionUrl);
 
-    var controllerName = isFileUpload ? "FileUpload" : "Application";
-    var actionName = isFileUpload ? "SubmitFile" : "QuestionDetails";
+    string controllerName;
+    string actionName;
+
+    if (Model.FromPreEngagement)
+    {
+        controllerName = "PreEngagement";
+        actionName = "PreEngagementQuestionDetails";
+    }
+    else
+    {
+        controllerName = isFileUpload ? "FileUpload" : "Application";
+        actionName = isFileUpload ? "SubmitFile" : "QuestionDetails";
+    }
 }
+
 
 @if (isFileUpload)
 {

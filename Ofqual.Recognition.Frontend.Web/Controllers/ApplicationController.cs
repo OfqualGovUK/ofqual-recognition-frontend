@@ -84,7 +84,7 @@ public class ApplicationController : Controller
 
         QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
-        var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
+        StatusType? status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
         if (status == StatusType.Completed && !fromReview)
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
@@ -104,21 +104,21 @@ public class ApplicationController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
             // TODO: Redirect to login page instead of home
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        var questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
+        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
         if (questionDetails == null)
         {
             return NotFound();
         }
 
-        var jsonAnswer = JsonHelper.ConvertToJson(formdata);
-        var existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
+        string jsonAnswer = JsonHelper.ConvertToJson(formdata);
+        QuestionAnswer? existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
         if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
