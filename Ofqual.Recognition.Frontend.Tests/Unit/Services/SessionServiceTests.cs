@@ -153,9 +153,9 @@ public class SessionServiceTests
 
     [Theory]
     [Trait("Category", "Unit")]
-    [InlineData(TaskStatusEnum.CannotStartYet, TaskStatusEnum.Completed)]
-    [InlineData(TaskStatusEnum.InProgress, TaskStatusEnum.CannotStartYet)]
-    public void UpdateTaskStatusInSession_ShouldUpdateStatus_WhenTaskExists(TaskStatusEnum originalStatus, TaskStatusEnum newStatus)
+    [InlineData(StatusType.CannotStartYet, StatusType.Completed)]
+    [InlineData(StatusType.InProgress, StatusType.CannotStartYet)]
+    public void UpdateTaskStatusInSession_ShouldUpdateStatus_WhenTaskExists(StatusType originalStatus, StatusType newStatus)
     {
         // Arrange
         var taskId = Guid.NewGuid();
@@ -199,9 +199,9 @@ public class SessionServiceTests
 
     [Theory]
     [Trait("Category", "Unit")]
-    [InlineData(TaskStatusEnum.Completed)]
-    [InlineData(TaskStatusEnum.InProgress)]
-    public void GetTaskStatusFromSession_ShouldReturnCorrectStatus_WhenTaskExists(TaskStatusEnum expectedStatus)
+    [InlineData(StatusType.Completed)]
+    [InlineData(StatusType.InProgress)]
+    public void GetTaskStatusFromSession_ShouldReturnCorrectStatus_WhenTaskExists(StatusType expectedStatus)
     {
         // Arrange
         var taskId = Guid.NewGuid();
@@ -275,7 +275,7 @@ public class SessionServiceTests
         {
             TaskId = Guid.NewGuid(),
             TaskName = "Another Task",
-            Status = TaskStatusEnum.NotStarted,
+            Status = StatusType.NotStarted,
             FirstQuestionURL = "/something"
         };
 

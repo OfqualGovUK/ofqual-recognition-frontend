@@ -92,7 +92,7 @@ public class ApplicationControllerTests
                     {
                         TaskId = Guid.NewGuid(),
                         TaskName = "Your name",
-                        Status = TaskStatusEnum.NotStarted,
+                        Status = StatusType.NotStarted,
                         FirstQuestionURL = "/application-details/contact-details"
                     }
                 }
@@ -117,7 +117,7 @@ public class ApplicationControllerTests
 
         var task = section.Tasks.First();
         Assert.Equal("Your name", task.TaskName);
-        Assert.Equal(TaskStatusEnum.NotStarted, task.Status);
+        Assert.Equal(StatusType.NotStarted, task.Status);
         Assert.True(task.IsLink);
     }
 
@@ -192,7 +192,7 @@ public class ApplicationControllerTests
             .ReturnsAsync(question);
 
         _sessionServiceMock.Setup(x => x.GetTaskStatusFromSession(question.TaskId))
-            .Returns(TaskStatusEnum.Completed);
+            .Returns(StatusType.Completed);
 
         // Act
         var result = await _controller.QuestionDetails("task", "question");
@@ -230,7 +230,7 @@ public class ApplicationControllerTests
             .ReturnsAsync(answer);
 
         _sessionServiceMock.Setup(x => x.GetTaskStatusFromSession(question.TaskId))
-            .Returns(TaskStatusEnum.InProgress);
+            .Returns(StatusType.InProgress);
 
         _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
             .ReturnsAsync(new List<AttachmentDetails>());
@@ -271,7 +271,7 @@ public class ApplicationControllerTests
             .ReturnsAsync(new QuestionAnswer { Answer = null });
 
         _sessionServiceMock.Setup(x => x.GetTaskStatusFromSession(question.TaskId))
-            .Returns(TaskStatusEnum.Completed);
+            .Returns(StatusType.Completed);
 
         _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
             .ReturnsAsync(new List<AttachmentDetails>());
@@ -562,7 +562,7 @@ public class ApplicationControllerTests
             .ReturnsAsync(answers);
 
         _sessionServiceMock.Setup(x => x.GetTaskStatusFromSession(taskId))
-            .Returns(TaskStatusEnum.Completed);
+            .Returns(StatusType.Completed);
 
         // Act
         var result = await _controller.TaskReview("task-name");
@@ -644,10 +644,11 @@ public class ApplicationControllerTests
     public async Task TaskReview_Post_ReturnsRedirectToHome_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns((Application?)null);
 
-        var model = new TaskReviewViewModel { Answer = TaskStatusEnum.Completed };
+        var model = new TaskReviewViewModel { Answer = StatusType.Completed };
 
         // Act
         var result = await _controller.TaskReview("task", model);
@@ -659,8 +660,8 @@ public class ApplicationControllerTests
 
     [Theory]
     [Trait("Category", "Unit")]
-    [InlineData((TaskStatusEnum)999)]
-    public async Task TaskReview_Post_InvalidAnswer_ReturnsBadRequest(TaskStatusEnum answer)
+    [InlineData((StatusType)999)]
+    public async Task TaskReview_Post_InvalidAnswer_ReturnsBadRequest(StatusType answer)
     {
         // Arrange
         var application = new Application { ApplicationId = Guid.NewGuid() };
@@ -675,11 +676,13 @@ public class ApplicationControllerTests
             SectionId = Guid.NewGuid()
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns(application);
 
-        _taskServiceMock.Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
-          .ReturnsAsync(taskItem);
+        _taskServiceMock
+            .Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
+            .ReturnsAsync(taskItem);
 
         var model = new TaskReviewViewModel { Answer = answer };
 
@@ -707,16 +710,19 @@ public class ApplicationControllerTests
             SectionId = Guid.NewGuid()
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns(application);
 
-        _taskServiceMock.Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
-          .ReturnsAsync(taskItem);
+        _taskServiceMock
+            .Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
+            .ReturnsAsync(taskItem);
 
-        _taskServiceMock.Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, TaskStatusEnum.Completed))
-            .ReturnsAsync(false);
+        _taskServiceMock
+            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, StatusType.Completed))
+            .ReturnsAsync((Application?)null);
 
-        var model = new TaskReviewViewModel { Answer = TaskStatusEnum.Completed };
+        var model = new TaskReviewViewModel { Answer = StatusType.Completed };
 
         // Act
         var result = await _controller.TaskReview("task", model);
@@ -725,11 +731,9 @@ public class ApplicationControllerTests
         Assert.IsType<BadRequestResult>(result);
     }
 
-    [Theory]
+    [Fact]
     [Trait("Category", "Unit")]
-    [InlineData(TaskStatusEnum.Completed)]
-    [InlineData(TaskStatusEnum.InProgress)]
-    public async Task TaskReview_Post_ValidAnswer_UpdatesStatusAndRedirects(TaskStatusEnum answer)
+    public async Task TaskReview_Post_Submitted_True_RedirectsToConfirm()
     {
         // Arrange
         var application = new Application { ApplicationId = Guid.NewGuid() };
@@ -744,14 +748,66 @@ public class ApplicationControllerTests
             SectionId = Guid.NewGuid()
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
             .Returns(application);
 
-        _taskServiceMock.Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
+        _taskServiceMock
+            .Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
             .ReturnsAsync(taskItem);
 
-        _taskServiceMock.Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, answer))
-            .ReturnsAsync(true);
+        _taskServiceMock
+            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, StatusType.Completed))
+            .ReturnsAsync(new Application
+            {
+                ApplicationId = application.ApplicationId,
+                Submitted = true
+            });
+
+        var model = new TaskReviewViewModel { Answer = StatusType.Completed };
+
+        // Act
+        var result = await _controller.TaskReview("task", model);
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.ConfirmSubmission), redirect.ActionName);
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(StatusType.Completed)]
+    [InlineData(StatusType.InProgress)]
+    public async Task TaskReview_Post_ValidAnswer_UpdatesStatusAndRedirects(StatusType answer)
+    {
+        // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+        var taskId = Guid.NewGuid();
+
+        var taskItem = new TaskDetails
+        {
+            TaskId = taskId,
+            TaskName = "task",
+            TaskNameUrl = "task",
+            TaskOrderNumber = 5,
+            SectionId = Guid.NewGuid()
+        };
+
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _taskServiceMock
+            .Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
+            .ReturnsAsync(taskItem);
+
+        _taskServiceMock
+            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, answer))
+            .ReturnsAsync(new Application
+            {
+                ApplicationId = application.ApplicationId,
+                Submitted = false
+            });
 
         var model = new TaskReviewViewModel { Answer = answer };
 
@@ -760,7 +816,69 @@ public class ApplicationControllerTests
 
         // Assert
         _taskServiceMock.Verify(x => x.UpdateTaskStatus(application.ApplicationId, taskId, answer), Times.Once);
+
         var redirect = Assert.IsType<RedirectResult>(result);
         Assert.Equal(RouteConstants.ApplicationConstants.TASK_LIST_PATH, redirect.Url);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ConfirmSubmission_ReturnsRedirectToHome_WhenApplicationIsNull()
+    {
+        // Arrange
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns((Application?)null);
+
+        // Act
+        var result = _controller.ConfirmSubmission();
+
+        // Assert
+        var redirect = Assert.IsType<RedirectResult>(result);
+        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ConfirmSubmission_ReturnsBadRequest_WhenApplicationNotSubmitted()
+    {
+        // Arrange
+        var application = new Application
+        {
+            ApplicationId = Guid.NewGuid(),
+            Submitted = false
+        };
+
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        // Act
+        var result = _controller.ConfirmSubmission();
+
+        // Assert
+        Assert.IsType<BadRequestResult>(result);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ConfirmSubmission_ReturnsView_WhenApplicationIsSubmitted()
+    {
+        // Arrange
+        var application = new Application
+        {
+            ApplicationId = Guid.NewGuid(),
+            Submitted = true
+        };
+
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        // Act
+        var result = _controller.ConfirmSubmission();
+
+        // Assert
+        Assert.IsType<ViewResult>(result);
     }
 }

@@ -50,38 +50,45 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<bool> UpdateTaskStatus(Guid applicationId, Guid taskId, TaskStatusEnum status)
+    public async Task<Application?> UpdateTaskStatus(Guid applicationId, Guid taskId, StatusType status)
     {
         try
         {
-            TaskStatusEnum? currentStatus = _sessionService.GetTaskStatusFromSession(taskId);
-            if (currentStatus.HasValue && currentStatus.Value == status)
+            StatusType? currentStatus = _sessionService.GetTaskStatusFromSession(taskId);
+            if (currentStatus == status)
             {
-                return true;
+                return _sessionService.GetFromSession<Application>(SessionKeys.Application);
             }
 
             var client = await _client.GetClientAsync();
-            var newTaskStatus = new UpdateTaskStatus
-            {
-                Status = status
-            };
+            var content = new StringContent(
+                JsonConvert.SerializeObject(new UpdateTaskStatus { Status = status }),
+                Encoding.UTF8,
+                "application/json"
+            );
 
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(newTaskStatus), Encoding.UTF8, "application/json");
-            var response = await client.PostAsync($"/applications/{applicationId}/tasks/{taskId}", jsonContent);
-
+            var response = await client.PostAsync($"/applications/{applicationId}/tasks/{taskId}", content);
             if (!response.IsSuccessStatusCode)
             {
-                Log.Warning("Failed to update task {TaskId} for Application ID {ApplicationId}. Status Code: {StatusCode}, Reason: {Reason}", taskId, applicationId, response.StatusCode, response.ReasonPhrase);
-                return false;
+                Log.Warning("Failed to update task {TaskId} for Application {ApplicationId}. StatusCode: {StatusCode}, Reason: {ReasonPhrase}", taskId, applicationId, response.StatusCode, response.ReasonPhrase);
+                return null;
             }
 
-            _sessionService.UpdateTaskStatusInSession(taskId, status);
-            return true;
+            var json = await response.Content.ReadAsStringAsync();
+            var application = JsonConvert.DeserializeObject<Application>(json);
+
+            if (application != null)
+            {
+                _sessionService.UpdateTaskStatusInSession(taskId, status);
+                _sessionService.SetInSession(SessionKeys.Application, application);
+            }
+
+            return application;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while updating task {TaskId} for Application ID {ApplicationId}", taskId, applicationId);
-            return false;
+            Log.Error(ex, "Error updating task {TaskId} for Application {ApplicationId}", taskId, applicationId);
+            return null;
         }
     }
 

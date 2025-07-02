@@ -6,6 +6,6 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 public interface ITaskService
 {
     public Task<List<TaskItemStatusSection>> GetApplicationTasks(Guid applicationId);
-    public Task<bool> UpdateTaskStatus(Guid applicationId, Guid taskId, TaskStatusEnum status);
+    public Task<Application?> UpdateTaskStatus(Guid applicationId, Guid taskId, StatusType status);
     public Task<TaskDetails?> GetTaskDetailsByTaskNameUrl(string taskNameUrl);
 }

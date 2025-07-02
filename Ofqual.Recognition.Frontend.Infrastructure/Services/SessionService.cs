@@ -70,7 +70,7 @@ public class SessionService : ISessionService
         session?.Clear();
     }
 
-    public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus)
+    public void UpdateTaskStatusInSession(Guid taskId, StatusType newStatus)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         if (session == null)
@@ -109,7 +109,7 @@ public class SessionService : ISessionService
         session.Set(SessionKeys.ApplicationTaskList, Encoding.UTF8.GetBytes(updatedData));
     }
 
-    public TaskStatusEnum? GetTaskStatusFromSession(Guid taskId)
+    public StatusType? GetTaskStatusFromSession(Guid taskId)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         if (session == null)

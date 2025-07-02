@@ -9,7 +9,7 @@ public interface ISessionService
     public bool HasInSession(string key);
     public void ClearFromSession(string key);
     public void ClearAllSession();
-    public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus);
-    public TaskStatusEnum? GetTaskStatusFromSession(Guid taskId);
+    public void UpdateTaskStatusInSession(Guid taskId, StatusType newStatus);
+    public StatusType? GetTaskStatusFromSession(Guid taskId);
     public void UpsertPreEngagementAnswer(Guid questionId, Guid taskId, string answerJson);
 }
