@@ -143,15 +143,15 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<List<TaskReviewSection?>> GetAllApplicationAnswers(Guid applicationId)
+    public async Task<List<TaskReviewSection>?> GetAllApplicationAnswers(Guid applicationId)
     {
         try
         {
             var sessionKey = $"{SessionKeys.ApplicationAnswersReview}:{applicationId}:applicationId";
-            //if (_sessionService.HasInSession(sessionKey))
-            //{
-            //    return _sessionService.GetFromSession<List<QuestionAnswerSection>>(sessionKey);
-            //}
+            if (_sessionService.HasInSession(sessionKey))
+            {
+                return _sessionService.GetFromSession<List<TaskReviewSection>>(sessionKey);
+            }
 
             var client = await _client.GetClientAsync();
             var result = await client.GetFromJsonAsync<List<TaskReviewSection>>($"/applications/{applicationId}/tasks/answers");
@@ -161,8 +161,6 @@ public class QuestionService : IQuestionService
                 Log.Warning("No question answer found applicationId: {applicationId}",applicationId);
                 return null;
             }
-
-
 
             _sessionService.SetInSession(sessionKey, result);
             return result;
