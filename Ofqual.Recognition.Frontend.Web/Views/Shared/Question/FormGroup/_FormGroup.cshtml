@@ -37,14 +37,32 @@
 @if (Model.QuestionContent.FormGroup != null)
 {
     <form class="form"
-          method="post"
-          enctype="@enctypeAttr"
-          asp-controller="@controllerName"
-          asp-action="@actionName"
-          asp-route-taskNameUrl="@currentQuestion!.Value.taskNameUrl"
-          asp-route-questionNameUrl="@currentQuestion!.Value.questionNameUrl">
+    method="post"
+    enctype="@enctypeAttr"
+    asp-controller="@controllerName"
+    asp-action="@actionName"
+    asp-route-taskNameUrl="@currentQuestion!.Value.taskNameUrl"
+    asp-route-questionNameUrl="@currentQuestion!.Value.questionNameUrl">
 
-        @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/Elements/_{Model.QuestionTypeName}.cshtml", Model)
+        @switch (Model.QuestionTypeName)
+        {
+            case QuestionType.CheckboxGroup:
+                @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_CheckboxGroup.cshtml", Model)
+                break; 
+            case QuestionType.FileUpload:
+                @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_FileUpload.cshtml", Model)
+                break;
+            case QuestionType.RadioButtonGroup:
+            case QuestionType.Review:
+                @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_RadioButtonGroup.cshtml", Model)
+                break;
+            case QuestionType.Textarea:
+                @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_Textarea.cshtml", Model)
+                break;
+            case QuestionType.TextInputGroup:
+                @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_TextInputGroup.cshtml", Model)
+                break;
+        }
 
         @Html.AntiForgeryToken()
 

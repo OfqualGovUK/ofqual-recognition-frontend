@@ -91,13 +91,24 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
-        var linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+        var linkedAttachments = new List<AttachmentDetails>();
+        var applicationReviewAnswers = new List<TaskReviewSection>();
+
+        if (questionDetails.QuestionTypeName == QuestionType.FileUpload)
+        {
+            linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+        }
+
+        if (questionDetails.QuestionTypeName == QuestionType.Review)
+        {
+            applicationReviewAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
+        }
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.FromReview = fromReview;
         questionViewModel.AnswerJson = questionAnswer?.Answer;
         questionViewModel.Attachments = AttachmentMapper.MapToViewModel(linkedAttachments);
-        questionViewModel.TaskReviewSection = ApplicationAnswersMapper.MapToViewModel(allApplicationAnswers);
+        questionViewModel.TaskReviewSection = ApplicationAnswersMapper.MapToViewModel(applicationReviewAnswers);
 
         return View(questionViewModel);
     }
@@ -195,18 +206,6 @@ public class ApplicationController : Controller
         taskReview.IsCompletedStatus = status == StatusType.Completed;
         taskReview.Answer = (StatusType)status;
         return View(taskReview);
-    }
-
-    [HttpGet("confirm-submission")]
-    public IActionResult ConfirmSubmission() 
-    {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-        if (application == null)
-        {
-            // TODO: Redirect to login page instead of home
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
-        }
-        return View(); 
     }
 
     [HttpPost("{taskNameUrl}/review-your-answers")]

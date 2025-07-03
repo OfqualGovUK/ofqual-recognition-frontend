@@ -64,6 +64,7 @@ public class QuestionService : IQuestionService
             {
                 _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{applicationId}:{taskId}");
                 _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}:{questionId}:answer");
+                _sessionService.ClearFromSession($"{SessionKeys.ApplicationAnswersReview}:{applicationId}");
                 _sessionService.UpdateTaskStatusInSession(taskId, StatusType.InProgress);
 
                 return new ValidationResponse();
@@ -143,14 +144,14 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<List<TaskReviewSection>?> GetAllApplicationAnswers(Guid applicationId)
+    public async Task<List<TaskReviewSection>> GetAllApplicationAnswers(Guid applicationId)
     {
         try
         {
-            var sessionKey = $"{SessionKeys.ApplicationAnswersReview}:{applicationId}:applicationId";
+            var sessionKey = $"{SessionKeys.ApplicationAnswersReview}:{applicationId}";
             if (_sessionService.HasInSession(sessionKey))
             {
-                return _sessionService.GetFromSession<List<TaskReviewSection>>(sessionKey);
+                return _sessionService.GetFromSession<List<TaskReviewSection>>(sessionKey) ?? new List<TaskReviewSection>();
             }
 
             var client = await _client.GetClientAsync();
@@ -159,7 +160,7 @@ public class QuestionService : IQuestionService
             if (result == null)
             {
                 Log.Warning("No question answer found applicationId: {applicationId}",applicationId);
-                return null;
+                return new List<TaskReviewSection>();
             }
 
             _sessionService.SetInSession(sessionKey, result);
@@ -168,7 +169,7 @@ public class QuestionService : IQuestionService
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving answers for applicationId: {applicationId}", applicationId);
-            return null;
+            return new List<TaskReviewSection>();
         }
     }
 }
