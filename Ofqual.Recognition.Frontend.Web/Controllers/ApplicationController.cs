@@ -217,14 +217,20 @@ public class ApplicationController : Controller
             return BadRequest();
         }
 
-        Application? updatedApplication = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, formdata.Answer);
-        if (updatedApplication == null)
+        bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, StatusType.InProgress);
+        if (!updateSucceeded)
         {
             return BadRequest();
         }
 
-        if (updatedApplication.Submitted)
+        if (taskDetails.Stage == StageType.Declaration)
         {
+            Application? submitted = await _applicationService.SubmitApplication(application.ApplicationId);
+            if (submitted == null || !submitted.Submitted)
+            {
+                return BadRequest("Could not submit application.");
+            }
+
             return RedirectToAction(nameof(ConfirmSubmission));
         }
 

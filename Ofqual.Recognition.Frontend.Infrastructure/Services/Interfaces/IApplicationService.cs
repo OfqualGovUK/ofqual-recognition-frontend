@@ -5,4 +5,5 @@ namespace Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 public interface IApplicationService
 {
     public Task<Application?> InitialiseApplication();
+    public Task<Application?> SubmitApplication(Guid applicationId);
 }

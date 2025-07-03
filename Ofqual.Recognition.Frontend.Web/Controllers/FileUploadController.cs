@@ -137,8 +137,8 @@ public class FileUploadController : Controller
             return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);
         }
 
-        Application? updatedApplication = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.InProgress);
-        if (updatedApplication == null)
+        bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.InProgress);
+        if (!updateSucceeded)
         {
             return BadRequest();
         }
@@ -207,8 +207,8 @@ public class FileUploadController : Controller
             return BadRequest("Failed to upload file.");
         }
 
-        Application? updatedApplication = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.InProgress);
-        if (updatedApplication == null)
+        bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.InProgress);
+        if (!updateSucceeded)
         {
             return BadRequest();
         }

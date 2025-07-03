@@ -50,14 +50,14 @@ public class TaskService : ITaskService
         }
     }
 
-    public async Task<Application?> UpdateTaskStatus(Guid applicationId, Guid taskId, StatusType status)
+    public async Task<bool> UpdateTaskStatus(Guid applicationId, Guid taskId, StatusType status)
     {
         try
         {
             StatusType? currentStatus = _sessionService.GetTaskStatusFromSession(taskId);
             if (currentStatus == status)
             {
-                return _sessionService.GetFromSession<Application>(SessionKeys.Application);
+                return true;
             }
 
             var client = await _client.GetClientAsync();
@@ -71,24 +71,16 @@ public class TaskService : ITaskService
             if (!response.IsSuccessStatusCode)
             {
                 Log.Warning("Failed to update task {TaskId} for Application {ApplicationId}. StatusCode: {StatusCode}, Reason: {ReasonPhrase}", taskId, applicationId, response.StatusCode, response.ReasonPhrase);
-                return null;
+                return false;
             }
 
-            var json = await response.Content.ReadAsStringAsync();
-            var application = JsonConvert.DeserializeObject<Application>(json);
-
-            if (application != null)
-            {
-                _sessionService.UpdateTaskStatusInSession(taskId, status);
-                _sessionService.SetInSession(SessionKeys.Application, application);
-            }
-
-            return application;
+            _sessionService.UpdateTaskStatusInSession(taskId, status);
+            return true;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error updating task {TaskId} for Application {ApplicationId}", taskId, applicationId);
-            return null;
+            return false;
         }
     }
 

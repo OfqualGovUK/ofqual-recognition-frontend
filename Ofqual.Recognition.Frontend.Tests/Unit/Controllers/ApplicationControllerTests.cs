@@ -673,7 +673,9 @@ public class ApplicationControllerTests
             TaskName = "task",
             TaskNameUrl = "task",
             TaskOrderNumber = 5,
-            SectionId = Guid.NewGuid()
+            SectionId = Guid.NewGuid(),
+            Stage = StageType.MainApplication,
+            Status = StatusType.NotStarted
         };
 
         _sessionServiceMock
@@ -707,7 +709,9 @@ public class ApplicationControllerTests
             TaskName = "task",
             TaskNameUrl = "task",
             TaskOrderNumber = 5,
-            SectionId = Guid.NewGuid()
+            SectionId = Guid.NewGuid(),
+            Stage = StageType.MainApplication,
+            Status = StatusType.NotStarted
         };
 
         _sessionServiceMock
@@ -719,8 +723,8 @@ public class ApplicationControllerTests
             .ReturnsAsync(taskItem);
 
         _taskServiceMock
-            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, StatusType.Completed))
-            .ReturnsAsync((Application?)null);
+            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, StatusType.InProgress))
+            .ReturnsAsync(false);
 
         var model = new TaskReviewViewModel { Answer = StatusType.Completed };
 
@@ -745,7 +749,9 @@ public class ApplicationControllerTests
             TaskName = "task",
             TaskNameUrl = "task",
             TaskOrderNumber = 5,
-            SectionId = Guid.NewGuid()
+            SectionId = Guid.NewGuid(),
+            Stage = StageType.Declaration,
+            Status = StatusType.NotStarted
         };
 
         _sessionServiceMock
@@ -757,7 +763,11 @@ public class ApplicationControllerTests
             .ReturnsAsync(taskItem);
 
         _taskServiceMock
-            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, StatusType.Completed))
+            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, StatusType.InProgress))
+            .ReturnsAsync(true);
+
+        _applicationServiceMock
+            .Setup(x => x.SubmitApplication(application.ApplicationId))
             .ReturnsAsync(new Application
             {
                 ApplicationId = application.ApplicationId,
@@ -790,7 +800,9 @@ public class ApplicationControllerTests
             TaskName = "task",
             TaskNameUrl = "task",
             TaskOrderNumber = 5,
-            SectionId = Guid.NewGuid()
+            SectionId = Guid.NewGuid(),
+            Stage = StageType.MainApplication,
+            Status = StatusType.NotStarted
         };
 
         _sessionServiceMock
@@ -802,12 +814,8 @@ public class ApplicationControllerTests
             .ReturnsAsync(taskItem);
 
         _taskServiceMock
-            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, answer))
-            .ReturnsAsync(new Application
-            {
-                ApplicationId = application.ApplicationId,
-                Submitted = false
-            });
+            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, taskId, StatusType.InProgress))
+            .ReturnsAsync(true);
 
         var model = new TaskReviewViewModel { Answer = answer };
 
@@ -815,7 +823,7 @@ public class ApplicationControllerTests
         var result = await _controller.TaskReview("task", model);
 
         // Assert
-        _taskServiceMock.Verify(x => x.UpdateTaskStatus(application.ApplicationId, taskId, answer), Times.Once);
+        _taskServiceMock.Verify(x => x.UpdateTaskStatus(application.ApplicationId, taskId, StatusType.InProgress), Times.Once);
 
         var redirect = Assert.IsType<RedirectResult>(result);
         Assert.Equal(RouteConstants.ApplicationConstants.TASK_LIST_PATH, redirect.Url);
