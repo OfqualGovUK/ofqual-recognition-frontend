@@ -82,6 +82,7 @@ public class PreEngagementController : Controller
         {
             QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
             questionViewModel.Validation = QuestionMapper.MapToViewModel(validationResponse);
+            questionViewModel.FromPreEngagement = true;
             questionViewModel.AnswerJson = jsonAnswer;
 
             return View("~/Views/Application/QuestionDetails.cshtml", questionViewModel);

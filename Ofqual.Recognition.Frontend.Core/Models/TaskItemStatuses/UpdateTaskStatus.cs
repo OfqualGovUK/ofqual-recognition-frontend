@@ -7,5 +7,5 @@ namespace Ofqual.Recognition.Frontend.Core.Models;
 /// </summary>
 public class UpdateTaskStatus
 {
-    public TaskStatusEnum Status { get; set; }
+    public StatusType Status { get; set; }
 }

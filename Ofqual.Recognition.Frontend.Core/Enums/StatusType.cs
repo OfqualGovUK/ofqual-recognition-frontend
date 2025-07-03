@@ -1,6 +1,6 @@
 ﻿namespace Ofqual.Recognition.Frontend.Core.Enums;
 
-public enum TaskStatusEnum
+public enum StatusType
 {
     Completed = 1,
     InProgress = 2,

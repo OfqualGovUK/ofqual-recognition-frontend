@@ -64,7 +64,7 @@ public class QuestionService : IQuestionService
             {
                 _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{applicationId}:{taskId}");
                 _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionAnswer}:{questionId}:answer");
-                _sessionService.UpdateTaskStatusInSession(taskId, TaskStatusEnum.InProgress);
+                _sessionService.UpdateTaskStatusInSession(taskId, StatusType.InProgress);
 
                 return new ValidationResponse();
             }
