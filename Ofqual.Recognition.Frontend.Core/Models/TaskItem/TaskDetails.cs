@@ -9,6 +9,5 @@ public class TaskDetails
     public required string TaskNameUrl { get; set; }
     public int TaskOrderNumber { get; set; }
     public StageType Stage { get; set; }
-    public StatusType Status { get; set; }
     public Guid SectionId { get; set; }
 }

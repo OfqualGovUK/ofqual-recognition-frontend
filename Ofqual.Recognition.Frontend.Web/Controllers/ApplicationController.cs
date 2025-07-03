@@ -217,7 +217,7 @@ public class ApplicationController : Controller
             return BadRequest();
         }
 
-        bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, StatusType.InProgress);
+        bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, formdata.Answer);
         if (!updateSucceeded)
         {
             return BadRequest();
