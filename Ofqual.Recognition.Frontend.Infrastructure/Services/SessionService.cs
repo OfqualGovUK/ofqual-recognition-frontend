@@ -70,7 +70,7 @@ public class SessionService : ISessionService
         session?.Clear();
     }
 
-    public void UpdateTaskStatusInSession(Guid taskId, TaskStatusEnum newStatus)
+    public void UpdateTaskStatusInSession(Guid taskId, StatusType newStatus)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         if (session == null)
@@ -105,11 +105,25 @@ public class SessionService : ISessionService
             }
         }
 
+        bool anyActive = taskSections
+            .SelectMany(sec => sec.Tasks)
+            .Any(t => t.Status == StatusType.InProgress
+                   || t.Status == StatusType.NotStarted);
+
+        if (!anyActive)
+        {
+            session.Remove(SessionKeys.ApplicationTaskList);
+            return;
+        }
+
         var updatedData = JsonConvert.SerializeObject(taskSections);
-        session.Set(SessionKeys.ApplicationTaskList, Encoding.UTF8.GetBytes(updatedData));
+        session.Set(
+            SessionKeys.ApplicationTaskList,
+            Encoding.UTF8.GetBytes(updatedData)
+        );
     }
 
-    public TaskStatusEnum? GetTaskStatusFromSession(Guid taskId)
+    public StatusType? GetTaskStatusFromSession(Guid taskId)
     {
         var session = _httpContextAccessor.HttpContext?.Session;
         if (session == null)

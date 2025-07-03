@@ -84,14 +84,14 @@
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="yes" name="answer" type="radio"
-                                   value="@( (int)TaskStatusEnum.Completed )" @(Model.Answer == TaskStatusEnum.Completed ? "checked" : "")>
+                                   value="@( (int)StatusType.Completed )" @(Model.Answer == StatusType.Completed ? "checked" : "")>
                             <label class="govuk-label govuk-radios__label" for="yes">
                                 Yes, I've completed this section
                             </label>
                         </div>
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="no" name="answer" type="radio"
-                                   value="@( (int)TaskStatusEnum.InProgress )" @(Model.Answer == TaskStatusEnum.InProgress ? "checked" : "")>
+                                   value="@( (int)StatusType.InProgress )" @(Model.Answer == StatusType.InProgress ? "checked" : "")>
                             <label class="govuk-label govuk-radios__label" for="no">
                                 No, I'll come back to it later
                             </label>

@@ -6,4 +6,5 @@ namespace Ofqual.Recognition.Frontend.Core.Models;
 public class Application
 {
     public Guid ApplicationId { get; set; }
+    public bool Submitted { get; set; }
 }

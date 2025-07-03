@@ -116,7 +116,7 @@ public class FileUploadControllerTests
     public async Task SubmitFile_Redirects_To_Review_When_No_More_Questions()
     {
         // Arrange
-        var application = new Application { ApplicationId = Guid.NewGuid() };
+        var application = new Application { ApplicationId = Guid.NewGuid(), Submitted = false };
         var question = new QuestionDetails
         {
             QuestionId = Guid.NewGuid(),
@@ -133,11 +133,20 @@ public class FileUploadControllerTests
             ContentType = "text/plain"
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
-        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
-        _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _questionServiceMock
+            .Setup(x => x.GetQuestionDetails("task", "question"))
+            .ReturnsAsync(question);
+
+        _attachmentServiceMock
+            .Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
             .ReturnsAsync(new List<AttachmentDetails>());
-        _attachmentServiceMock.Setup(x => x.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
+
+        _attachmentServiceMock
+            .Setup(x => x.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
             .ReturnsAsync(new AttachmentDetails
             {
                 AttachmentId = Guid.NewGuid(),
@@ -145,7 +154,10 @@ public class FileUploadControllerTests
                 FileMIMEtype = "text/plain",
                 FileSize = 100
             });
-        _taskServiceMock.Setup(x => x.UpdateTaskStatus(application.ApplicationId, question.TaskId, TaskStatusEnum.InProgress)).ReturnsAsync(true);
+
+        _taskServiceMock
+            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, question.TaskId, StatusType.InProgress))
+            .ReturnsAsync(true);
 
         // Act
         var result = await _controller.SubmitFile("task", "question", new List<IFormFile> { file });
@@ -160,7 +172,7 @@ public class FileUploadControllerTests
     public async Task SubmitFile_Returns_BadRequest_When_Status_Update_Fails()
     {
         // Arrange
-        var application = new Application { ApplicationId = Guid.NewGuid() };
+        var application = new Application { ApplicationId = Guid.NewGuid(), Submitted = false };
         var question = new QuestionDetails
         {
             QuestionId = Guid.NewGuid(),
@@ -168,7 +180,7 @@ public class FileUploadControllerTests
             QuestionTypeName = "FileUpload",
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question",
-            NextQuestionUrl = null
+            NextQuestionUrl = "task/next-question"
         };
 
         var file = new FormFile(new MemoryStream(new byte[100]), 0, 100, "files", "file.txt")
@@ -177,11 +189,20 @@ public class FileUploadControllerTests
             ContentType = "text/plain"
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
-        _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
-        _attachmentServiceMock.Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _questionServiceMock
+            .Setup(x => x.GetQuestionDetails("task", "question"))
+            .ReturnsAsync(question);
+
+        _attachmentServiceMock
+            .Setup(x => x.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
             .ReturnsAsync(new List<AttachmentDetails>());
-        _attachmentServiceMock.Setup(x => x.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
+
+        _attachmentServiceMock
+            .Setup(x => x.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
             .ReturnsAsync(new AttachmentDetails
             {
                 AttachmentId = Guid.NewGuid(),
@@ -189,7 +210,10 @@ public class FileUploadControllerTests
                 FileMIMEtype = "text/plain",
                 FileSize = 100
             });
-        _taskServiceMock.Setup(x => x.UpdateTaskStatus(application.ApplicationId, question.TaskId, TaskStatusEnum.InProgress)).ReturnsAsync(false);
+
+        _taskServiceMock
+            .Setup(x => x.UpdateTaskStatus(application.ApplicationId, question.TaskId, StatusType.InProgress))
+            .ReturnsAsync(false);
 
         // Act
         var result = await _controller.SubmitFile("task", "question", new List<IFormFile> { file });
@@ -436,13 +460,24 @@ public class FileUploadControllerTests
             FileSize = 100
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
-        _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
-        _attachmentServiceMock.Setup(a => a.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _questionServiceMock
+            .Setup(q => q.GetQuestionDetails("task", "question"))
+            .ReturnsAsync(question);
+
+        _attachmentServiceMock
+            .Setup(a => a.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
             .ReturnsAsync(new List<AttachmentDetails>());
-        _attachmentServiceMock.Setup(a => a.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
+
+        _attachmentServiceMock
+            .Setup(a => a.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
             .ReturnsAsync(attachment);
-        _taskServiceMock.Setup(t => t.UpdateTaskStatus(application.ApplicationId, question.TaskId, TaskStatusEnum.InProgress))
+
+        _taskServiceMock
+            .Setup(t => t.UpdateTaskStatus(application.ApplicationId, question.TaskId, StatusType.InProgress))
             .ReturnsAsync(false);
 
         // Act
@@ -481,13 +516,24 @@ public class FileUploadControllerTests
             FileSize = 100
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
-        _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
-        _attachmentServiceMock.Setup(a => a.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _questionServiceMock
+            .Setup(q => q.GetQuestionDetails("task", "question"))
+            .ReturnsAsync(question);
+
+        _attachmentServiceMock
+            .Setup(a => a.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
             .ReturnsAsync(new List<AttachmentDetails>());
-        _attachmentServiceMock.Setup(a => a.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
+
+        _attachmentServiceMock
+            .Setup(a => a.UploadFileToLinkedRecord(LinkType.Question, question.QuestionId, application.ApplicationId, file))
             .ReturnsAsync(attachment);
-        _taskServiceMock.Setup(t => t.UpdateTaskStatus(application.ApplicationId, question.TaskId, TaskStatusEnum.InProgress))
+
+        _taskServiceMock
+            .Setup(t => t.UpdateTaskStatus(application.ApplicationId, question.TaskId, StatusType.InProgress))
             .ReturnsAsync(true);
 
         // Act

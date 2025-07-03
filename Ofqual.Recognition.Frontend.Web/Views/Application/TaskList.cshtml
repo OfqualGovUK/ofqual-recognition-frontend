@@ -37,7 +37,7 @@
                                 }
                             </div>
                             <div class="govuk-task-list__status" id="task-@task.TaskId-status">
-                                @if (task.Status != TaskStatusEnum.Completed)
+                                @if (task.Status != StatusType.Completed)
                                 {
                                     <strong class="govuk-tag @task.TagClass">
                                         @task.StatusDisplay

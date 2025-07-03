@@ -3,6 +3,7 @@ using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
@@ -54,6 +55,36 @@ public class ApplicationService : IApplicationService
         catch (Exception ex)
         {
             Log.Error(ex, "An unexpected error occurred while initialising the application.");
+            return null;
+        }
+    }
+
+    public async Task<Application?> SubmitApplication(Guid applicationId)
+    {
+        try
+        {
+            var client = await _client.GetClientAsync();
+
+            var response = await client.PostAsync($"/applications/{applicationId}/submit", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                Log.Warning("Failed to submit Application {ApplicationId}. StatusCode: {StatusCode}, Reason: {ReasonPhrase}", applicationId, response.StatusCode, response.ReasonPhrase);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var application = JsonConvert.DeserializeObject<Application>(json);
+
+            if (application != null)
+            {
+                _sessionService.SetInSession(SessionKeys.Application, application);
+            }
+
+            return application;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error submitting Application {ApplicationId}", applicationId);
             return null;
         }
     }

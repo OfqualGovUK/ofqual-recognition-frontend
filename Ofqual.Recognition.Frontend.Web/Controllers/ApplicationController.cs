@@ -23,10 +23,10 @@ public class ApplicationController : Controller
     private readonly IAttachmentService _attachmentService;
 
     public ApplicationController(
-        IApplicationService applicationService, 
-        ITaskService taskService, 
-        ISessionService sessionService, 
-        IQuestionService questionService, 
+        IApplicationService applicationService,
+        ITaskService taskService,
+        ISessionService sessionService,
+        IQuestionService questionService,
         IAttachmentService attachmentService)
     {
         _applicationService = applicationService;
@@ -84,14 +84,14 @@ public class ApplicationController : Controller
 
         QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
-        var status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
-        if (status == TaskStatusEnum.Completed && !fromReview)
+        StatusType? status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
+        if (status == StatusType.Completed && !fromReview)
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
         var linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
- 
+
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.FromReview = fromReview;
         questionViewModel.AnswerJson = questionAnswer?.Answer;
@@ -104,21 +104,21 @@ public class ApplicationController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
             // TODO: Redirect to login page instead of home
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
-        var questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
+        QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
         if (questionDetails == null)
         {
             return NotFound();
         }
 
-        var jsonAnswer = JsonHelper.ConvertToJson(formdata);
-        var existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
+        string jsonAnswer = JsonHelper.ConvertToJson(formdata);
+        QuestionAnswer? existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
         if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
@@ -178,7 +178,7 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        TaskStatusEnum? status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
+        StatusType? status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
         if (status == null)
         {
             return BadRequest();
@@ -190,21 +190,9 @@ public class ApplicationController : Controller
 
         TaskReviewViewModel taskReview = QuestionMapper.MapToViewModel(reviewAnswers);
         taskReview.LastQuestionUrl = lastQuestionUrl;
-        taskReview.IsCompletedStatus = status == TaskStatusEnum.Completed;
-        taskReview.Answer = (TaskStatusEnum)status;
+        taskReview.IsCompletedStatus = status == StatusType.Completed;
+        taskReview.Answer = (StatusType)status;
         return View(taskReview);
-    }
-
-    [HttpGet("confirm-submission")]
-    public IActionResult ConfirmSubmission() 
-    {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-        if (application == null)
-        {
-            // TODO: Redirect to login page instead of home
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
-        }
-        return View(); 
     }
 
     [HttpPost("{taskNameUrl}/review-your-answers")]
@@ -224,17 +212,46 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        if (formdata.Answer != TaskStatusEnum.Completed && formdata.Answer != TaskStatusEnum.InProgress)
+        if (formdata.Answer != StatusType.Completed && formdata.Answer != StatusType.InProgress)
         {
             return BadRequest();
         }
 
-        bool hasTaskStatusUpdated = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, formdata.Answer);
-        if (!hasTaskStatusUpdated)
+        bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, formdata.Answer);
+        if (!updateSucceeded)
         {
             return BadRequest();
+        }
+
+        if (taskDetails.Stage == StageType.Declaration)
+        {
+            Application? submitted = await _applicationService.SubmitApplication(application.ApplicationId);
+            if (submitted == null || !submitted.Submitted)
+            {
+                return BadRequest("Could not submit application.");
+            }
+
+            return RedirectToAction(nameof(ConfirmSubmission));
         }
 
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
+    }
+
+    [HttpGet("confirm-submission")]
+    public IActionResult ConfirmSubmission()
+    {
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page instead of home
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+
+        if (!application.Submitted)
+        {
+            return BadRequest();
+        }
+
+        return View();
     }
 }
