@@ -80,7 +80,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "FileUpload",
+            QuestionTypeName = QuestionType.FileUpload,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -121,7 +121,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "FileUpload",
+            QuestionTypeName = QuestionType.FileUpload,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question",
             NextQuestionUrl = null
@@ -177,7 +177,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "FileUpload",
+            QuestionTypeName = QuestionType.FileUpload,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question",
             NextQuestionUrl = "task/next-question"
@@ -265,7 +265,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
+           QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -297,7 +297,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
+           QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -329,7 +329,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
+           QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -363,7 +363,7 @@ public class FileUploadControllerTests
         {
             QuestionId = questionId,
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
+           QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -405,7 +405,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
+           QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -441,7 +441,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
+           QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -497,7 +497,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
+           QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -590,7 +590,7 @@ public class FileUploadControllerTests
         {
             QuestionId = questionId,
             CurrentQuestionUrl = "task/question",
-            QuestionTypeName = "fileUpload",
+            QuestionTypeName = QuestionType.FileUpload,
             QuestionContent = "{}"
         };
 
@@ -625,7 +625,7 @@ public class FileUploadControllerTests
         {
             QuestionId = questionId,
             CurrentQuestionUrl = "task/question",
-            QuestionTypeName = "fileUpload",
+            QuestionTypeName = QuestionType.FileUpload,
             QuestionContent = "{}"
         };
 
@@ -665,7 +665,7 @@ public class FileUploadControllerTests
         {
             QuestionId = questionId,
             CurrentQuestionUrl = "task/question",
-            QuestionTypeName = "fileUpload",
+            QuestionTypeName = QuestionType.FileUpload,
             QuestionContent = "{}"
         };
 
@@ -738,7 +738,7 @@ public class FileUploadControllerTests
             {
                 QuestionId = questionId,
                 TaskId = Guid.NewGuid(),
-                QuestionTypeName = "File",
+                QuestionTypeName = QuestionType.FileUpload,
                 QuestionContent = "{}",
                 CurrentQuestionUrl = "task/question"
             });
@@ -779,7 +779,7 @@ public class FileUploadControllerTests
             {
                 QuestionId = questionId,
                 TaskId = Guid.NewGuid(),
-                QuestionTypeName = "File",
+                QuestionTypeName = QuestionType.FileUpload,
                 QuestionContent = "{}",
                 CurrentQuestionUrl = "task/question"
             });
@@ -825,7 +825,7 @@ public class FileUploadControllerTests
             {
                 QuestionId = questionId,
                 TaskId = Guid.NewGuid(),
-                QuestionTypeName = "File",
+                QuestionTypeName = QuestionType.FileUpload,
                 QuestionContent = "{}",
                 CurrentQuestionUrl = "task/question"
             });
@@ -892,7 +892,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "File",
+            QuestionTypeName = QuestionType.FileUpload,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -928,7 +928,7 @@ public class FileUploadControllerTests
         {
             QuestionId = questionId,
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "File",
+            QuestionTypeName = QuestionType.FileUpload,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
