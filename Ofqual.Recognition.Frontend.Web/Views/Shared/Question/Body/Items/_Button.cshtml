@@ -2,6 +2,7 @@
 @model ButtonContentViewModel
 
 <form method="post" action="@Model.FormAction">
+    @Html.AntiForgeryToken();
     <button type="submit" name="@Model.Name" class="govuk-button" data-module="govuk-button">
         @Model.Text
     </button>
