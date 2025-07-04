@@ -10,14 +10,12 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class EligibilityControllerTests
 {
-    private readonly Mock<IEligibilityService> _eligibilityServiceMock;
-    private readonly Mock<ISessionService> _sessionServiceMock;
+    private readonly Mock<IEligibilityService> _eligibilityServiceMock = new();
+    private readonly Mock<ISessionService> _sessionServiceMock = new();
     private readonly EligibilityController _controller;
 
     public EligibilityControllerTests()
     {
-        _eligibilityServiceMock = new Mock<IEligibilityService>();
-        _sessionServiceMock = new Mock<ISessionService>();
         _controller = new EligibilityController(_eligibilityServiceMock.Object, _sessionServiceMock.Object);
     }
 
@@ -191,7 +189,7 @@ public class EligibilityControllerTests
 
         // Assert
         _sessionServiceMock.Verify(x => x.SetInSession(SessionKeys.EligibilityQuestionThree, "Yes"), Times.Once);
-        
+
         if (!string.IsNullOrEmpty(returnUrl))
         {
             var redirectResult = Assert.IsType<RedirectResult>(result);

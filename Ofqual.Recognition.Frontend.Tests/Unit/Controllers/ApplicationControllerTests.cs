@@ -13,22 +13,23 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class ApplicationControllerTests
 {
-    private readonly Mock<IApplicationService> _applicationServiceMock;
-    private readonly Mock<ITaskService> _taskServiceMock;
-    private readonly Mock<ISessionService> _sessionServiceMock;
-    private readonly Mock<IQuestionService> _questionServiceMock;
-    private readonly Mock<IAttachmentService> _attachmentServiceMock;
+    private readonly Mock<IApplicationService> _applicationServiceMock = new();
+    private readonly Mock<ITaskService> _taskServiceMock = new();
+    private readonly Mock<ISessionService> _sessionServiceMock = new();
+    private readonly Mock<IQuestionService> _questionServiceMock = new();
+    private readonly Mock<IAttachmentService> _attachmentServiceMock = new();
+    private readonly Mock<IPreEngagementService> _preEngagementServiceMock = new();
     private readonly ApplicationController _controller;
 
     public ApplicationControllerTests()
     {
-        _applicationServiceMock = new Mock<IApplicationService>();
-        _taskServiceMock = new Mock<ITaskService>();
-        _sessionServiceMock = new Mock<ISessionService>();
-        _questionServiceMock = new Mock<IQuestionService>();
-        _attachmentServiceMock = new Mock<IAttachmentService>();
-
-        _controller = new ApplicationController(_applicationServiceMock.Object, _taskServiceMock.Object, _sessionServiceMock.Object, _questionServiceMock.Object, _attachmentServiceMock.Object);
+        _controller = new ApplicationController(
+            _applicationServiceMock.Object,
+            _taskServiceMock.Object,
+            _sessionServiceMock.Object,
+            _questionServiceMock.Object,
+            _attachmentServiceMock.Object,
+            _preEngagementServiceMock.Object);
     }
 
     [Fact]
@@ -180,7 +181,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -213,7 +214,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -256,7 +257,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -331,7 +332,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "not-a-valid-url"
@@ -358,7 +359,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "nextTask/nextQuestion"
@@ -391,7 +392,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current"
         };
@@ -431,7 +432,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "nextTask/nextQuestion"
@@ -462,7 +463,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "nextTask/nextQuestion"
@@ -496,7 +497,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = null

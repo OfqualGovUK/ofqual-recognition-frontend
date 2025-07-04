@@ -15,17 +15,13 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class OfqualAccountControllerTests
 {
-    private readonly Mock<IOptionsMonitor<MicrosoftIdentityOptions>> _optionsMock;
-    private readonly Mock<ISessionService> _sessionServiceMock;
-    private readonly Mock<IUrlHelper> _urlHelperMock;
+    private readonly Mock<IOptionsMonitor<MicrosoftIdentityOptions>> _optionsMock = new();
+    private readonly Mock<ISessionService> _sessionServiceMock = new();
+    private readonly Mock<IUrlHelper> _urlHelperMock = new();
     private readonly OfqualAccountController _controller;
 
     public OfqualAccountControllerTests()
     {
-        _optionsMock = new Mock<IOptionsMonitor<MicrosoftIdentityOptions>>();
-        _sessionServiceMock = new Mock<ISessionService>();
-        _urlHelperMock = new Mock<IUrlHelper>();
-
         _controller = new OfqualAccountController(_optionsMock.Object, _sessionServiceMock.Object)
         {
             Url = _urlHelperMock.Object

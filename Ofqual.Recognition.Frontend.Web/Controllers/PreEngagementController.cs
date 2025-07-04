@@ -103,28 +103,6 @@ public class PreEngagementController : Controller
         });
     }
 
-    [HttpPost("request-information")]
-    [Authorize]
-    [AuthorizeForScopes(ScopeKeySection = "RecognitionApi:Scopes")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> RequestInformation()
-    {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
-        if (application == null)
-        {
-            // TODO: Redirect to login page instead of home
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
-        }
-
-        bool success = await _preEngagementService.SendPreEngagementInformationEmail(application.ApplicationId);
-        if (!success)
-        {
-            return BadRequest("Failed to process request information.");
-        }
-
-        return RedirectToAction(nameof(PreEngagementConfirmation));
-    }
-
     [HttpGet("confirmation")]
     [Authorize]
     [AuthorizeForScopes(ScopeKeySection = "RecognitionApi:Scopes")]

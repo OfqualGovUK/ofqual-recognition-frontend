@@ -22,19 +22,22 @@ public class ApplicationController : Controller
     private readonly ISessionService _sessionService;
     private readonly IQuestionService _questionService;
     private readonly IAttachmentService _attachmentService;
+    private readonly IPreEngagementService _preEngagementService;
 
     public ApplicationController(
         IApplicationService applicationService,
         ITaskService taskService,
         ISessionService sessionService,
         IQuestionService questionService,
-        IAttachmentService attachmentService)
+        IAttachmentService attachmentService,
+        IPreEngagementService preEngagementService)
     {
         _applicationService = applicationService;
         _taskService = taskService;
         _sessionService = sessionService;
         _questionService = questionService;
         _attachmentService = attachmentService;
+        _preEngagementService = preEngagementService;
     }
 
     [HttpGet]
@@ -251,6 +254,43 @@ public class ApplicationController : Controller
         }
 
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
+    }
+
+    [HttpPost("{taskNameUrl}/request-information")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RequestInformation(string taskNameUrl)
+    {
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page instead of home
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+
+        TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
+        if (taskDetails == null)
+        {
+            return NotFound();
+        }
+
+        if (taskDetails.Stage != StageType.MainApplication)
+        {
+            return BadRequest();
+        }
+
+        bool success = await _preEngagementService.SendPreEngagementInformationEmail(application.ApplicationId);
+        if (!success)
+        {
+            return BadRequest("Failed to process request information.");
+        }
+
+        bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, StatusType.InProgress);
+        if (!updateSucceeded)
+        {
+            return BadRequest();
+        }
+
+        return RedirectToAction(nameof(PreEngagementController.PreEngagementConfirmation), "PreEngagement");
     }
 
     [HttpGet("confirm-submission")]

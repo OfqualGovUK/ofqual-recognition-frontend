@@ -13,15 +13,12 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class PreEngagementControllerTests
 {
-    private readonly Mock<IPreEngagementService> _preEngagementServiceMock;
-    private readonly Mock<ISessionService> _sessionServiceMock;
+    private readonly Mock<IPreEngagementService> _preEngagementServiceMock = new();
+    private readonly Mock<ISessionService> _sessionServiceMock = new();
     private readonly PreEngagementController _controller;
 
     public PreEngagementControllerTests()
     {
-        _preEngagementServiceMock = new Mock<IPreEngagementService>();
-        _sessionServiceMock = new Mock<ISessionService>();
-
         _controller = new PreEngagementController(_preEngagementServiceMock.Object, _sessionServiceMock.Object);
     }
 
