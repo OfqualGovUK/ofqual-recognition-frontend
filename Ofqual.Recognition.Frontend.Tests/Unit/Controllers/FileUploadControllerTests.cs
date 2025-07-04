@@ -2,7 +2,6 @@ using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Controllers;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
-using Ofqual.Recognition.Frontend.Tests.Helpers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Http;
@@ -15,19 +14,14 @@ namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class FileUploadControllerTests
 {
-    private readonly Mock<ISessionService> _sessionServiceMock;
-    private readonly Mock<IQuestionService> _questionServiceMock;
-    private readonly Mock<IAttachmentService> _attachmentServiceMock;
-    private readonly Mock<ITaskService> _taskServiceMock;
+    private readonly Mock<ISessionService> _sessionServiceMock = new();
+    private readonly Mock<IQuestionService> _questionServiceMock = new();
+    private readonly Mock<IAttachmentService> _attachmentServiceMock = new();
+    private readonly Mock<ITaskService> _taskServiceMock = new();
     private readonly FileUploadController _controller;
 
     public FileUploadControllerTests()
     {
-        _sessionServiceMock = new Mock<ISessionService>();
-        _questionServiceMock = new Mock<IQuestionService>();
-        _attachmentServiceMock = new Mock<IAttachmentService>();
-        _taskServiceMock = new Mock<ITaskService>();
-
         _controller = new FileUploadController(_sessionServiceMock.Object, _questionServiceMock.Object, _attachmentServiceMock.Object, _taskServiceMock.Object)
         {
             ControllerContext = new ControllerContext
@@ -265,7 +259,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -297,7 +291,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -329,7 +323,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -363,7 +357,7 @@ public class FileUploadControllerTests
         {
             QuestionId = questionId,
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -405,7 +399,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -441,7 +435,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -497,7 +491,7 @@ public class FileUploadControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-           QuestionTypeName = QuestionType.Textarea,
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };

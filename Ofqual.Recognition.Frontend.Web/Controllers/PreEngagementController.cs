@@ -6,6 +6,7 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Web.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -95,16 +96,25 @@ public class PreEngagementController : Controller
             return RedirectToAction(nameof(ApplicationController.InitialiseApplication), "Application");
         }
 
-        var next = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
-        if (next == null)
-        {
-            return BadRequest("Invalid next question URL.");
-        }
-
         return RedirectToAction(nameof(PreEngagementQuestionDetails), new
         {
-            next.Value.taskNameUrl,
-            next.Value.questionNameUrl
+            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
+    }
+
+    [HttpGet("confirmation")]
+    [Authorize]
+    [AuthorizeForScopes(ScopeKeySection = "RecognitionApi:Scopes")]
+    public IActionResult PreEngagementConfirmation()
+    {
+        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        if (application == null)
+        {
+            // TODO: Redirect to login page instead of home
+            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+
+        return View();
     }
 }

@@ -3,25 +3,22 @@ using Ofqual.Recognition.Frontend.Web.Controllers;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Ofqual.Recognition.Frontend.Core.Enums;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
 public class PreEngagementControllerTests
 {
-    private readonly Mock<IPreEngagementService> _preEngagementServiceMock;
-    private readonly Mock<ISessionService> _sessionServiceMock;
+    private readonly Mock<IPreEngagementService> _preEngagementServiceMock = new();
+    private readonly Mock<ISessionService> _sessionServiceMock = new();
     private readonly PreEngagementController _controller;
 
     public PreEngagementControllerTests()
     {
-        _preEngagementServiceMock = new Mock<IPreEngagementService>();
-        _sessionServiceMock = new Mock<ISessionService>();
-
         _controller = new PreEngagementController(_preEngagementServiceMock.Object, _sessionServiceMock.Object);
     }
 
@@ -182,37 +179,6 @@ public class PreEngagementControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task PostPreEngagementQuestionDetails_Should_ReturnBadRequest_WhenNextUrlInvalid()
-    {
-        // Arrange
-        var questionDetails = new QuestionDetails
-        {
-            QuestionId = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            QuestionContent = "{}",
-            NextQuestionUrl = "invalid_url",
-            CurrentQuestionUrl = "current-url",
-            QuestionTypeName = QuestionType.Textarea
-        };
-
-        _preEngagementServiceMock.Setup(x => x.GetPreEngagementQuestionDetails("task1", "question1"))
-            .ReturnsAsync(questionDetails);
-
-        _preEngagementServiceMock.Setup(x => x.ValidatePreEngagementAnswer(questionDetails.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync(new ValidationResponse { Errors = Enumerable.Empty<ValidationErrorItem>() });
-
-        var formData = new FormCollection(new Dictionary<string, StringValues>());
-
-        // Act
-        var result = await _controller.PreEngagementQuestionDetails("task1", "question1", formData);
-
-        // Assert
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Invalid next question URL.", badRequest.Value);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
     public async Task PostPreEngagementQuestionDetails_Should_ReturnNotFound_WhenQuestionDetailsNull()
     {
         // Arrange
@@ -269,5 +235,42 @@ public class PreEngagementControllerTests
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
         Assert.Single(model.Validation!.Errors!);
         Assert.Equal("Field is required.", model.Validation!.Errors!.First().ErrorMessage);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void PreEngagementConfirmation_Should_ReturnView_WhenApplicationExists()
+    {
+        // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        // Act
+        var result = _controller.PreEngagementConfirmation();
+
+        // Assert
+        Assert.IsType<ViewResult>(result);
+        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void PreEngagementConfirmation_Should_RedirectToHome_WhenApplicationIsNull()
+    {
+        // Arrange
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns((Application?)null);
+
+        // Act
+        var result = _controller.PreEngagementConfirmation();
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectResult>(result);
+        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirectResult.Url);
+        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
     }
 }

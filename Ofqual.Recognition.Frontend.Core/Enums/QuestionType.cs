@@ -7,5 +7,6 @@ public enum QuestionType
     RadioButtonGroup,
     TextInputGroup,
     FileUpload,
-    Review
+    Review,
+    PreEngagement
 }

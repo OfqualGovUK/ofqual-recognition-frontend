@@ -2,5 +2,5 @@
 
 public interface IRecognitionCitizenClient
 {
-    Task<HttpClient> GetClientAsync();
+    public Task<HttpClient> GetClientAsync();
 }
