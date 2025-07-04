@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
 
-namespace Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers
+/// <summary>
+/// Represents a group of task review items, typically used for displaying a section of questions and answers in a review.
+/// </summary>
+public class TaskReviewGroup
 {
-    public class TaskReviewGroup
-    {
-        public string? SectionHeading { get; set; }
-        public List<TaskReviewItem> QuestionAnswers { get; set; } = new List<TaskReviewItem>();
-    }
+    public string? SectionHeading { get; set; }
+    public List<TaskReviewItem> QuestionAnswers { get; set; } = new List<TaskReviewItem>();
 }
+

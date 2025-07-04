@@ -7,6 +7,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Ofqual.Recognition.Frontend.Core.Enums;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
@@ -70,7 +71,7 @@ public class PreEngagementControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = "Text",
+            QuestionTypeName = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -129,7 +130,7 @@ public class PreEngagementControllerTests
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "task2/question2",
-            QuestionTypeName = "textinput"
+            QuestionTypeName = QuestionType.Textarea
         };
 
         _preEngagementServiceMock.Setup(x => x.GetPreEngagementQuestionDetails("task1", "question1"))
@@ -159,7 +160,7 @@ public class PreEngagementControllerTests
             QuestionContent = "{}",
             NextQuestionUrl = null,
             CurrentQuestionUrl = "current-url",
-            QuestionTypeName = "textinput"
+            QuestionTypeName = QuestionType.Textarea
         };
 
         _preEngagementServiceMock.Setup(x => x.GetPreEngagementQuestionDetails("task1", "question1"))
@@ -191,7 +192,7 @@ public class PreEngagementControllerTests
             QuestionContent = "{}",
             NextQuestionUrl = "invalid_url",
             CurrentQuestionUrl = "current-url",
-            QuestionTypeName = "textinput"
+            QuestionTypeName = QuestionType.Textarea
         };
 
         _preEngagementServiceMock.Setup(x => x.GetPreEngagementQuestionDetails("task1", "question1"))
@@ -239,7 +240,7 @@ public class PreEngagementControllerTests
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "task2/question2",
-            QuestionTypeName = "textinput"
+            QuestionTypeName = QuestionType.Textarea
         };
 
         var validationResponse = new ValidationResponse
