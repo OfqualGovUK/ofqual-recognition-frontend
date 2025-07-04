@@ -83,13 +83,22 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
-
         StatusType? status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
         if (status == StatusType.Completed && !fromReview)
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
+
+        if (status == StatusType.InProgress && questionDetails.QuestionTypeName == QuestionType.PreEngagement && !string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
+        {
+            return RedirectToAction(nameof(QuestionDetails), new
+            {
+                QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+                QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+            });
+        }
+
+        QuestionAnswer? questionAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
         var linkedAttachments = new List<AttachmentDetails>();
         var applicationReviewAnswers = new List<TaskReviewSection>();
@@ -156,16 +165,10 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
-        var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
-        if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && nextQuestion == null)
-        {
-            return BadRequest();
-        }
-
         return RedirectToAction(nameof(QuestionDetails), new
         {
-            nextQuestion!.Value.taskNameUrl,
-            nextQuestion!.Value.questionNameUrl
+            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
     }
 

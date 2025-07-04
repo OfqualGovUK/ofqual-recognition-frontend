@@ -151,16 +151,10 @@ public class FileUploadController : Controller
             return RedirectToAction(nameof(ApplicationController.TaskReview), "Application", new { taskNameUrl });
         }
 
-        var nextQuestion = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
-        if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && nextQuestion == null)
-        {
-            return BadRequest();
-        }
-
         return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
         {
-            nextQuestion!.Value.taskNameUrl,
-            nextQuestion!.Value.questionNameUrl
+            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
     }
 
@@ -245,16 +239,10 @@ public class FileUploadController : Controller
         bool isHtmlRequest = Request.Headers["Accept"].Any(h => h != null && h.Contains("text/html", StringComparison.OrdinalIgnoreCase));
         if (isHtmlRequest)
         {
-            var currentQuestion = QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl);
-            if (!string.IsNullOrEmpty(questionDetails.NextQuestionUrl) && currentQuestion == null)
-            {
-                return BadRequest();
-            }
-
             return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
             {
-                currentQuestion!.Value.taskNameUrl,
-                currentQuestion!.Value.questionNameUrl
+                QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.taskNameUrl,
+                QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.questionNameUrl
             });
         }
 

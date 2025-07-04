@@ -96,16 +96,10 @@ public class PreEngagementController : Controller
             return RedirectToAction(nameof(ApplicationController.InitialiseApplication), "Application");
         }
 
-        var next = QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl);
-        if (next == null)
-        {
-            return BadRequest("Invalid next question URL.");
-        }
-
         return RedirectToAction(nameof(PreEngagementQuestionDetails), new
         {
-            next.Value.taskNameUrl,
-            next.Value.questionNameUrl
+            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
     }
 

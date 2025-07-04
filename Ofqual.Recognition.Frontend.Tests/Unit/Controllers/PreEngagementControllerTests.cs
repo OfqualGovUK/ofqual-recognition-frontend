@@ -182,37 +182,6 @@ public class PreEngagementControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task PostPreEngagementQuestionDetails_Should_ReturnBadRequest_WhenNextUrlInvalid()
-    {
-        // Arrange
-        var questionDetails = new QuestionDetails
-        {
-            QuestionId = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            QuestionContent = "{}",
-            NextQuestionUrl = "invalid_url",
-            CurrentQuestionUrl = "current-url",
-            QuestionTypeName = QuestionType.Textarea
-        };
-
-        _preEngagementServiceMock.Setup(x => x.GetPreEngagementQuestionDetails("task1", "question1"))
-            .ReturnsAsync(questionDetails);
-
-        _preEngagementServiceMock.Setup(x => x.ValidatePreEngagementAnswer(questionDetails.QuestionId, It.IsAny<string>()))
-            .ReturnsAsync(new ValidationResponse { Errors = Enumerable.Empty<ValidationErrorItem>() });
-
-        var formData = new FormCollection(new Dictionary<string, StringValues>());
-
-        // Act
-        var result = await _controller.PreEngagementQuestionDetails("task1", "question1", formData);
-
-        // Assert
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Invalid next question URL.", badRequest.Value);
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
     public async Task PostPreEngagementQuestionDetails_Should_ReturnNotFound_WhenQuestionDetailsNull()
     {
         // Arrange
