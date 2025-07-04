@@ -7,4 +7,5 @@ public interface IPreEngagementService
     public Task<PreEngagementQuestion?> GetFirstPreEngagementQuestion();
     public Task<QuestionDetails?> GetPreEngagementQuestionDetails(string taskNameUrl, string questionNameUrl);
     public Task<ValidationResponse?> ValidatePreEngagementAnswer(Guid questionId, string answerJson);
+    public Task<bool> SendPreEngagementInformationEmail(Guid applicationId);
 }

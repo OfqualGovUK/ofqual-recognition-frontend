@@ -104,4 +104,26 @@ public class PreEngagementService : IPreEngagementService
             return null;
         }
     }
+
+    public async Task<bool> SendPreEngagementInformationEmail(Guid applicationId)
+    {
+        try
+        {
+            var client = await _client.GetClientAsync();
+
+            var response = await client.PostAsync($"/pre-engagement/applications/{applicationId}/send-pre-engagement-email", null);
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+
+            Log.Warning("Failed to send pre-engagement email. ApplicationId: {ApplicationId}, StatusCode: {StatusCode}, Reason: {ReasonPhrase}", applicationId, response.StatusCode, response.ReasonPhrase);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while sending the pre-engagement email for ApplicationId: {ApplicationId}", applicationId);
+            return false;
+        }
+    }
 }
