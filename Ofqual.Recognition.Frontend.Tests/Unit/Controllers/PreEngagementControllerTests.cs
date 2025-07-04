@@ -3,11 +3,11 @@ using Ofqual.Recognition.Frontend.Web.Controllers;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Ofqual.Recognition.Frontend.Core.Enums;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
@@ -235,5 +235,42 @@ public class PreEngagementControllerTests
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
         Assert.Single(model.Validation!.Errors!);
         Assert.Equal("Field is required.", model.Validation!.Errors!.First().ErrorMessage);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void PreEngagementConfirmation_Should_ReturnView_WhenApplicationExists()
+    {
+        // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        // Act
+        var result = _controller.PreEngagementConfirmation();
+
+        // Assert
+        Assert.IsType<ViewResult>(result);
+        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void PreEngagementConfirmation_Should_RedirectToHome_WhenApplicationIsNull()
+    {
+        // Arrange
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns((Application?)null);
+
+        // Act
+        var result = _controller.PreEngagementConfirmation();
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectResult>(result);
+        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirectResult.Url);
+        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
     }
 }

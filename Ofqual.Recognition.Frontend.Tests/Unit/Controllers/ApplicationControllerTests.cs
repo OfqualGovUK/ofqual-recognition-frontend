@@ -140,7 +140,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_ReturnsRedirectToHome_WhenApplicationIsNull()
+    public async Task GetQuestionDetails_ReturnsRedirectToHome_WhenApplicationIsNull()
     {
         // Arrange
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
@@ -156,7 +156,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_ReturnsNotFound_WhenQuestionIsNull()
+    public async Task GetQuestionDetails_ReturnsNotFound_WhenQuestionIsNull()
     {
         // Arrange
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
@@ -174,7 +174,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_RedirectsToReview_WhenTaskCompletedAndNotFromReview()
+    public async Task GetQuestionDetails_RedirectsToReview_WhenTaskCompletedAndNotFromReview()
     {
         // Arrange
         var question = new QuestionDetails
@@ -206,7 +206,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_ReturnsViewResult_WhenDataIsValid()
+    public async Task GetQuestionDetails_ReturnsViewResult_WhenDataIsValid()
     {
         // Arrange
         var application = new Application { ApplicationId = Guid.NewGuid() };
@@ -249,7 +249,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task QuestionDetails_Sets_FromReview_True_WhenProvided()
+    public async Task GetQuestionDetails_Sets_FromReview_True_WhenProvided()
     {
         // Arrange
         var application = new Application { ApplicationId = Guid.NewGuid() };
@@ -284,6 +284,46 @@ public class ApplicationControllerTests
         var viewResult = Assert.IsType<ViewResult>(result);
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
         Assert.True(model.FromReview);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task GetQuestionDetails_RedirectsToNextQuestion_WhenInProgressAndPreEngagementWithNextUrl()
+    {
+        // Arrange
+        var application = new Application { ApplicationId = Guid.NewGuid() };
+        var nextQuestionUrl = "nextTask/nextQuestion";
+
+        var question = new QuestionDetails
+        {
+            QuestionId = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            QuestionTypeName = QuestionType.PreEngagement,
+            QuestionContent = "{}",
+            CurrentQuestionUrl = "task/question",
+            NextQuestionUrl = nextQuestionUrl
+        };
+
+        _sessionServiceMock
+            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _questionServiceMock
+            .Setup(x => x.GetQuestionDetails("task", "question"))
+            .ReturnsAsync(question);
+
+        _sessionServiceMock
+            .Setup(x => x.GetTaskStatusFromSession(question.TaskId))
+            .Returns(StatusType.InProgress);
+
+        // Act
+        var result = await _controller.QuestionDetails("task", "question");
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.QuestionDetails), redirect.ActionName);
+        Assert.Equal("nextTask", redirect.RouteValues!["taskNameUrl"]);
+        Assert.Equal("nextQuestion", redirect.RouteValues["questionNameUrl"]);
     }
 
     [Fact]
@@ -829,6 +869,98 @@ public class ApplicationControllerTests
 
         var redirect = Assert.IsType<RedirectResult>(result);
         Assert.Equal(RouteConstants.ApplicationConstants.TASK_LIST_PATH, redirect.Url);
+    }
+
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task RequestInformation_ReturnsRedirectToConfirmation_WhenAllStepsSucceed()
+    {
+        // Arrange
+        var applicationId = Guid.NewGuid();
+        var application = new Application { ApplicationId = applicationId };
+        var taskNameUrl = "task";
+        var taskId = Guid.NewGuid();
+
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _taskServiceMock
+            .Setup(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl))
+            .ReturnsAsync(new TaskDetails
+            {
+                TaskId = taskId,
+                TaskName = "Test Task",
+                TaskNameUrl = taskNameUrl,
+                TaskOrderNumber = 1,
+                Stage = StageType.MainApplication,
+                SectionId = Guid.NewGuid()
+            });
+
+        _preEngagementServiceMock
+            .Setup(p => p.SendPreEngagementInformationEmail(applicationId))
+            .ReturnsAsync(true);
+
+        _taskServiceMock
+            .Setup(t => t.UpdateTaskStatus(applicationId, taskId, StatusType.InProgress))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _controller.RequestInformation(taskNameUrl);
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(PreEngagementController.PreEngagementConfirmation), redirect.ActionName);
+        Assert.Equal("PreEngagement", redirect.ControllerName);
+
+        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+        _taskServiceMock.Verify(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl), Times.Once);
+        _preEngagementServiceMock.Verify(p => p.SendPreEngagementInformationEmail(applicationId), Times.Once);
+        _taskServiceMock.Verify(t => t.UpdateTaskStatus(applicationId, taskId, StatusType.InProgress), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task RequestInformation_ReturnsBadRequest_WhenEmailSendingFails()
+    {
+        // Arrange
+        var applicationId = Guid.NewGuid();
+        var application = new Application { ApplicationId = applicationId };
+        var taskNameUrl = "task";
+        var taskId = Guid.NewGuid();
+
+        _sessionServiceMock
+            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
+            .Returns(application);
+
+        _taskServiceMock
+            .Setup(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl))
+            .ReturnsAsync(new TaskDetails
+            {
+                TaskId = taskId,
+                TaskName = "Test Task",
+                TaskNameUrl = taskNameUrl,
+                TaskOrderNumber = 1,
+                Stage = StageType.MainApplication,
+                SectionId = Guid.NewGuid()
+            });
+
+        _preEngagementServiceMock
+            .Setup(p => p.SendPreEngagementInformationEmail(applicationId))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _controller.RequestInformation(taskNameUrl);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Failed to process request information.", badRequestResult.Value);
+
+        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+        _taskServiceMock.Verify(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl), Times.Once);
+        _preEngagementServiceMock.Verify(p => p.SendPreEngagementInformationEmail(applicationId), Times.Once);
+        _taskServiceMock.Verify(t => t.UpdateTaskStatus(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<StatusType>()), Times.Never);
     }
 
     [Fact]
