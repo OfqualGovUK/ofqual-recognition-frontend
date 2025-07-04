@@ -8,6 +8,7 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -90,12 +91,24 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
-        var linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+        var linkedAttachments = new List<AttachmentDetails>();
+        var applicationReviewAnswers = new List<TaskReviewSection>();
+
+        if (questionDetails.QuestionTypeName == QuestionType.FileUpload)
+        {
+            linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+        }
+
+        if (questionDetails.QuestionTypeName == QuestionType.Review)
+        {
+            applicationReviewAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
+        }
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
         questionViewModel.FromReview = fromReview;
         questionViewModel.AnswerJson = questionAnswer?.Answer;
         questionViewModel.Attachments = AttachmentMapper.MapToViewModel(linkedAttachments);
+        questionViewModel.TaskReviewSection = ApplicationAnswersMapper.MapToViewModel(applicationReviewAnswers);
 
         return View(questionViewModel);
     }

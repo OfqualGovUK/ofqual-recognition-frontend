@@ -32,10 +32,10 @@ public static class QuestionMapper
     {
         return new TaskReviewViewModel
         {
-            QuestionAnswerSections = sections.Select(section => new QuestionAnswerSectionViewModel
+            QuestionAnswerSections = sections.Select(section => new TaskReviewGroupViewModel
             {
                 SectionHeading = section.SectionHeading,
-                QuestionAnswers = section.QuestionAnswers.Select(q => new QuestionAnswerReviewViewModel
+                QuestionAnswers = section.QuestionAnswers.Select(q => new TaskReviewItemViewModel
                 {
                     QuestionText = q.QuestionText,
                     QuestionUrl = q.QuestionUrl,

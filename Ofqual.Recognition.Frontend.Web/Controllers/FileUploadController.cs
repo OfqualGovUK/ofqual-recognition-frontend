@@ -8,6 +8,7 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using System;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -146,6 +147,7 @@ public class FileUploadController : Controller
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{application.ApplicationId}:{questionDetails.TaskId}");
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationAnswersReview}:{application.ApplicationId}");
             return RedirectToAction(nameof(ApplicationController.TaskReview), "Application", new { taskNameUrl });
         }
 
@@ -214,6 +216,7 @@ public class FileUploadController : Controller
         }
 
         _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{application.ApplicationId}:{questionDetails.TaskId}");
+        _sessionService.ClearFromSession($"{SessionKeys.ApplicationAnswersReview}:{application.ApplicationId}");
         return Ok(attachmentDetails.AttachmentId);
     }
 
