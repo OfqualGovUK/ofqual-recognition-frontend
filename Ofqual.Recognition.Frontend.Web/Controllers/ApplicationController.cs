@@ -63,6 +63,11 @@ public class ApplicationController : Controller
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
         }
 
+        if (application.Submitted)
+        {
+            ViewData["ApplicationReadOnly"] = true;
+        }
+
         var taskItemStatusSection = await _taskService.GetApplicationTasks(application.ApplicationId);
 
         TaskListViewModel taskListViewModel = TaskListMapper.MapToViewModel(taskItemStatusSection);
