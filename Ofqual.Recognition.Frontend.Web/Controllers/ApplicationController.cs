@@ -87,7 +87,9 @@ public class ApplicationController : Controller
         }
 
         StatusType? status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
-        if (status == StatusType.Completed && !fromReview)
+
+        // Check if the task is in progress or completed and if the question is not an application review
+        if (status == StatusType.Completed && !fromReview && questionDetails.QuestionTypeName != QuestionType.Review)
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
@@ -161,6 +163,18 @@ public class ApplicationController : Controller
 
                 return View(questionViewModel);
             }
+        }
+
+        // If the question type is review, update the task status to completed and redirect to the task list
+        if (questionDetails.QuestionTypeName == QuestionType.Review)
+        {
+            var updateStatusSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.Completed);
+            if (!updateStatusSucceeded)
+            {
+                return BadRequest();
+            }
+            _sessionService.UpdateTaskStatusInSession(questionDetails.TaskId, StatusType.Completed);
+            return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
         }
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
