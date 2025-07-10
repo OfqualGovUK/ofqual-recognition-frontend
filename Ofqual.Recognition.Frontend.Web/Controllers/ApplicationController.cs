@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
+using Ofqual.Recognition.Frontend.Core.Attributes;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -76,6 +77,7 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("{taskNameUrl}/{questionNameUrl}")]
+    [RedirectReadOnly]
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
@@ -83,6 +85,11 @@ public class ApplicationController : Controller
         {
             // TODO: Redirect to login page and not home page
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+
+        if (application.Submitted)
+        {
+            ViewData["ApplicationReadOnly"] = true;
         }
 
         QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
@@ -132,6 +139,7 @@ public class ApplicationController : Controller
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}")]
     [ValidateAntiForgeryToken]
+    [RedirectReadOnly]
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
@@ -188,6 +196,11 @@ public class ApplicationController : Controller
         {
             // TODO: Redirect to login page and not home page
             return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+        }
+
+        if (application.Submitted)
+        {
+            ViewData["ApplicationReadOnly"] = true;
         }
 
         TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
@@ -263,6 +276,7 @@ public class ApplicationController : Controller
 
     [HttpPost("{taskNameUrl}/request-information")]
     [ValidateAntiForgeryToken]
+    [RedirectReadOnly]
     public async Task<IActionResult> RequestInformation(string taskNameUrl)
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
