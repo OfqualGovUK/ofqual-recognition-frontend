@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System;
+using Ofqual.Recognition.Frontend.Core.Attributes;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -31,6 +32,7 @@ public class FileUploadController : Controller
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/file-submit")]
+    [RedirectReadOnly]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitFile(string taskNameUrl, string questionNameUrl, [FromForm] List<IFormFile>? files)
     {
@@ -159,6 +161,7 @@ public class FileUploadController : Controller
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/upload")]
+    [RedirectReadOnly]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UploadFile(string taskNameUrl, string questionNameUrl, IFormFile file)
     {
@@ -215,6 +218,7 @@ public class FileUploadController : Controller
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/delete/{attachmentId}")]
+    [RedirectReadOnly]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteFile(string taskNameUrl, string questionNameUrl, Guid attachmentId)
     {

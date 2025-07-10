@@ -29,6 +29,11 @@
         @await Html.PartialAsync("Layout/_PhaseBanner.cshtml")
         @await RenderSectionAsync("Backlink", required: false)
     </div>
+    @if((bool)(ViewData["ApplicationReadOnly"] ?? false) ) {
+        <div class="govuk-width-container">
+            @await Html.PartialAsync("Layout/_ReadOnlyNotification.cshtml")
+        </div>
+    }
 }
 
 @RenderBody()

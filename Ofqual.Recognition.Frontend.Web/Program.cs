@@ -159,6 +159,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 app.UseMiddleware<FeatureRedirectMiddleware>();
+app.UseMiddleware<RedirectReadOnlyMiddleware>();
 
 // Configure route mapping
 app.MapControllers();

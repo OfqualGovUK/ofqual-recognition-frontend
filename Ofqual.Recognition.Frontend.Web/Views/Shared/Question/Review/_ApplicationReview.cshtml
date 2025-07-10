@@ -31,13 +31,15 @@
                                     <dd class="govuk-summary-list__value">
                                         @answer
                                     </dd>
-                                    <dd class="govuk-summary-list__actions">
-                                        <a class="govuk-link"
-                                           href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{item.QuestionUrl}?fromReview=true")">
-                                            Change<span class="govuk-visually-hidden">@item.QuestionText</span>
-                                        </a>
-                                    </dd>
-
+                                    @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
+                                    {
+                                        <dd class="govuk-summary-list__actions">
+                                            <a class="govuk-link"
+                                               href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{item.QuestionUrl}?fromReview=true")">
+                                                Change<span class="govuk-visually-hidden">@item.QuestionText</span>
+                                            </a>
+                                        </dd>
+                                    }
                                 </div>
                             }
                         }
