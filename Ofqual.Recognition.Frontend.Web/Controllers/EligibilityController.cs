@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
 [Route("eligibility")]
-public class EligibilityController(IEligibilityService eligibilityService, ISessionService sessionService) : Controller
+public class EligibilityController(IEligibilityService eligibilityService, ISessionService sessionService, IFeatureFlagService featureFlagService) : Controller
 {
     private readonly IEligibilityService _eligibilityService = eligibilityService;
     private readonly ISessionService _sessionService = sessionService;
+    private readonly IFeatureFlagService _featureFlagService = featureFlagService;
 
     [HttpGet("start")]
     public IActionResult Start()
@@ -133,6 +134,10 @@ public class EligibilityController(IEligibilityService eligibilityService, ISess
             return RedirectToAction("Start");
         }
 
+        bool eligibilityLinkFlag = _featureFlagService.IsFeatureEnabled("EligibilityLink");
+
+        ViewData["EligibilityLinkFlag"] = eligibilityLinkFlag;
+
         return View();
     }
 
@@ -142,6 +147,8 @@ public class EligibilityController(IEligibilityService eligibilityService, ISess
         Eligibility model = _eligibilityService.GetAnswers();
 
         EligibilityViewModel viewModel = EligibilityMapper.MapToEligibilityViewModel(model);
+
+
 
         return View(viewModel);
     }
