@@ -3,6 +3,10 @@
 @using Ofqual.Recognition.Frontend.Core.Helpers
 @model QuestionViewModel
 
+@{
+    var renderedHeadings = new HashSet<string>();
+}
+
 @if (Model.TaskReviewSection != null && Model.TaskReviewSection.Any())
 {
     @foreach (var taskSection in Model.TaskReviewSection)
@@ -11,6 +15,15 @@
 
         @foreach (var group in taskSection.TaskGroups)
         {
+            var groupedQuestions = group.QuestionAnswers
+            .GroupBy(q => q.QuestionText)
+            .Select(g => new
+            {
+                QuestionText = g.Key,
+                AnswerValue = g.SelectMany(q => q.AnswerValue).ToList(),
+                QuestionUrl = g.First().QuestionUrl
+            });
+
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
 
@@ -20,26 +33,27 @@
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        @foreach (var item in group.QuestionAnswers)
+                        @foreach (var question in groupedQuestions)
                         {
-                            @foreach (var answer in item.AnswerValue)
-                            {
-                                <div class="govuk-summary-list__row">
-                                    <dt class="govuk-summary-list__key">
-                                        @item.QuestionText
-                                    </dt>
-                                    <dd class="govuk-summary-list__value">
-                                        @answer
-                                    </dd>
-                                    <dd class="govuk-summary-list__actions">
-                                        <a class="govuk-link"
-                                           href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{item.QuestionUrl}?fromReview=true")">
-                                            Change<span class="govuk-visually-hidden">@item.QuestionText</span>
-                                        </a>
-                                    </dd>
-
-                                </div>
-                            }
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    @question.QuestionText
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    <ul class="govuk-list govuk-list">
+                                        @foreach (var answer in question.AnswerValue)
+                                        {
+                                            <li>@answer</li>
+                                        }
+                                    </ul>
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a class="govuk-link"
+                                       href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
+                                        Change<span class="govuk-visually-hidden">@question.QuestionText</span>
+                                    </a>
+                                </dd>
+                            </div>
                         }
                     </dl>
                 </div>
