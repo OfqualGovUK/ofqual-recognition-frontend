@@ -12,11 +12,12 @@ public class EligibilityControllerTests
 {
     private readonly Mock<IEligibilityService> _eligibilityServiceMock = new();
     private readonly Mock<ISessionService> _sessionServiceMock = new();
+    private readonly Mock<IFeatureFlagService> _featureFlagServiceMock = new();
     private readonly EligibilityController _controller;
 
     public EligibilityControllerTests()
     {
-        _controller = new EligibilityController(_eligibilityServiceMock.Object, _sessionServiceMock.Object);
+        _controller = new EligibilityController(_eligibilityServiceMock.Object, _sessionServiceMock.Object, _featureFlagServiceMock.Object);
     }
 
     [Fact]
