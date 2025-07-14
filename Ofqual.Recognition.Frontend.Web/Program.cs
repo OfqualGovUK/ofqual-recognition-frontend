@@ -97,6 +97,18 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             await Task.CompletedTask.ConfigureAwait(false);
         };
 
+        options.Events.OnRedirectToIdentityProviderForSignOut += async (context) =>
+        {
+            var id_token_hint = context.Properties.Items.FirstOrDefault(x => x.Key == "id_token_hint").Value;
+            if (id_token_hint != null)
+            {
+                // Send parameter to authentication request
+                context.ProtocolMessage.SetParameter("id_token_hint", id_token_hint);
+            }
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        };
+
         options.SaveTokens = true;
     })
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
