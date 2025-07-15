@@ -112,7 +112,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         options.SaveTokens = true;
     })
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-    .AddDistributedTokenCaches();
+    .AddInMemoryTokenCaches();
 
 // Configure HttpClient for API calls
 builder.Services.AddHttpClient("RecognitionCitizen", client =>
