@@ -45,11 +45,6 @@ public class ApplicationController : Controller
     public async Task<IActionResult> InitialiseApplication()
     {
         Application? application = await _applicationService.InitialiseApplication();
-        if (application == null)
-        {
-            // TODO: Redirect to login page and not home page
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
-        }
 
         return RedirectToAction(nameof(TaskList));
     }
@@ -60,8 +55,7 @@ public class ApplicationController : Controller
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
-            // TODO: Redirect to login page and not home page
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+            application = await _applicationService.InitialiseApplication();
         }
 
         if (application.Submitted)
@@ -83,8 +77,7 @@ public class ApplicationController : Controller
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
-            // TODO: Redirect to login page and not home page
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+            application = await _applicationService.InitialiseApplication();
         }
 
         if (application.Submitted)
@@ -145,8 +138,7 @@ public class ApplicationController : Controller
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
-            // TODO: Redirect to login page instead of home
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+            application = await _applicationService.InitialiseApplication();
         }
 
         QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
@@ -194,8 +186,7 @@ public class ApplicationController : Controller
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
-            // TODO: Redirect to login page and not home page
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+            application = await _applicationService.InitialiseApplication();
         }
 
         if (application.Submitted)
@@ -239,8 +230,7 @@ public class ApplicationController : Controller
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
-            // TODO: Redirect to login page and not home page
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+            application = await _applicationService.InitialiseApplication();
         }
 
         TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
@@ -282,8 +272,7 @@ public class ApplicationController : Controller
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
-            // TODO: Redirect to login page instead of home
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+            application = await _applicationService.InitialiseApplication();
         }
 
         TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
@@ -313,13 +302,12 @@ public class ApplicationController : Controller
     }
 
     [HttpGet("confirm-submission")]
-    public IActionResult ConfirmSubmission()
+    public async Task<IActionResult> ConfirmSubmission()
     {
         Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
         if (application == null)
         {
-            // TODO: Redirect to login page instead of home
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+            application = await _applicationService.InitialiseApplication();
         }
 
         if (!application.Submitted)

@@ -6,6 +6,7 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using System.Net.Http.Json;
 using Serilog;
 using Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -41,6 +42,11 @@ public class QuestionService : IQuestionService
 
             _sessionService.SetInSession(sessionKey, result);
             return result;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot retrieve question details.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {
@@ -79,6 +85,11 @@ public class QuestionService : IQuestionService
 
             return validationResponse;
         }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot submit application answer.");
+            throw; // Re-throw to handle authentication challenge
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while submitting application answer. QuestionId: {QuestionId}, TaskId: {TaskId}, ApplicationId: {ApplicationId}", questionId, taskId, applicationId);
@@ -107,6 +118,11 @@ public class QuestionService : IQuestionService
 
             _sessionService.SetInSession(sessionKey, result);
             return result;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot retrieve question answers.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {
@@ -137,6 +153,11 @@ public class QuestionService : IQuestionService
             _sessionService.SetInSession(sessionKey, result);
             return result;
         }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot retrieve question answer.");
+            throw; // Re-throw to handle authentication challenge
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving answers for questionId: {questionId} in applicationId: {applicationId}", questionId, applicationId);
@@ -165,6 +186,11 @@ public class QuestionService : IQuestionService
 
             _sessionService.SetInSession(sessionKey, result);
             return result;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot retrieve application answers.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {

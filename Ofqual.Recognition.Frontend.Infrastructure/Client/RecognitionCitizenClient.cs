@@ -21,7 +21,7 @@ public class RecognitionCitizenClient : IRecognitionCitizenClient
         _configuration = configuration;
     }
 
-    public async Task<HttpClient> GetClientAsync()
+    public async Task<HttpClient> GetClientAsync(bool withAccessToken = true)
     {
         var scopes = _configuration
             .GetSection("RecognitionApi:Scopes")
@@ -34,17 +34,23 @@ public class RecognitionCitizenClient : IRecognitionCitizenClient
 
         var client = _clientFactory.CreateClient("RecognitionCitizen");
 
-        try
+        if (true)
         {
-            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-            if (!string.IsNullOrEmpty(accessToken))
+            try
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                }
             }
-        }
-        catch (MicrosoftIdentityWebChallengeUserException ex)
-        {
-            Log.Debug(ex, "User not authenticated, skipping access token");
+            catch (MicrosoftIdentityWebChallengeUserException ex)
+            {
+                Log.Debug(ex, "User not authenticated, skipping access token");
+                throw;
+                // IMPORTANT: You must throw this error all the way through the controller for this to be handled appropriately if using this client to access a protected resource.
+                // Failure to do so will cause authentication issues for the end user when the application restarts!
+            }
         }
 
         return client;

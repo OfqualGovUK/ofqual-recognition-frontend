@@ -5,6 +5,7 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 using Serilog;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -52,6 +53,11 @@ public class ApplicationService : IApplicationService
 
             return result;
         }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot initialise application.");
+            throw; // Re-throw to handle authentication challenge
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An unexpected error occurred while initialising the application.");
@@ -81,6 +87,11 @@ public class ApplicationService : IApplicationService
             }
 
             return application;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot submit application.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {
