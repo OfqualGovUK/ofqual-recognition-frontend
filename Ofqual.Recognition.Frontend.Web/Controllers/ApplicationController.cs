@@ -212,7 +212,7 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        await _taskService.GetApplicationTasks(application.ApplicationId);
+        await _taskService.GetApplicationTasks(application.ApplicationId); // Done to ensure the session state is populated for getting task statuses
         StatusType? status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
         if (status == null)
         {
