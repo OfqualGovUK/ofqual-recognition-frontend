@@ -51,6 +51,7 @@ public class HomePage : BasePage
         await _passWord.FillAsync(TestConfig.B2CPassword);
         await _submitCredentials.ClickAsync();
         await _signedInText.IsVisibleAsync();
+        await _signOutButton.IsVisibleAsync();
         await _signOutButton.ClickAsync();
         await _signedInText.IsHiddenAsync();
     }
