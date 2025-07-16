@@ -10,4 +10,5 @@ public class TaskDetails
     public int TaskOrderNumber { get; set; }
     public StageType Stage { get; set; }
     public Guid SectionId { get; set; }
+    public bool ReviewFlag { get; set; }
 }

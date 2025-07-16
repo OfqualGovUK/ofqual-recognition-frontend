@@ -113,8 +113,13 @@ public class ApplicationController : Controller
             linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
         }
 
+        // If the question type is Application Review, get all application answers
         if (questionDetails.QuestionTypeName == QuestionType.Review)
         {
+            // Get the status of the application review question
+            ViewData["ReviewQuestionStatus"] = status;
+
+            // Get all application answers for the review
             applicationReviewAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
         }
 
@@ -144,6 +149,20 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
+        // If the question type is Application Review 
+        if (questionDetails.QuestionTypeName == QuestionType.Review)
+        {
+            // Variable to hold the application status from the form data
+            var applicationStatus = Enum.Parse(typeof(StatusType), formdata["answer"]!);
+
+            // Redirect to TaskReview with the application status
+            return await TaskReview(taskNameUrl, new TaskReviewViewModel 
+            {
+                Answer = (StatusType)applicationStatus,
+                IsCompletedStatus = applicationStatus.Equals(StatusType.Completed)
+            });
+        }
+
         string jsonAnswer = JsonHelper.ConvertToJson(formdata);
         QuestionAnswer? existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
 
@@ -163,18 +182,6 @@ public class ApplicationController : Controller
 
                 return View(questionViewModel);
             }
-        }
-
-        // If the question type is review, update the task status to completed and redirect to the task list
-        if (questionDetails.QuestionTypeName == QuestionType.Review)
-        {
-            var updateStatusSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.Completed);
-            if (!updateStatusSucceeded)
-            {
-                return BadRequest();
-            }
-            _sessionService.UpdateTaskStatusInSession(questionDetails.TaskId, StatusType.Completed);
-            return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
         }
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
