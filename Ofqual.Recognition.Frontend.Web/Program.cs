@@ -15,7 +15,6 @@ using System.Reflection;
 using Serilog.Events;
 using CorrelationId;
 using Serilog;
-using Microsoft.Azure.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -121,15 +120,8 @@ builder.Services.AddHttpClient("RecognitionCitizen", client =>
     client.BaseAddress = new Uri(builder.Configuration["RecognitionApi:BaseUrl"]!);
 });
 
-// Register redis cache for tokens
-
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetSection("ConnectionStrings:Redis").Get<string>();
-    options.InstanceName = "OfqualRecognitionFrontend";
-});
-
 // Register in-memory caching
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IMemoryCacheService, MemoryCacheService>();
 
