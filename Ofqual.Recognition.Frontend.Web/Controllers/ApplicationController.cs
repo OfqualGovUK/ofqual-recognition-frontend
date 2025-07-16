@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
 using Ofqual.Recognition.Frontend.Core.Attributes;
+using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -45,6 +46,11 @@ public class ApplicationController : Controller
     public async Task<IActionResult> InitialiseApplication()
     {
         Application? application = await _applicationService.InitialiseApplication();
+        if (application == null)
+        {
+            Log.Warning("Failed to initialise application. Returning 500 error");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
 
         return RedirectToAction(nameof(TaskList));
     }
@@ -52,10 +58,10 @@ public class ApplicationController : Controller
     [HttpGet("tasks")]
     public async Task<IActionResult> TaskList()
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
-            application = await _applicationService.InitialiseApplication();
+            return RedirectToAction(nameof(InitialiseApplication));
         }
 
         if (application.Submitted)
@@ -74,10 +80,10 @@ public class ApplicationController : Controller
     [RedirectReadOnly]
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
-            application = await _applicationService.InitialiseApplication();
+            return RedirectToAction(nameof(InitialiseApplication));
         }
 
         if (application.Submitted)
@@ -135,10 +141,10 @@ public class ApplicationController : Controller
     [RedirectReadOnly]
     public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, [FromForm] IFormCollection formdata)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
-            application = await _applicationService.InitialiseApplication();
+            return RedirectToAction(nameof(InitialiseApplication));
         }
 
         QuestionDetails? questionDetails = await _questionService.GetQuestionDetails(taskNameUrl, questionNameUrl);
@@ -183,10 +189,10 @@ public class ApplicationController : Controller
     [HttpGet("{taskNameUrl}/review-your-answers")]
     public async Task<IActionResult> TaskReview(string taskNameUrl)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
-            application = await _applicationService.InitialiseApplication();
+            return RedirectToAction(nameof(InitialiseApplication));
         }
 
         if (application.Submitted)
@@ -206,6 +212,7 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
+        await _taskService.GetApplicationTasks(application.ApplicationId);
         StatusType? status = _sessionService.GetTaskStatusFromSession(taskDetails.TaskId);
         if (status == null)
         {
@@ -227,10 +234,10 @@ public class ApplicationController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> TaskReview(string taskNameUrl, [FromForm] TaskReviewViewModel formdata)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
-            application = await _applicationService.InitialiseApplication();
+            return RedirectToAction(nameof(InitialiseApplication));
         }
 
         TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
@@ -269,10 +276,10 @@ public class ApplicationController : Controller
     [RedirectReadOnly]
     public async Task<IActionResult> RequestInformation(string taskNameUrl)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
-            application = await _applicationService.InitialiseApplication();
+            return RedirectToAction(nameof(InitialiseApplication));
         }
 
         TaskDetails? taskDetails = await _taskService.GetTaskDetailsByTaskNameUrl(taskNameUrl);
@@ -304,10 +311,10 @@ public class ApplicationController : Controller
     [HttpGet("confirm-submission")]
     public async Task<IActionResult> ConfirmSubmission()
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
-            application = await _applicationService.InitialiseApplication();
+            return RedirectToAction(nameof(InitialiseApplication));
         }
 
         if (!application.Submitted)

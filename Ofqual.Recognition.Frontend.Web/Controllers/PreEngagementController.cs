@@ -16,11 +16,13 @@ public class PreEngagementController : Controller
 {
     private readonly IPreEngagementService _preEngagementService;
     private readonly ISessionService _sessionService;
+    private readonly IApplicationService _applicationService;
 
-    public PreEngagementController(IPreEngagementService preEngagementService, ISessionService sessionService)
+    public PreEngagementController(IPreEngagementService preEngagementService, ISessionService sessionService, IApplicationService applicationService)
     {
         _preEngagementService = preEngagementService;
         _sessionService = sessionService;
+        _applicationService = applicationService;
     }
 
     [HttpGet]
@@ -106,13 +108,12 @@ public class PreEngagementController : Controller
     [HttpGet("confirmation")]
     [Authorize]
     [AuthorizeForScopes(ScopeKeySection = "RecognitionApi:Scopes")]
-    public IActionResult PreEngagementConfirmation()
+    public async Task<IActionResult> PreEngagementConfirmation()
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
-            // TODO: Redirect to login page instead of home
-            return Redirect(RouteConstants.HomeConstants.HOME_PATH);
+            return RedirectToAction(nameof(ApplicationController.InitialiseApplication), "Application");
         }
 
         return View();

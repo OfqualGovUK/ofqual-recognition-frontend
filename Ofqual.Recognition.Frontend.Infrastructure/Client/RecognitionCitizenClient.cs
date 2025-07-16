@@ -34,7 +34,7 @@ public class RecognitionCitizenClient : IRecognitionCitizenClient
 
         var client = _clientFactory.CreateClient("RecognitionCitizen");
 
-        if (true)
+        if (withAccessToken)
         {
             try
             {

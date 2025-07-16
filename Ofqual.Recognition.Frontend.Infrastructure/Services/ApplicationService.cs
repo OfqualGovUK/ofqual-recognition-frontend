@@ -65,6 +65,33 @@ public class ApplicationService : IApplicationService
         }
     }
 
+    public async Task<Application?> GetLatestApplication()
+    {
+        var applicationSessionKey = SessionKeys.Application;
+        if (_sessionService.HasInSession(applicationSessionKey))
+        {
+            return _sessionService.GetFromSession<Application>(applicationSessionKey);
+        }
+
+        var client = await _client.GetClientAsync();
+
+        var response = await client.GetAsync("/applications");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Log.Warning("API request to get application failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
+            return null;
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<Application>();
+
+        if (result != null)
+        {
+            _sessionService.SetInSession(applicationSessionKey, result);
+        }
+        return result;
+    }
+
     public async Task<Application?> SubmitApplication(Guid applicationId)
     {
         try
