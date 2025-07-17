@@ -24,7 +24,7 @@
         {
             <dl class="govuk-summary-list govuk-!-margin-bottom-9">
                 @foreach (var section in Model.QuestionAnswerSections.Where(s =>
-                            string.IsNullOrWhiteSpace(s.SectionHeading)))
+                           string.IsNullOrWhiteSpace(s.SectionHeading)))
                 {
                     foreach (var question in section.QuestionAnswers)
                     {
@@ -36,12 +36,15 @@
                                     <div>@answer</div>
                                 }
                             </dd>
-                            <dd class="govuk-summary-list__actions">
-                                <a class="govuk-link"
+                            @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
+                            {
+                                <dd class="govuk-summary-list__actions">
+                                    <a class="govuk-link"
                                     href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
-                                    Change<span class="govuk-visually-hidden">@question.QuestionText</span>
-                                </a>
-                            </dd>
+                                        Change<span class="govuk-visually-hidden">@question.QuestionText</span>
+                                    </a>
+                                </dd>
+                            }
                         </div>
                     }
                 }
@@ -62,50 +65,56 @@
                                 <div>@answer</div>
                             }
                         </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
+                        @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
+                        {
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link"
                                 href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
-                                Change<span class="govuk-visually-hidden">@question.QuestionText</span>
-                            </a>
-                        </dd>
+                                    Change<span class="govuk-visually-hidden">@question.QuestionText</span>
+                                </a>
+                            </dd>
+                        }
                     </div>
                 }
             </dl>
         }
 
-        <div class="govuk-form-group">
-            <form method="post">
-                <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                        <h2 class="govuk-fieldset__heading">
-                            Have you completed this section?
-                        </h2>
-                    </legend>
-                    <div class="govuk-radios" data-module="govuk-radios">
-                        <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="yes" name="answer" type="radio"
-                                   value="@( (int)StatusType.Completed )" @(Model.Answer == StatusType.Completed ? "checked" : "")>
-                            <label class="govuk-label govuk-radios__label" for="yes">
-                                Yes, I've completed this section
-                            </label>
+        @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
+        {
+            <div class="govuk-form-group">
+                <form method="post">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            <h2 class="govuk-fieldset__heading">
+                                Have you completed this section?
+                            </h2>
+                        </legend>
+                        <div class="govuk-radios" data-module="govuk-radios">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="yes" name="answer" type="radio"
+                                       value="@( (int)StatusType.Completed )" @(Model.Answer == StatusType.Completed ? "checked" : "")>
+                                <label class="govuk-label govuk-radios__label" for="yes">
+                                    Yes, I've completed this section
+                                </label>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="no" name="answer" type="radio"
+                                       value="@( (int)StatusType.InProgress )" @(Model.Answer == StatusType.InProgress ? "checked" : "")>
+                                <label class="govuk-label govuk-radios__label" for="no">
+                                    No, I'll come back to it later
+                                </label>
+                            </div>
                         </div>
-                        <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="no" name="answer" type="radio"
-                                   value="@( (int)StatusType.InProgress )" @(Model.Answer == StatusType.InProgress ? "checked" : "")>
-                            <label class="govuk-label govuk-radios__label" for="no">
-                                No, I'll come back to it later
-                            </label>
+
+                        @Html.AntiForgeryToken()
+                        <div class="govuk-button-group govuk-!-margin-top-5">
+                            <button type="submit" class="govuk-button">Save and continue</button>
+                            <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
                         </div>
-                    </div>
 
-                    @Html.AntiForgeryToken()
-                    <div class="govuk-button-group govuk-!-margin-top-5">
-                        <button type="submit" class="govuk-button">Save and continue</button>
-                        <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
-                    </div>
-
-                </fieldset>
-            </form>
-        </div>
+                    </fieldset>
+                </form>
+            </div>
+        }
     </div>
 </div>
