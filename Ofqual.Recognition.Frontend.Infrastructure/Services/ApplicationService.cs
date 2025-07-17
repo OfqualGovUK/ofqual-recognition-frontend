@@ -79,8 +79,19 @@ public class ApplicationService : IApplicationService
 
         if (!response.IsSuccessStatusCode)
         {
-            Log.Warning("API request to get application failed. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
-            return null;
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // This indicates that we legitimately do not have an application in session or API, which is expected if the user has not started an application yet.
+                // Hence why in this case, it is safe to return a null
+                Log.Warning("No application found in session or API, but was otherwise successful.");
+                return null;
+            }
+            else
+            {
+                // IMPORTANT: Any type of error where we cannot find an app due to a technical issue must throw an exception all the way up and out the controller
+                Log.Error("Exception raised when attempting to contact API to get Application Data, in ApplicationService::GetLatestApplication. Exception message: {response.ReasonPhrase}", response.StatusCode, response.ReasonPhrase);
+                throw new ApplicationException("Exception raised when attempting to contact API to get Application Data, in ApplicationService::GetLatestApplication. Exception message: " + response.ReasonPhrase);
+            }
         }
 
         var result = await response.Content.ReadFromJsonAsync<Application>();
@@ -88,6 +99,10 @@ public class ApplicationService : IApplicationService
         if (result != null)
         {
             _sessionService.SetInSession(applicationSessionKey, result);
+        }
+        else
+        {
+            Log.Warning("In ApplicationService::GetLatestApplication, a success status code was received but contained no Application Data");
         }
         return result;
     }

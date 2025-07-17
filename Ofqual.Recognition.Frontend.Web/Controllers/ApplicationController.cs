@@ -61,6 +61,8 @@ public class ApplicationController : Controller
         Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
+            // GetLatestApplication bombs out if there's a true problem with the API fetching; if we're at this point but have a null
+            // application, it's a legitimate return, so it should be safe to redirect the user to initialisation
             return RedirectToAction(nameof(InitialiseApplication));
         }
 
@@ -83,6 +85,8 @@ public class ApplicationController : Controller
         Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
+            // GetLatestApplication bombs out if there's a true problem with the API fetching; if we're at this point but have a null
+            // application, it's a legitimate return, so it should be safe to redirect the user to initialisation
             return RedirectToAction(nameof(InitialiseApplication));
         }
 
@@ -144,6 +148,8 @@ public class ApplicationController : Controller
         Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
+            // GetLatestApplication bombs out if there's a true problem with the API fetching; if we're at this point but have a null
+            // application, it's a legitimate return, so it should be safe to redirect the user to initialisation
             return RedirectToAction(nameof(InitialiseApplication));
         }
 
@@ -192,6 +198,8 @@ public class ApplicationController : Controller
         Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
+            // GetLatestApplication bombs out if there's a true problem with the API fetching; if we're at this point but have a null
+            // application, it's a legitimate return, so it should be safe to redirect the user to initialisation
             return RedirectToAction(nameof(InitialiseApplication));
         }
 
@@ -237,6 +245,8 @@ public class ApplicationController : Controller
         Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
+            // GetLatestApplication bombs out if there's a true problem with the API fetching; if we're at this point but have a null
+            // application, it's a legitimate return, so it should be safe to redirect the user to initialisation
             return RedirectToAction(nameof(InitialiseApplication));
         }
 
@@ -279,6 +289,8 @@ public class ApplicationController : Controller
         Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
+            // GetLatestApplication bombs out if there's a true problem with the API fetching; if we're at this point but have a null
+            // application, it's a legitimate return, so it should be safe to redirect the user to initialisation
             return RedirectToAction(nameof(InitialiseApplication));
         }
 
@@ -314,6 +326,8 @@ public class ApplicationController : Controller
         Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
+            // GetLatestApplication bombs out if there's a true problem with the API fetching; if we're at this point but have a null
+            // application, it's a legitimate return, so it should be safe to redirect the user to initialisation
             return RedirectToAction(nameof(InitialiseApplication));
         }
 
