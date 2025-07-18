@@ -18,11 +18,12 @@ public class FileUploadControllerTests
     private readonly Mock<IQuestionService> _questionServiceMock = new();
     private readonly Mock<IAttachmentService> _attachmentServiceMock = new();
     private readonly Mock<ITaskService> _taskServiceMock = new();
+    private readonly Mock<IApplicationService> _applicationServiceMock = new();
     private readonly FileUploadController _controller;
 
     public FileUploadControllerTests()
     {
-        _controller = new FileUploadController(_sessionServiceMock.Object, _questionServiceMock.Object, _attachmentServiceMock.Object, _taskServiceMock.Object)
+        _controller = new FileUploadController(_sessionServiceMock.Object, _questionServiceMock.Object, _attachmentServiceMock.Object, _taskServiceMock.Object, _applicationServiceMock.Object)
         {
             ControllerContext = new ControllerContext
             {
@@ -35,14 +36,14 @@ public class FileUploadControllerTests
     [Trait("Category", "Unit")]
     public async Task SubmitFile_Returns_Unauthorised_When_Application_Is_Null()
     {
-        // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        // Arrange  
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
-        // Act
+        // Act  
         var result = await _controller.SubmitFile("task", "question", new List<IFormFile>());
 
-        // Assert
+        // Assert  
         Assert.IsType<UnauthorizedResult>(result);
     }
 
@@ -51,8 +52,8 @@ public class FileUploadControllerTests
     public async Task SubmitFile_Returns_NotFound_When_Question_Is_Null()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync((QuestionDetails?)null);
@@ -83,9 +84,8 @@ public class FileUploadControllerTests
         fileMock.Setup(f => f.Length).Returns(0);
         fileMock.Setup(f => f.FileName).Returns("test.pdf");
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+             .ReturnsAsync(application);
 
         _questionServiceMock
             .Setup(x => x.GetQuestionDetails("task", "question"))
@@ -127,9 +127,8 @@ public class FileUploadControllerTests
             ContentType = "text/plain"
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock
             .Setup(x => x.GetQuestionDetails("task", "question"))
@@ -183,9 +182,8 @@ public class FileUploadControllerTests
             ContentType = "text/plain"
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock
             .Setup(x => x.GetQuestionDetails("task", "question"))
@@ -221,8 +219,8 @@ public class FileUploadControllerTests
     public async Task UploadFile_ReturnsUnauthorised_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         // Act
         var result = await _controller.UploadFile("task", "question", null!);
@@ -236,8 +234,8 @@ public class FileUploadControllerTests
     public async Task UploadFile_ReturnsNotFound_WhenQuestionDetailsIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync((QuestionDetails?)null);
@@ -270,7 +268,8 @@ public class FileUploadControllerTests
             ContentType = "text/plain"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
 
         // Act
@@ -302,7 +301,8 @@ public class FileUploadControllerTests
             ContentType = "text/plain"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
 
         // Act
@@ -334,7 +334,8 @@ public class FileUploadControllerTests
             ContentType = "application/x-msdownload"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock.Setup(x => x.GetLatestApplication())
+             .ReturnsAsync(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
 
         // Act
@@ -376,7 +377,9 @@ public class FileUploadControllerTests
             FileMIMEtype = "text/plain"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _attachmentServiceMock.Setup(a => a.GetAllLinkedFiles(LinkType.Question, questionId, application.ApplicationId))
             .ReturnsAsync(new List<AttachmentDetails> { existingAttachment });
@@ -410,7 +413,9 @@ public class FileUploadControllerTests
             ContentType = "text/plain"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _attachmentServiceMock.Setup(a => a.GetAllLinkedFiles(LinkType.Question, question.QuestionId, application.ApplicationId))
             .ReturnsAsync(new List<AttachmentDetails>());
@@ -454,9 +459,9 @@ public class FileUploadControllerTests
             FileSize = 100
         };
 
-        _sessionServiceMock
-            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock
             .Setup(q => q.GetQuestionDetails("task", "question"))
@@ -510,9 +515,9 @@ public class FileUploadControllerTests
             FileSize = 100
         };
 
-        _sessionServiceMock
-            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock
             .Setup(q => q.GetQuestionDetails("task", "question"))
@@ -543,8 +548,9 @@ public class FileUploadControllerTests
     public async Task DeleteFile_ReturnsUnauthorised_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         // Act
         var result = await _controller.DeleteFile("task", "question", Guid.NewGuid());
@@ -558,8 +564,9 @@ public class FileUploadControllerTests
     public async Task DeleteFile_ReturnsNotFound_WhenQuestionDetailsIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync((QuestionDetails?)null);
@@ -588,8 +595,9 @@ public class FileUploadControllerTests
             QuestionContent = "{}"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync(questionDetails);
@@ -623,8 +631,9 @@ public class FileUploadControllerTests
             QuestionContent = "{}"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync(questionDetails);
@@ -663,8 +672,9 @@ public class FileUploadControllerTests
             QuestionContent = "{}"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync(questionDetails);
@@ -688,8 +698,9 @@ public class FileUploadControllerTests
     public async Task DownloadFile_ReturnsUnauthorised_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         // Act
         var result = await _controller.DownloadFile("task", "question", Guid.NewGuid());
@@ -703,8 +714,9 @@ public class FileUploadControllerTests
     public async Task DownloadFile_ReturnsNotFound_WhenQuestionIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync((QuestionDetails?)null);
@@ -724,8 +736,9 @@ public class FileUploadControllerTests
         var questionId = Guid.NewGuid();
         var application = new Application { ApplicationId = Guid.NewGuid() };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(new QuestionDetails
@@ -765,8 +778,9 @@ public class FileUploadControllerTests
             FileSize = 1000
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(new QuestionDetails
@@ -811,8 +825,9 @@ public class FileUploadControllerTests
             FileSize = 2048
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(new QuestionDetails
@@ -848,8 +863,9 @@ public class FileUploadControllerTests
     public async Task ListFiles_ReturnsUnauthorised_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         // Act
         var result = await _controller.ListFiles("task", "question");
@@ -863,8 +879,9 @@ public class FileUploadControllerTests
     public async Task ListFiles_ReturnsNotFound_WhenQuestionDetailsAreNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync((QuestionDetails?)null);
@@ -891,8 +908,9 @@ public class FileUploadControllerTests
             CurrentQuestionUrl = "task/question"
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync(questionDetails);
@@ -945,8 +963,9 @@ public class FileUploadControllerTests
             }
         };
 
-        _sessionServiceMock.Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(q => q.GetQuestionDetails("task", "question"))
             .ReturnsAsync(questionDetails);

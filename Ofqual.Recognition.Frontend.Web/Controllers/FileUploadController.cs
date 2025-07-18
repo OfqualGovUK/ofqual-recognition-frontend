@@ -22,13 +22,15 @@ public class FileUploadController : Controller
     private readonly IQuestionService _questionService;
     private readonly IAttachmentService _attachmentService;
     private readonly ITaskService _taskService;
+    private readonly IApplicationService _applicationService;
 
-    public FileUploadController(ISessionService sessionService, IQuestionService questionService, IAttachmentService attachmentService, ITaskService taskService)
+    public FileUploadController(ISessionService sessionService, IQuestionService questionService, IAttachmentService attachmentService, ITaskService taskService, IApplicationService applicationService)
     {
         _sessionService = sessionService;
         _questionService = questionService;
         _attachmentService = attachmentService;
         _taskService = taskService;
+        _applicationService = applicationService;
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/file-submit")]
@@ -36,7 +38,7 @@ public class FileUploadController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitFile(string taskNameUrl, string questionNameUrl, [FromForm] List<IFormFile>? files)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
             return Unauthorized();
@@ -165,7 +167,7 @@ public class FileUploadController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UploadFile(string taskNameUrl, string questionNameUrl, IFormFile file)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
             return Unauthorized();
@@ -222,7 +224,7 @@ public class FileUploadController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteFile(string taskNameUrl, string questionNameUrl, Guid attachmentId)
     {
-        Application? application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
             return Unauthorized();
@@ -256,7 +258,7 @@ public class FileUploadController : Controller
     [HttpGet("{taskNameUrl}/{questionNameUrl}/download/{attachmentId}")]
     public async Task<IActionResult> DownloadFile(string taskNameUrl, string questionNameUrl, Guid attachmentId)
     {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
             return Unauthorized();
@@ -292,7 +294,7 @@ public class FileUploadController : Controller
     [HttpGet("{taskNameUrl}/{questionNameUrl}/list")]
     public async Task<IActionResult> ListFiles(string taskNameUrl, string questionNameUrl)
     {
-        var application = _sessionService.GetFromSession<Application>(SessionKeys.Application);
+        Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
         {
             return Unauthorized();

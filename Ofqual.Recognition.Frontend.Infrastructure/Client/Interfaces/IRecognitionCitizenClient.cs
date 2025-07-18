@@ -2,5 +2,5 @@
 
 public interface IRecognitionCitizenClient
 {
-    public Task<HttpClient> GetClientAsync();
+    public Task<HttpClient> GetClientAsync(bool withAccessToken = true);
 }

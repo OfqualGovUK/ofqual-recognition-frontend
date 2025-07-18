@@ -15,11 +15,12 @@ public class PreEngagementControllerTests
 {
     private readonly Mock<IPreEngagementService> _preEngagementServiceMock = new();
     private readonly Mock<ISessionService> _sessionServiceMock = new();
+    private readonly Mock<IApplicationService> _applicationServiceMock = new();
     private readonly PreEngagementController _controller;
 
     public PreEngagementControllerTests()
     {
-        _controller = new PreEngagementController(_preEngagementServiceMock.Object, _sessionServiceMock.Object);
+        _controller = new PreEngagementController(_preEngagementServiceMock.Object, _sessionServiceMock.Object, _applicationServiceMock.Object);
     }
 
     [Fact]
@@ -239,38 +240,38 @@ public class PreEngagementControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void PreEngagementConfirmation_Should_ReturnView_WhenApplicationExists()
+    public async Task PreEngagementConfirmation_Should_ReturnView_WhenApplicationExists()
     {
         // Arrange
         var application = new Application { ApplicationId = Guid.NewGuid() };
 
-        _sessionServiceMock
-            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         // Act
-        var result = _controller.PreEngagementConfirmation();
+        var result = await _controller.PreEngagementConfirmation();
 
         // Assert
         Assert.IsType<ViewResult>(result);
-        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+        _applicationServiceMock.Verify(s => s.GetLatestApplication(), Times.Once);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void PreEngagementConfirmation_Should_RedirectToHome_WhenApplicationIsNull()
+    public async Task PreEngagementConfirmation_Should_RedirectToInitialiseApplication_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock
-            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         // Act
-        var result = _controller.PreEngagementConfirmation();
+        var result = await _controller.PreEngagementConfirmation();
 
         // Assert
-        var redirectResult = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirectResult.Url);
-        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(ApplicationController.InitialiseApplication), redirectResult.ActionName);
+        _applicationServiceMock.Verify(s => s.GetLatestApplication(), Times.Once);
     }
 }

@@ -4,6 +4,8 @@ using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
 using Serilog;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -28,7 +30,7 @@ public class PreEngagementService : IPreEngagementService
                 return _sessionService.GetFromSession<PreEngagementQuestion>(sessionKey);
             }
 
-            var client = await _client.GetClientAsync();
+            var client = await _client.GetClientAsync(false);
             var result = await client.GetFromJsonAsync<PreEngagementQuestion>("/pre-engagement/first-question");
 
             if (result == null)
@@ -57,7 +59,7 @@ public class PreEngagementService : IPreEngagementService
                 return _sessionService.GetFromSession<QuestionDetails>(sessionKey);
             }
 
-            var client = await _client.GetClientAsync();
+            var client = await _client.GetClientAsync(false);
             var result = await client.GetFromJsonAsync<QuestionDetails>($"/pre-engagement/{taskNameUrl}/{questionNameUrl}");
 
             if (result == null)
@@ -80,7 +82,7 @@ public class PreEngagementService : IPreEngagementService
     {
         try
         {
-            var client = await _client.GetClientAsync();
+            var client = await _client.GetClientAsync(false);
             var payload = new QuestionAnswerSubmission { Answer = answerJson };
 
             var response = await client.PostAsJsonAsync($"/pre-engagement/questions/{questionId}/validate", payload);
@@ -119,6 +121,11 @@ public class PreEngagementService : IPreEngagementService
 
             Log.Warning("Failed to send pre-engagement email. ApplicationId: {ApplicationId}, StatusCode: {StatusCode}, Reason: {ReasonPhrase}", applicationId, response.StatusCode, response.ReasonPhrase);
             return false;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot send pre-engagement email.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {
