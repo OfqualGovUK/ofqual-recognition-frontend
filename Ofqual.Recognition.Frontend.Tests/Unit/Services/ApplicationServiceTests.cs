@@ -1,16 +1,11 @@
-﻿using Xunit;
-using Moq;
-using System.Threading.Tasks;
+﻿using Moq;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
 using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Collections.Generic;
 using Microsoft.Identity.Web;
-using System;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Moq.Protected;
 
@@ -137,4 +132,202 @@ public class ApplicationServiceTests
         // Act & Assert  
         await Assert.ThrowsAsync<MicrosoftIdentityWebChallengeUserException>(() => _applicationService.InitialiseApplication());
     }
+
+    [Fact]
+    public async Task GetLatestApplication_ReturnsApplication_FromSession()
+    {
+        // Arrange  
+        var expectedApp = new Application { ApplicationId = Guid.NewGuid(), Submitted = false };
+        _mockSession.Setup(s => s.HasInSession(SessionKeys.Application)).Returns(true);
+        _mockSession.Setup(s => s.GetFromSession<Application>(SessionKeys.Application)).Returns(expectedApp);
+
+        // Act  
+        var result = await _applicationService.GetLatestApplication();
+
+        // Assert  
+        Assert.Equal(expectedApp, result);
+        _mockSession.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+        _mockRecognitionCitizenClient.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetLatestApplication_ReturnsNull_WhenNotFoundInApi()
+    {
+        // Arrange  
+        _mockSession.Setup(s => s.HasInSession(SessionKeys.Application)).Returns(false);
+
+        _mockMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            })
+            .Verifiable();
+
+        // Act  
+        var result = await _applicationService.GetLatestApplication();
+
+        // Assert  
+        Assert.Null(result);
+        _mockSession.Verify(s => s.SetInSession(SessionKeys.Application, It.IsAny<Application>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetLatestApplication_ThrowsException_OnApiError()
+    {
+        // Arrange  
+        _mockSession.Setup(s => s.HasInSession(SessionKeys.Application)).Returns(false);
+
+        _mockMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.InternalServerError,
+                ReasonPhrase = "Internal Server Error"
+            })
+            .Verifiable();
+
+        // Act & Assert  
+        var exception = await Assert.ThrowsAsync<ApplicationException>(() => _applicationService.GetLatestApplication());
+        Assert.Contains("Exception raised when attempting to contact API", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetLatestApplication_SavesApplicationToSession_OnSuccess()
+    {
+        // Arrange  
+        var expectedApp = new Application { ApplicationId = Guid.NewGuid(), Submitted = false };
+        _mockSession.Setup(s => s.HasInSession(SessionKeys.Application)).Returns(false);
+
+        _mockMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = JsonContent.Create(expectedApp)
+            })
+            .Verifiable();
+
+        // Act  
+        var result = await _applicationService.GetLatestApplication();
+
+        // Assert  
+        Assert.NotNull(result);
+        Assert.Equal(expectedApp.ApplicationId, result!.ApplicationId);
+        _mockSession.Verify(s => s.SetInSession(SessionKeys.Application, It.IsAny<Application>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SubmitApplication_ReturnsApplication_OnSuccess()
+    {
+        // Arrange  
+        var applicationId = Guid.NewGuid();
+        var expectedApp = new Application { ApplicationId = applicationId, Submitted = true };
+
+        _mockMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = JsonContent.Create(expectedApp)
+            })
+            .Verifiable();
+
+        // Act  
+        var result = await _applicationService.SubmitApplication(applicationId);
+
+        // Assert  
+        Assert.NotNull(result);
+        Assert.Equal(expectedApp.ApplicationId, result!.ApplicationId);
+        Assert.True(result.Submitted);
+        _mockSession.Verify(s => s.SetInSession(SessionKeys.Application, It.IsAny<Application>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SubmitApplication_ReturnsNull_OnFailure()
+    {
+        // Arrange  
+        var applicationId = Guid.NewGuid();
+
+        _mockMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                ReasonPhrase = "Bad Request"
+            })
+            .Verifiable();
+
+        // Act  
+        var result = await _applicationService.SubmitApplication(applicationId);
+
+        // Assert  
+        Assert.Null(result);
+        _mockSession.Verify(s => s.SetInSession(SessionKeys.Application, It.IsAny<Application>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitApplication_Throws_OnAuthenticationException()
+    {
+        // Arrange  
+        var applicationId = Guid.NewGuid();
+        var scopes = new[] { "scope1", "scope2" };
+        var msalException = new Microsoft.Identity.Client.MsalUiRequiredException("errorCode", "errorMessage");
+        var exception = new MicrosoftIdentityWebChallengeUserException(msalException, scopes, null);
+
+        _mockRecognitionCitizenClient.Setup(c => c.GetClientAsync(It.IsAny<bool>())).ThrowsAsync(exception);
+
+        // Act & Assert  
+        await Assert.ThrowsAsync<MicrosoftIdentityWebChallengeUserException>(() => _applicationService.SubmitApplication(applicationId));
+    }
+
+    [Fact]
+    public async Task SubmitApplication_LogsError_OnException()
+    {
+        // Arrange  
+        var applicationId = Guid.NewGuid();
+
+        _mockMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new HttpRequestException("Network error"))
+            .Verifiable();
+
+        // Act  
+        var result = await _applicationService.SubmitApplication(applicationId);
+
+        // Assert  
+        Assert.Null(result);
+        _mockSession.Verify(s => s.SetInSession(SessionKeys.Application, It.IsAny<Application>()), Times.Never);
+    }
+
 }
