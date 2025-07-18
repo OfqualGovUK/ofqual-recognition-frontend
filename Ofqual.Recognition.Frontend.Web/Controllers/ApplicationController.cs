@@ -99,7 +99,9 @@ public class ApplicationController : Controller
         }
 
         StatusType? status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
-        if (status == StatusType.Completed && !fromReview)
+
+        // Check if the task is in progress or completed and if the question is not an application review
+        if (status == StatusType.Completed && !fromReview && questionDetails.QuestionTypeName != QuestionType.Review)
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
@@ -123,8 +125,13 @@ public class ApplicationController : Controller
             linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
         }
 
+        // If the question type is Application Review, get all application answers
         if (questionDetails.QuestionTypeName == QuestionType.Review)
         {
+            // Get the status of the application review question
+            ViewData["ReviewQuestionStatus"] = status;
+
+            // Get all application answers for the review
             applicationReviewAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
         }
 
@@ -153,6 +160,20 @@ public class ApplicationController : Controller
         if (questionDetails == null)
         {
             return NotFound();
+        }
+
+        // If the question type is Application Review 
+        if (questionDetails.QuestionTypeName == QuestionType.Review)
+        {
+            // Variable to hold the application status from the form data
+            var applicationStatus = Enum.Parse(typeof(StatusType), formdata["answer"]!);
+
+            // Redirect to TaskReview with the application status
+            return await TaskReview(taskNameUrl, new TaskReviewViewModel 
+            {
+                Answer = (StatusType)applicationStatus,
+                IsCompletedStatus = applicationStatus.Equals(StatusType.Completed)
+            });
         }
 
         string jsonAnswer = JsonHelper.ConvertToJson(formdata);

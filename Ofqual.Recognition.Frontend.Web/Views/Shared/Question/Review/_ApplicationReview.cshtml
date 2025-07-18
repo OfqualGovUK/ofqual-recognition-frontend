@@ -3,10 +3,6 @@
 @using Ofqual.Recognition.Frontend.Core.Helpers
 @model QuestionViewModel
 
-@{
-    var renderedHeadings = new HashSet<string>();
-}
-
 @if (Model.TaskReviewSection != null && Model.TaskReviewSection.Any())
 {
     @foreach (var taskSection in Model.TaskReviewSection)
