@@ -26,6 +26,14 @@ The main application settings are defined in `appsettings.json` and can be tailo
 
 ```json
 {
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
   "AzureAdB2C": {
     "Instance": "",
     "ClientId": "",
@@ -52,7 +60,8 @@ The main application settings are defined in `appsettings.json` and can be tailo
     "Uri": ""
   },
   "FeatureFlag": {
-    "Application": true
+    "Application": true,
+    "EligibilityLink": false
   }
 }
 ```
@@ -118,6 +127,10 @@ The main application settings are defined in `appsettings.json` and can be tailo
 - **`FeatureFlag:Application`**
   A **boolean** flag used to enable or disable middleware URL redirection and application UI visibility.
   When set to `false`, users will be redirected away from application-related routes and any associated buttons or links will not be shown.
+
+- **`FeatureFlag:EligibilityLink`**
+  A **boolean** flag used to redirect users from the current Google Form for signing up for a Legacy Recognition account, to the new system
+  When set to `true`, users are redirected to the pre-engagement flow instead of the Google form.
 
 > These settings should be environment-specific and managed through `appsettings.{Environment}.json` or overridden using environment variables in production scenarios.
 
