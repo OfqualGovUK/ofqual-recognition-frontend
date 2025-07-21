@@ -36,7 +36,7 @@
                                     <div>@answer</div>
                                 }
                             </dd>
-                            @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
+                            @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false)) // Held in ViewData as it's also used in the layout'
                             {
                                 <dd class="govuk-summary-list__actions">
                                     <a class="govuk-link"
@@ -65,7 +65,7 @@
                                 <div>@answer</div>
                             }
                         </dd>
-                        @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
+                        @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false)) // Held in ViewData as it's also used in the layout'
                         {
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
