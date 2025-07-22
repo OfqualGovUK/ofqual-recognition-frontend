@@ -157,19 +157,8 @@ public class ApplicationController : Controller
         }
 
         string jsonAnswer = JsonHelper.ConvertToJson(formdata);
-
-        if (questionDetails.QuestionTypeName == QuestionType.Review)
-        {
-            var applicationStatus = Enum.Parse(typeof(StatusType), JsonHelper.GetFirstAnswerFromJson(jsonAnswer)!);
-
-            return await TaskReview(taskNameUrl, new TaskReviewViewModel
-            {
-                Answer = (StatusType)applicationStatus,
-                IsCompletedStatus = applicationStatus.Equals(StatusType.Completed)
-            });
-        }
-
         QuestionAnswer? existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
+
         if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
             ValidationResponse? validationResponse = await _questionService.SubmitQuestionAnswer(application.ApplicationId, questionDetails.TaskId, questionDetails.QuestionId, jsonAnswer);
@@ -186,6 +175,17 @@ public class ApplicationController : Controller
 
                 return View(questionViewModel);
             }
+        }
+        
+        if (questionDetails.QuestionTypeName == QuestionType.Review)
+        {
+            var applicationStatus = Enum.Parse(typeof(StatusType), JsonHelper.GetFirstAnswerFromJson(jsonAnswer)!);
+
+            return await TaskReview(taskNameUrl, new TaskReviewViewModel
+            {
+                Answer = (StatusType)applicationStatus,
+                IsCompletedStatus = applicationStatus.Equals(StatusType.Completed)
+            });
         }
 
         if (string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
