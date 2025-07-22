@@ -30,50 +30,8 @@
 
         @await Html.PartialAsync($"~/Views/Shared/Question/Review/_ApplicationReview.cshtml", Model)
 
-        @if (isReviewPage)
-        {
-            StatusType reviewStatus = (StatusType)ViewData["ReviewQuestionStatus"]!;
-
-            <div class="govuk-form-group">
-                <form method="post">
-                    <fieldset class="govuk-fieldset">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                            <h2 class="govuk-fieldset__heading">
-                                Have you completed this section?
-                            </h2>
-                        </legend>
-                        <div class="govuk-radios" data-module="govuk-radios">
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="yes" name="answer" type="radio"
-                                       value="@( (int)StatusType.Completed )" @(reviewStatus == StatusType.Completed ? "checked" : "")>
-                                <label class="govuk-label govuk-radios__label" for="yes">
-                                    Yes, I've completed this section
-                                </label>
-                            </div>
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="no" name="answer" type="radio"
-                                       value="@( (int)StatusType.InProgress )" @(reviewStatus == StatusType.InProgress ? "checked" : "")>
-                                <label class="govuk-label govuk-radios__label" for="no">
-                                    No, I'll come back to it later
-                                </label>
-                            </div>
-                        </div>
-
-                        @Html.AntiForgeryToken()
-                        <div class="govuk-button-group govuk-!-margin-top-5">
-                            <button type="submit" class="govuk-button">Save and continue</button>
-                            <a class="govuk-link" href="@(RouteConstants.ApplicationConstants.TASK_LIST_PATH)">Cancel</a>
-                        </div>
-
-                    </fieldset>
-                </form>
-            </div>
-        }
-        else
-        {
-            @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/_FormGroup.cshtml", Model)
-        }
-
+        @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/_FormGroup.cshtml", Model)
+     
     </div>
 
     @await Html.PartialAsync($"~/Views/Shared/Question/Sidebar/_Sidebar.cshtml", Model.QuestionContent.Sidebar)

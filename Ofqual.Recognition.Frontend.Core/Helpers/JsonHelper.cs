@@ -37,6 +37,47 @@ public static class JsonHelper
         return JsonSerializer.Serialize(jsonPayload);
     }
 
+    public static string? GetFirstAnswerFromJson(string jsonAnswer)
+    {
+        if (string.IsNullOrWhiteSpace(jsonAnswer))
+        {
+            return null;
+        }
+
+        var dictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonAnswer);
+        if (dictionary == null || dictionary.Count == 0)
+        {
+            return null;
+        }
+
+        foreach (var kvp in dictionary)
+        {
+            var element = kvp.Value;
+
+            if (element.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in element.EnumerateArray())
+                {
+                    var value = item.GetString();
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        return value;
+                    }
+                }
+            }
+            else if (element.ValueKind == JsonValueKind.String)
+            {
+                var value = element.GetString();
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static bool AreEqual(string? json1, string? json2)
     {
         if (string.IsNullOrWhiteSpace(json1) && string.IsNullOrWhiteSpace(json2))
@@ -48,7 +89,7 @@ public static class JsonHelper
         {
             return false;
         }
-        
+
         using var doc1 = JsonDocument.Parse(json1);
         using var doc2 = JsonDocument.Parse(json2);
 
@@ -99,7 +140,7 @@ public static class JsonHelper
                             return false;
                         }
                     }
-                    
+
                     return true;
 
                 default:

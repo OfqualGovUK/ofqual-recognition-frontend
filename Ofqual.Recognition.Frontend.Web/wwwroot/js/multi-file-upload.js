@@ -1,9 +1,11 @@
-const version = "0.0.1";
+const version = "0.0.2";
 
 // ======================================
 // Initialisation
 // ======================================
-const requestVerificationToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+const requestVerificationToken = document.querySelector(
+  'input[name="__RequestVerificationToken"]'
+)?.value;
 const fileInput = document.getElementById("files");
 const fileList = document.getElementById("files-list");
 const fileCount = document.getElementById("files-count");
@@ -115,10 +117,6 @@ function handleFileSelection(file) {
     errorMessage,
   });
 
-  if (errorMessage) {
-    showFileErrorMessageSummary(fileId);
-  }
-
   renderFileToList(fileId);
   updateInterface();
 }
@@ -206,12 +204,10 @@ async function uploadSingleFile(fileId) {
       } catch {
         entry.status = "failed";
         entry.errorMessage = "Upload succeeded but returned invalid response";
-        showFileErrorMessageSummary(fileId);
       }
     } else {
       entry.status = "failed";
       entry.errorMessage = xhr.responseText || "Upload failed";
-      showFileErrorMessageSummary(fileId);
     }
 
     renderFileItem(fileId);
@@ -221,7 +217,6 @@ async function uploadSingleFile(fileId) {
   xhr.onerror = () => {
     entry.status = "failed";
     entry.errorMessage = "Network error";
-    showFileErrorMessageSummary(fileId);
     renderFileItem(fileId);
     updateInterface();
   };
@@ -567,25 +562,44 @@ function updateInterface() {
   updateFileSizeCount();
   updateFileCountProgress();
   updateButtonState();
+  updateFileErrorMessageSummary();
 }
 
 // ======================================
 // Error Summary
 // ======================================
-function showFileErrorMessageSummary(fileId) {
-  const entry = filesMap.get(fileId);
+function updateFileErrorMessageSummary() {
   const errorList = errorSummary.querySelector("ul");
-  if (!entry || !entry.errorMessage || !errorList) return;
+  if (!errorList) return;
 
-  const existing = errorList.querySelector(`a[href="#${fileId}"]`);
-  if (!existing) {
-    errorList.insertAdjacentHTML(
-      "beforeend",
-      `<li><a href="#${fileId}">${entry.errorMessage}</a></li>`
-    );
+  errorList.innerHTML = "";
+
+  let hasErrors = false;
+
+  for (const [fileId, entry] of filesMap.entries()) {
+    if (entry.errorMessage) {
+      errorList.insertAdjacentHTML(
+        "beforeend",
+        `<li><a href="#${fileId}">${entry.errorMessage}</a></li>`
+      );
+      hasErrors = true;
+    }
   }
 
-  errorSummary.classList.remove("govuk-!-display-none");
+  const totalSizeBytes = getTotalSizeBytes();
+  if (totalSizeBytes > MAX_TOTAL_SIZE_BYTES) {
+    errorList.insertAdjacentHTML(
+      "beforeend",
+      `<li><a href="#">Total size of all selected files must not exceed ${MAX_TOTAL_SIZE_MB}MB</a></li>`
+    );
+    hasErrors = true;
+  }
+
+  if (hasErrors) {
+    errorSummary.classList.remove("govuk-!-display-none");
+  } else {
+    errorSummary.classList.add("govuk-!-display-none");
+  }
 }
 
 function clearFileErrorMessageSummary(fileId) {

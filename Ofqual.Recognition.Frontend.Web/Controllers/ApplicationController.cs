@@ -1,4 +1,6 @@
 ﻿using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
+using Ofqual.Recognition.Frontend.Core.Attributes;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Helpers;
@@ -8,8 +10,6 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Ofqual.Recognition.Frontend.Core.Models.ApplicationAnswers;
-using Ofqual.Recognition.Frontend.Core.Attributes;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -100,7 +100,6 @@ public class ApplicationController : Controller
 
         StatusType? status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
 
-        // Check if the task is in progress or completed and if the question is not an application review
         if (status == StatusType.Completed && !fromReview && questionDetails.QuestionTypeName != QuestionType.Review)
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
@@ -125,13 +124,8 @@ public class ApplicationController : Controller
             linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
         }
 
-        // If the question type is Application Review, get all application answers
         if (questionDetails.QuestionTypeName == QuestionType.Review)
         {
-            // Get the status of the application review question
-            ViewData["ReviewQuestionStatus"] = status;
-
-            // Get all application answers for the review
             applicationReviewAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
         }
 
@@ -162,23 +156,20 @@ public class ApplicationController : Controller
             return NotFound();
         }
 
-        // If the question type is Application Review 
+        string jsonAnswer = JsonHelper.ConvertToJson(formdata);
+
         if (questionDetails.QuestionTypeName == QuestionType.Review)
         {
-            // Variable to hold the application status from the form data
-            var applicationStatus = Enum.Parse(typeof(StatusType), formdata["answer"]!);
+            var applicationStatus = Enum.Parse(typeof(StatusType), JsonHelper.GetFirstAnswerFromJson(jsonAnswer)!);
 
-            // Redirect to TaskReview with the application status
-            return await TaskReview(taskNameUrl, new TaskReviewViewModel 
+            return await TaskReview(taskNameUrl, new TaskReviewViewModel
             {
                 Answer = (StatusType)applicationStatus,
                 IsCompletedStatus = applicationStatus.Equals(StatusType.Completed)
             });
         }
 
-        string jsonAnswer = JsonHelper.ConvertToJson(formdata);
         QuestionAnswer? existingAnswer = await _questionService.GetQuestionAnswer(application.ApplicationId, questionDetails.QuestionId);
-
         if (!JsonHelper.AreEqual(existingAnswer?.Answer, jsonAnswer))
         {
             ValidationResponse? validationResponse = await _questionService.SubmitQuestionAnswer(application.ApplicationId, questionDetails.TaskId, questionDetails.QuestionId, jsonAnswer);
