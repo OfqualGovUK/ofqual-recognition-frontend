@@ -66,10 +66,7 @@ submitButton.addEventListener("click", (event) => {
     (f) => f.status === "failed"
   );
 
-  if (filesMap.size > 0 && !hasUploadStarted()) {
-    event.preventDefault();
-    startUploadProcess();
-  } else if (filesMap.size > 0 && hasErrors) {
+  if (filesMap.size > 0 && hasErrors) {
     event.preventDefault();
     const firstErroredEntry = Array.from(filesMap.entries()).find(
       ([, entry]) => entry.status === "failed"
@@ -83,6 +80,9 @@ submitButton.addEventListener("click", (event) => {
         targetElement.focus({ preventScroll: true });
       }
     }
+  } else if (filesMap.size > 0 && !hasUploadStarted()) {
+    event.preventDefault();
+    startUploadProcess();
   }
 });
 
