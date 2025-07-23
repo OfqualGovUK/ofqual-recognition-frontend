@@ -62,9 +62,14 @@ fileList.addEventListener("click", async (event) => {
 });
 
 submitButton.addEventListener("click", (event) => {
+  const hasErrors = Array.from(filesMap.values()).some(
+    (f) => f.status === "failed"
+  );
+
   if (filesMap.size > 0 && !hasUploadStarted()) {
     event.preventDefault();
-
+    startUploadProcess();
+  } else if (filesMap.size > 0 && hasErrors) {
     const firstErroredEntry = Array.from(filesMap.entries()).find(
       ([, entry]) => entry.status === "failed"
     );
@@ -76,8 +81,6 @@ submitButton.addEventListener("click", (event) => {
         targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
         targetElement.focus({ preventScroll: true });
       }
-    } else {
-      startUploadProcess();
     }
   }
 });
@@ -109,10 +112,10 @@ function handleFileSelection(file) {
 
   if (fileSize === 0) {
     errorMessage = "The selected file is empty";
-  } else if (fileSize > MAX_FILE_SIZE_BYTES) {
-    errorMessage = `The selected file must be smaller than ${formatFileSize(MAX_FILE_SIZE_BYTES)}`;
   } else if (fileSize > MAX_TOTAL_SIZE_BYTES) {
-    errorMessage = `The selected file exceeds the maximum total size of ${formatFileSize(MAX_TOTAL_SIZE_BYTES)}`;
+    errorMessage = `The selected file exceeds the maximum total size of ${MAX_TOTAL_SIZE_MB}MB`;
+  } else if (fileSize > MAX_FILE_SIZE_BYTES) {
+    errorMessage = `The selected file must be smaller than ${MAX_FILE_SIZE_MB}MB`;
   } else {
     const isDuplicate = Array.from(filesMap.values()).some(
       (f) =>
@@ -143,7 +146,6 @@ function handleFileSelection(file) {
   renderFileToList(fileId);
   updateInterface();
 }
-
 
 function removeFileFromFileList(target) {
   const row = target.closest(".ofqual-file-list__item");
