@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using Newtonsoft.Json;
 using System.Text;
 using Serilog;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -43,6 +44,11 @@ public class TaskService : ITaskService
             _sessionService.SetInSession(sessionKey, result);
             return result;
         }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot retrieve application tasks.");
+            throw; // Re-throw to handle authentication challenge
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving tasks for Application ID {ApplicationId}", applicationId);
@@ -77,6 +83,11 @@ public class TaskService : ITaskService
             _sessionService.UpdateTaskStatusInSession(taskId, status);
             return true;
         }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot update task status.");
+            throw; // Re-throw to handle authentication challenge
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "Error updating task {TaskId} for Application {ApplicationId}", taskId, applicationId);
@@ -105,6 +116,11 @@ public class TaskService : ITaskService
 
             _sessionService.SetInSession(sessionKey, result);
             return result;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot retrieve task details.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {
