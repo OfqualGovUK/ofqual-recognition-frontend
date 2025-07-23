@@ -64,7 +64,21 @@ fileList.addEventListener("click", async (event) => {
 submitButton.addEventListener("click", (event) => {
   if (filesMap.size > 0 && !hasUploadStarted()) {
     event.preventDefault();
-    startUploadProcess();
+
+    const firstErroredEntry = Array.from(filesMap.entries()).find(
+      ([, entry]) => entry.status === "failed"
+    );
+
+    if (firstErroredEntry) {
+      const [fileId] = firstErroredEntry;
+      const targetElement = document.getElementById(fileId);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        targetElement.focus({ preventScroll: true });
+      }
+    } else {
+      startUploadProcess();
+    }
   }
 });
 
@@ -89,23 +103,28 @@ errorSummary.addEventListener("click", (event) => {
 // ======================================
 function handleFileSelection(file) {
   const fileId = crypto.randomUUID();
-  const fileSize = file.size;
-  const fileName = file.name;
+  const { name: fileName, size: fileSize, lastModified } = file;
 
-  const errorMessage =
-    fileSize === 0
-      ? "The selected file is empty"
-      : fileSize > MAX_FILE_SIZE_BYTES
-      ? `The selected file must be smaller than ${MAX_FILE_SIZE_MB}MB`
-      : Array.from(filesMap.values()).some(
-          (f) =>
-            f.file &&
-            f.file.name === fileName &&
-            f.file.size === fileSize &&
-            f.file.lastModified === file.lastModified
-        )
-      ? "The selected file has already been uploaded"
-      : null;
+  let errorMessage = null;
+
+  if (fileSize === 0) {
+    errorMessage = "The selected file is empty";
+  } else if (fileSize > MAX_FILE_SIZE_BYTES) {
+    errorMessage = `The selected file must be smaller than ${formatFileSize(MAX_FILE_SIZE_BYTES)}`;
+  } else if (fileSize > MAX_TOTAL_SIZE_BYTES) {
+    errorMessage = `The selected file exceeds the maximum total size of ${formatFileSize(MAX_TOTAL_SIZE_BYTES)}`;
+  } else {
+    const isDuplicate = Array.from(filesMap.values()).some(
+      (f) =>
+        f.file &&
+        f.file.name === fileName &&
+        f.file.size === fileSize &&
+        f.file.lastModified === lastModified
+    );
+    if (isDuplicate) {
+      errorMessage = "The selected file has already been uploaded";
+    }
+  }
 
   const status = errorMessage ? "failed" : "ready";
 
@@ -117,9 +136,14 @@ function handleFileSelection(file) {
     errorMessage,
   });
 
+  if (errorMessage) {
+    showFileErrorMessageSummary(fileId);
+  }
+
   renderFileToList(fileId);
   updateInterface();
 }
+
 
 function removeFileFromFileList(target) {
   const row = target.closest(".ofqual-file-list__item");
@@ -204,10 +228,12 @@ async function uploadSingleFile(fileId) {
       } catch {
         entry.status = "failed";
         entry.errorMessage = "Upload succeeded but returned invalid response";
+        showFileErrorMessageSummary(fileId);
       }
     } else {
       entry.status = "failed";
       entry.errorMessage = xhr.responseText || "Upload failed";
+      showFileErrorMessageSummary(fileId);
     }
 
     renderFileItem(fileId);
@@ -217,6 +243,7 @@ async function uploadSingleFile(fileId) {
   xhr.onerror = () => {
     entry.status = "failed";
     entry.errorMessage = "Network error";
+    showFileErrorMessageSummary(fileId);
     renderFileItem(fileId);
     updateInterface();
   };
@@ -510,16 +537,11 @@ function getReadyToUploadTemplate(entry) {
 // Interface Updates
 // ======================================
 function updateButtonState() {
-  const totalSizeBytes = getTotalSizeBytes();
   const uploadingCount = Array.from(filesMap.values()).filter(
     (f) => f.status === "uploading"
   ).length;
-  const hasErrors = Array.from(filesMap.values()).some(
-    (f) => f.status === "failed"
-  );
 
-  submitButton.disabled =
-    hasErrors || totalSizeBytes > MAX_TOTAL_SIZE_BYTES || uploadingCount > 0;
+  submitButton.disabled = uploadingCount > 0;
 
   if (uploadingCount > 0) {
     submitButton.innerText = "Uploading...";
@@ -562,44 +584,25 @@ function updateInterface() {
   updateFileSizeCount();
   updateFileCountProgress();
   updateButtonState();
-  updateFileErrorMessageSummary();
 }
 
 // ======================================
 // Error Summary
 // ======================================
-function updateFileErrorMessageSummary() {
+function showFileErrorMessageSummary(fileId) {
+  const entry = filesMap.get(fileId);
   const errorList = errorSummary.querySelector("ul");
-  if (!errorList) return;
+  if (!entry || !entry.errorMessage || !errorList) return;
 
-  errorList.innerHTML = "";
-
-  let hasErrors = false;
-
-  for (const [fileId, entry] of filesMap.entries()) {
-    if (entry.errorMessage) {
-      errorList.insertAdjacentHTML(
-        "beforeend",
-        `<li><a href="#${fileId}">${entry.errorMessage}</a></li>`
-      );
-      hasErrors = true;
-    }
-  }
-
-  const totalSizeBytes = getTotalSizeBytes();
-  if (totalSizeBytes > MAX_TOTAL_SIZE_BYTES) {
+  const existing = errorList.querySelector(`a[href="#${fileId}"]`);
+  if (!existing) {
     errorList.insertAdjacentHTML(
       "beforeend",
-      `<li><a href="#">Total size of all selected files must not exceed ${MAX_TOTAL_SIZE_MB}MB</a></li>`
+      `<li><a href="#${fileId}">${entry.errorMessage}</a></li>`
     );
-    hasErrors = true;
   }
 
-  if (hasErrors) {
-    errorSummary.classList.remove("govuk-!-display-none");
-  } else {
-    errorSummary.classList.add("govuk-!-display-none");
-  }
+  errorSummary.classList.remove("govuk-!-display-none");
 }
 
 function clearFileErrorMessageSummary(fileId) {
