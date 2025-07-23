@@ -70,6 +70,7 @@ submitButton.addEventListener("click", (event) => {
     event.preventDefault();
     startUploadProcess();
   } else if (filesMap.size > 0 && hasErrors) {
+    event.preventDefault();
     const firstErroredEntry = Array.from(filesMap.entries()).find(
       ([, entry]) => entry.status === "failed"
     );
