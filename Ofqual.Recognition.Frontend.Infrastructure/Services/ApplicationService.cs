@@ -5,6 +5,7 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 using Serilog;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -52,11 +53,58 @@ public class ApplicationService : IApplicationService
 
             return result;
         }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot initialise application.");
+            throw; // Re-throw to handle authentication challenge
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An unexpected error occurred while initialising the application.");
             return null;
         }
+    }
+
+    public async Task<Application?> GetLatestApplication()
+    {
+        var applicationSessionKey = SessionKeys.Application;
+        if (_sessionService.HasInSession(applicationSessionKey))
+        {
+            return _sessionService.GetFromSession<Application>(applicationSessionKey);
+        }
+
+        var client = await _client.GetClientAsync();
+
+        var response = await client.GetAsync("/applications");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // This indicates that we legitimately do not have an application in session or API, which is expected if the user has not started an application yet.
+                // Hence why in this case, it is safe to return a null
+                Log.Warning("No application found in session or API, but was otherwise successful.");
+                return null;
+            }
+            else
+            {
+                // IMPORTANT: Any type of error where we cannot find an app due to a technical issue must throw an exception all the way up and out the controller
+                Log.Error("Exception raised when attempting to contact API to get Application Data, in ApplicationService::GetLatestApplication. Exception message: {response.ReasonPhrase}", response.StatusCode, response.ReasonPhrase);
+                throw new ApplicationException("Exception raised when attempting to contact API to get Application Data, in ApplicationService::GetLatestApplication. Exception message: " + response.ReasonPhrase);
+            }
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<Application>();
+
+        if (result != null)
+        {
+            _sessionService.SetInSession(applicationSessionKey, result);
+        }
+        else
+        {
+            Log.Warning("In ApplicationService::GetLatestApplication, a success status code was received but contained no Application Data");
+        }
+        return result;
     }
 
     public async Task<Application?> SubmitApplication(Guid applicationId)
@@ -81,6 +129,11 @@ public class ApplicationService : IApplicationService
             }
 
             return application;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot submit application.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {

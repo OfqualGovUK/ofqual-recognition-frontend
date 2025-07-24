@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Serilog;
+using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -54,6 +55,11 @@ public class AttachmentService : IAttachmentService
 
             return uploadedAttachment;
         }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot upload file.");
+            throw; // Re-throw to handle authentication challenge
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An exception occurred while uploading file. LinkType: {LinkType}, LinkId: {LinkId}, AppId: {AppId}", linkType, linkId, applicationId);
@@ -84,6 +90,11 @@ public class AttachmentService : IAttachmentService
             _memoryCacheService.Set(memoryCacheKey, result);
             return result;
         }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot retrieve linked files.");
+            throw; // Re-throw to handle authentication challenge
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "An error occurred while retrieving linked files for LinkType: {LinkType}, LinkId: {LinkId}, ApplicationId: {AppId}", linkType, linkId, applicationId);
@@ -105,6 +116,11 @@ public class AttachmentService : IAttachmentService
             }
 
             return await response.Content.ReadAsStreamAsync();
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot download file.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {
@@ -129,6 +145,11 @@ public class AttachmentService : IAttachmentService
 
             _memoryCacheService.RemoveFromList<AttachmentDetails>(cacheKey, a => a.AttachmentId == attachmentId);
             return true;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            Log.Debug(ex, "User not authenticated, cannot delete file.");
+            throw; // Re-throw to handle authentication challenge
         }
         catch (Exception ex)
         {

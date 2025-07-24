@@ -55,7 +55,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task InitialiseApplication_ReturnsRedirectToHome_WhenApplicationIsNull()
+    public async Task InitialiseApplication_Returns500_WhenApplicationIsNull()
     {
         // Arrange
         _applicationServiceMock.Setup(x => x.InitialiseApplication())
@@ -65,8 +65,8 @@ public class ApplicationControllerTests
         var result = await _controller.InitialiseApplication();
 
         // Assert
-        var redirectResult = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirectResult.Url);
+        var redirectResult = Assert.IsType<StatusCodeResult>(result);
+        Assert.Equal(StatusCodes.Status500InternalServerError, redirectResult.StatusCode);
     }
 
     [Fact]
@@ -77,9 +77,9 @@ public class ApplicationControllerTests
         var applicationId = Guid.NewGuid();
         var application = new Application { ApplicationId = applicationId };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         var domainTasks = new List<TaskItemStatusSection>
         {
@@ -124,23 +124,24 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task TaskList_ReturnsRedirectToHome_WhenApplicationIsNull()
+    public async Task TaskList_ReturnsRedirectToInitialiseApplication_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         // Act
         var result = await _controller.TaskList();
 
         // Assert
-        var redirect = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.InitialiseApplication), redirect.ActionName);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task GetQuestionDetails_ReturnsRedirectToHome_WhenApplicationIsNull()
+    public async Task GetQuestionDetails_ReturnsRedirectToInitialiseApplication_WhenApplicationIsNull()
     {
         // Arrange
         _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
@@ -150,8 +151,8 @@ public class ApplicationControllerTests
         var result = await _controller.QuestionDetails("task", "question");
 
         // Assert
-        var redirect = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.InitialiseApplication), redirect.ActionName);
     }
 
     [Fact]
@@ -159,8 +160,9 @@ public class ApplicationControllerTests
     public async Task GetQuestionDetails_ReturnsNotFound_WhenQuestionIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync((QuestionDetails?)null);
@@ -186,8 +188,9 @@ public class ApplicationControllerTests
             CurrentQuestionUrl = "task/question"
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
@@ -221,8 +224,9 @@ public class ApplicationControllerTests
 
         var answer = new QuestionAnswer { Answer = "{\"text\":\"sample\"}" };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
@@ -262,8 +266,9 @@ public class ApplicationControllerTests
             CurrentQuestionUrl = "task/question"
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync(question);
@@ -304,9 +309,9 @@ public class ApplicationControllerTests
             NextQuestionUrl = nextQuestionUrl
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _questionServiceMock
             .Setup(x => x.GetQuestionDetails("task", "question"))
@@ -331,16 +336,17 @@ public class ApplicationControllerTests
     public async Task PostQuestionDetails_Should_RedirectToHome_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
         // Act
         var result = await _controller.QuestionDetails("task", "question", formData);
 
         // Assert
-        var redirect = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.InitialiseApplication), redirect.ActionName);
     }
 
     [Fact]
@@ -348,8 +354,9 @@ public class ApplicationControllerTests
     public async Task PostQuestionDetails_Should_ReturnNotFound_WhenQuestionIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question"))
             .ReturnsAsync((QuestionDetails?)null);
@@ -378,7 +385,9 @@ public class ApplicationControllerTests
             NextQuestionUrl = "not-a-valid-url"
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         var formData = new FormCollection(new Dictionary<string, StringValues>());
 
@@ -406,7 +415,9 @@ public class ApplicationControllerTests
         };
         var existingAnswer = new QuestionAnswer { Answer = "{\"key\":\"value\"}" };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync(existingAnswer);
 
@@ -444,7 +455,9 @@ public class ApplicationControllerTests
             }
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
         _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
@@ -478,7 +491,9 @@ public class ApplicationControllerTests
             NextQuestionUrl = "nextTask/nextQuestion"
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
         _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
@@ -509,7 +524,9 @@ public class ApplicationControllerTests
             NextQuestionUrl = "nextTask/nextQuestion"
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
         _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
@@ -543,7 +560,9 @@ public class ApplicationControllerTests
             NextQuestionUrl = null
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application)).Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
         _questionServiceMock.Setup(x => x.GetQuestionDetails("task", "question")).ReturnsAsync(question);
         _questionServiceMock.Setup(x => x.GetQuestionAnswer(application.ApplicationId, question.QuestionId)).ReturnsAsync((QuestionAnswer?)null);
         _questionServiceMock.Setup(x => x.SubmitQuestionAnswer(application.ApplicationId, question.TaskId, question.QuestionId, It.IsAny<string>()))
@@ -577,8 +596,9 @@ public class ApplicationControllerTests
             SectionId = Guid.NewGuid()
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _taskServiceMock.Setup(x => x.GetTaskDetailsByTaskNameUrl("task-name"))
             .ReturnsAsync(taskItem);
@@ -615,18 +635,19 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task TaskReview_Get_ReturnsRedirectToHome_WhenApplicationIsNull()
+    public async Task TaskReview_Get_ReturnsRedirectToInitialiseApplication_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         // Act
         var result = await _controller.TaskReview("task-name");
 
         // Assert
-        var redirect = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.InitialiseApplication), redirect.ActionName);
     }
 
     [Fact]
@@ -634,8 +655,9 @@ public class ApplicationControllerTests
     public async Task TaskReview_Get_ReturnsNotFound_WhenTaskDetailsIsNull()
     {
         // Arrange
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(new Application());
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(new Application());
 
         _taskServiceMock.Setup(x => x.GetTaskDetailsByTaskNameUrl("task-name"))
             .ReturnsAsync((TaskDetails?)null);
@@ -664,8 +686,9 @@ public class ApplicationControllerTests
             SectionId = Guid.NewGuid()
         };
 
-        _sessionServiceMock.Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(app);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(app);
 
         _taskServiceMock.Setup(x => x.GetTaskDetailsByTaskNameUrl("task-name"))
             .ReturnsAsync(taskItem);
@@ -682,12 +705,12 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task TaskReview_Post_ReturnsRedirectToHome_WhenApplicationIsNull()
+    public async Task TaskReview_Post_ReturnsRedirectToInitialiseApplication_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         var model = new TaskReviewViewModel { Answer = StatusType.Completed };
 
@@ -695,8 +718,8 @@ public class ApplicationControllerTests
         var result = await _controller.TaskReview("task", model);
 
         // Assert
-        var redirect = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.InitialiseApplication), redirect.ActionName);
     }
 
     [Theory]
@@ -718,9 +741,9 @@ public class ApplicationControllerTests
             Stage = StageType.MainApplication
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _taskServiceMock
             .Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
@@ -753,9 +776,9 @@ public class ApplicationControllerTests
             Stage = StageType.MainApplication
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _taskServiceMock
             .Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
@@ -792,9 +815,9 @@ public class ApplicationControllerTests
             Stage = StageType.Declaration
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _taskServiceMock
             .Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
@@ -845,9 +868,9 @@ public class ApplicationControllerTests
             Stage = StageType.MainApplication
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _taskServiceMock
             .Setup(x => x.GetTaskDetailsByTaskNameUrl("task"))
@@ -882,9 +905,9 @@ public class ApplicationControllerTests
         var taskNameUrl = "task";
         var taskId = Guid.NewGuid();
 
-        _sessionServiceMock
-            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _taskServiceMock
             .Setup(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl))
@@ -914,7 +937,7 @@ public class ApplicationControllerTests
         Assert.Equal(nameof(PreEngagementController.PreEngagementConfirmation), redirect.ActionName);
         Assert.Equal("PreEngagement", redirect.ControllerName);
 
-        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+        _applicationServiceMock.Verify(s => s.GetLatestApplication(), Times.Once);
         _taskServiceMock.Verify(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl), Times.Once);
         _preEngagementServiceMock.Verify(p => p.SendPreEngagementInformationEmail(applicationId), Times.Once);
         _taskServiceMock.Verify(t => t.UpdateTaskStatus(applicationId, taskId, StatusType.InProgress), Times.Once);
@@ -930,9 +953,9 @@ public class ApplicationControllerTests
         var taskNameUrl = "task";
         var taskId = Guid.NewGuid();
 
-        _sessionServiceMock
-            .Setup(s => s.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         _taskServiceMock
             .Setup(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl))
@@ -957,7 +980,7 @@ public class ApplicationControllerTests
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal("Failed to process request information.", badRequestResult.Value);
 
-        _sessionServiceMock.Verify(s => s.GetFromSession<Application>(SessionKeys.Application), Times.Once);
+        _applicationServiceMock.Verify(s => s.GetLatestApplication(), Times.Once);
         _taskServiceMock.Verify(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl), Times.Once);
         _preEngagementServiceMock.Verify(p => p.SendPreEngagementInformationEmail(applicationId), Times.Once);
         _taskServiceMock.Verify(t => t.UpdateTaskStatus(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<StatusType>()), Times.Never);
@@ -965,24 +988,24 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void ConfirmSubmission_ReturnsRedirectToHome_WhenApplicationIsNull()
+    public async Task ConfirmSubmission_ReturnsRedirectToInitialiseApplication_WhenApplicationIsNull()
     {
         // Arrange
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns((Application?)null);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync((Application?)null);
 
         // Act
-        var result = _controller.ConfirmSubmission();
+        var result = await _controller.ConfirmSubmission();
 
         // Assert
-        var redirect = Assert.IsType<RedirectResult>(result);
-        Assert.Equal(RouteConstants.HomeConstants.HOME_PATH, redirect.Url);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.InitialiseApplication), redirect.ActionName);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void ConfirmSubmission_ReturnsBadRequest_WhenApplicationNotSubmitted()
+    public async Task ConfirmSubmission_ReturnsBadRequest_WhenApplicationNotSubmitted()
     {
         // Arrange
         var application = new Application
@@ -991,12 +1014,12 @@ public class ApplicationControllerTests
             Submitted = false
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         // Act
-        var result = _controller.ConfirmSubmission();
+        var result = await _controller.ConfirmSubmission();
 
         // Assert
         Assert.IsType<BadRequestResult>(result);
@@ -1004,7 +1027,7 @@ public class ApplicationControllerTests
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void ConfirmSubmission_ReturnsView_WhenApplicationIsSubmitted()
+    public async Task ConfirmSubmission_ReturnsView_WhenApplicationIsSubmitted()
     {
         // Arrange
         var application = new Application
@@ -1013,12 +1036,12 @@ public class ApplicationControllerTests
             Submitted = true
         };
 
-        _sessionServiceMock
-            .Setup(x => x.GetFromSession<Application>(SessionKeys.Application))
-            .Returns(application);
+        _applicationServiceMock
+            .Setup(x => x.GetLatestApplication())
+            .ReturnsAsync(application);
 
         // Act
-        var result = _controller.ConfirmSubmission();
+        var result = await _controller.ConfirmSubmission();
 
         // Assert
         Assert.IsType<ViewResult>(result);
