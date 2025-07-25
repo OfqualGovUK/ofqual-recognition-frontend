@@ -141,10 +141,6 @@ function handleFileSelection(file) {
     errorMessage,
   });
 
-  if (errorMessage) {
-    showFileErrorMessageSummary(fileId);
-  }
-
   renderFileToList(fileId);
   updateInterface();
 }
@@ -161,7 +157,6 @@ function removeFileFromFileList(target) {
   }
 
   filesMap.delete(fileId);
-  clearFileErrorMessageSummary(fileId);
   row.remove();
   updateInterface();
   announceToScreenReader(`File ${getDisplayName(entry)} removed.`, {
@@ -193,7 +188,7 @@ async function retryFileUpload(target) {
   entry.uploadPercent = 0;
   entry.errorMessage = null;
   renderFileItem(fileId);
-  clearFileErrorMessageSummary(fileId);
+  updateInterface();
   await uploadSingleFile(fileId);
 }
 
@@ -228,16 +223,13 @@ async function uploadSingleFile(fileId) {
         entry.uploadPercent = 100;
         entry.errorMessage = null;
         entry.attachmentId = attachmentId;
-        clearFileErrorMessageSummary(fileId);
       } catch {
         entry.status = "failed";
         entry.errorMessage = "Upload succeeded but returned invalid response";
-        showFileErrorMessageSummary(fileId);
       }
     } else {
       entry.status = "failed";
       entry.errorMessage = xhr.responseText || "Upload failed";
-      showFileErrorMessageSummary(fileId);
     }
 
     renderFileItem(fileId);
@@ -247,7 +239,6 @@ async function uploadSingleFile(fileId) {
   xhr.onerror = () => {
     entry.status = "failed";
     entry.errorMessage = "Network error";
-    showFileErrorMessageSummary(fileId);
     renderFileItem(fileId);
     updateInterface();
   };
@@ -588,41 +579,30 @@ function updateInterface() {
   updateFileSizeCount();
   updateFileCountProgress();
   updateButtonState();
+  updateFileErrorSummary()
 }
 
 // ======================================
 // Error Summary
 // ======================================
-function showFileErrorMessageSummary(fileId) {
-  const entry = filesMap.get(fileId);
-  const errorList = errorSummary.querySelector("ul");
-  if (!entry || !entry.errorMessage || !errorList) return;
-
-  const existing = errorList.querySelector(`a[href="#${fileId}"]`);
-  if (!existing) {
-    errorList.insertAdjacentHTML(
-      "beforeend",
-      `<li><a href="#${fileId}">${entry.errorMessage}</a></li>`
-    );
-  }
-
-  errorSummary.classList.remove("govuk-!-display-none");
-}
-
-function clearFileErrorMessageSummary(fileId) {
-  const entry = filesMap.get(fileId);
-  if (entry) entry.errorMessage = null;
-
+function updateFileErrorSummary() {
   const errorList = errorSummary.querySelector("ul");
   if (!errorList) return;
 
-  [...errorList.children].forEach((li) => {
-    if (li.querySelector(`a[href="#${fileId}"]`)) {
-      li.remove();
-    }
-  });
+  errorList.innerHTML = "";
 
-  if (errorList.children.length === 0) {
+  for (const [fileId, entry] of filesMap.entries()) {
+    if (entry.errorMessage) {
+      errorList.insertAdjacentHTML(
+        "beforeend",
+        `<li><a href="#${fileId}">${entry.errorMessage}</a></li>`
+      );
+    }
+  }
+
+  if (errorList.children.length > 0) {
+    errorSummary.classList.remove("govuk-!-display-none");
+  } else {
     errorSummary.classList.add("govuk-!-display-none");
   }
 }
