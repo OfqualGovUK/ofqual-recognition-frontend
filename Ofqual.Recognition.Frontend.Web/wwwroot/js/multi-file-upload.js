@@ -589,18 +589,42 @@ function updateFileErrorSummary() {
   const errorList = errorSummary.querySelector("ul");
   if (!errorList) return;
 
-  errorList.innerHTML = "";
+  const activeErrors = Array.from(filesMap.entries()).filter(
+    ([, entry]) => entry.errorMessage
+  );
 
-  for (const [fileId, entry] of filesMap.entries()) {
-    if (entry.errorMessage) {
-      errorList.insertAdjacentHTML(
-        "beforeend",
-        `<li><a href="#${fileId}">${entry.errorMessage}</a></li>`
-      );
+  const existingAnchors = new Map(
+    Array.from(errorList.children).map((li) => {
+      const anchor = li.querySelector("a");
+      const href = anchor?.getAttribute("href");
+      return [href, li];
+    })
+  );
+
+  for (const [fileId, entry] of activeErrors) {
+    const href = `#${fileId}`;
+    if (!existingAnchors.has(href)) {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = href;
+      a.textContent = entry.errorMessage;
+      li.appendChild(a);
+      errorList.appendChild(li);
+    } else {
+      const li = existingAnchors.get(href);
+      const a = li?.querySelector("a");
+      if (a && a.textContent !== entry.errorMessage) {
+        a.textContent = entry.errorMessage;
+      }
+      existingAnchors.delete(href);
     }
   }
 
-  if (errorList.children.length > 0) {
+  for (const li of existingAnchors.values()) {
+    li.remove();
+  }
+
+  if (activeErrors.length > 0) {
     errorSummary.classList.remove("govuk-!-display-none");
   } else {
     errorSummary.classList.add("govuk-!-display-none");
