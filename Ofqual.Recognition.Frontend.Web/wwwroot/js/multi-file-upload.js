@@ -107,39 +107,17 @@ errorSummary.addEventListener("click", (event) => {
 // ======================================
 function handleFileSelection(file) {
   const fileId = crypto.randomUUID();
-  const { name: fileName, size: fileSize, lastModified } = file;
 
-  let errorMessage = null;
-  const currentTotalSize = getTotalSizeBytes();
-  
-  if (fileSize === 0) {
-    errorMessage = "The selected file is empty";
-  } else if (currentTotalSize + fileSize > MAX_TOTAL_SIZE_BYTES) {
-    errorMessage = `Adding this file would exceed the maximum total size of ${MAX_TOTAL_SIZE_MB}MB`;
-  } else if (fileSize > MAX_FILE_SIZE_BYTES) {
-    errorMessage = `The selected file must be smaller than ${MAX_FILE_SIZE_MB}MB`;
-  } else {
-    const isDuplicate = Array.from(filesMap.values()).some(
-      (f) =>
-        f.file &&
-        f.file.name === fileName &&
-        f.file.size === fileSize &&
-        f.file.lastModified === lastModified
-    );
-    if (isDuplicate) {
-      errorMessage = "The selected file has already been uploaded";
-    }
-  }
-
-  const status = errorMessage ? "failed" : "ready";
-
-  filesMap.set(fileId, {
+  const entry = {
     attachmentId: null,
     file,
-    status,
+    status: "ready",
     uploadPercent: 0,
-    errorMessage,
-  });
+    errorMessage: null,
+  };
+
+  filesMap.set(fileId, entry);
+  validateFileEntry(fileId, entry);
 
   renderFileToList(fileId);
   updateInterface();
@@ -575,16 +553,6 @@ function updateFileSizeCount() {
   )} of ${MAX_TOTAL_SIZE_MB}MB used`;
 }
 
-function updateInterface() {
-  updateFileSizeCount();
-  updateFileCountProgress();
-  updateButtonState();
-  updateFileErrorSummary()
-}
-
-// ======================================
-// Error Summary
-// ======================================
 function updateFileErrorSummary() {
   const errorList = errorSummary.querySelector("ul");
   if (!errorList) return;
@@ -629,6 +597,58 @@ function updateFileErrorSummary() {
   } else {
     errorSummary.classList.add("govuk-!-display-none");
   }
+}
+
+function updateInterface() {
+  updateFileSizeCount();
+  updateFileCountProgress();
+  updateButtonState();
+  updateFileErrorSummary();
+}
+
+// ======================================
+// Error Handling
+// ======================================
+function validateFileEntry(fileId, entry) {
+  if (!entry.file) {
+    entry.errorMessage = null;
+    entry.status = "uploaded";
+    return;
+  }
+
+  const { name: fileName, size: fileSize, lastModified } = entry.file;
+  let errorMessage = null;
+
+  const allFiles = Array.from(filesMap.entries());
+  const otherFiles = allFiles.filter(([id]) => id !== fileId);
+
+  const totalSize = otherFiles.reduce(
+    (sum, [, e]) => sum + (e.file?.size || e.fileSize || 0),
+    fileSize
+  );
+
+  if (fileSize === 0) {
+    errorMessage = "The selected file is empty";
+  } else if (totalSize > MAX_TOTAL_SIZE_BYTES) {
+    errorMessage = `Total file size exceeds ${MAX_TOTAL_SIZE_MB}MB`;
+  } else if (fileSize > MAX_FILE_SIZE_BYTES) {
+    errorMessage = `The file must be smaller than ${MAX_FILE_SIZE_MB}MB`;
+  } else {
+    const isDuplicate = otherFiles.some(
+      ([, otherEntry]) =>
+        otherEntry.file &&
+        otherEntry.file.name === fileName &&
+        otherEntry.file.size === fileSize &&
+        otherEntry.file.lastModified === lastModified
+    );
+
+    if (isDuplicate) {
+      errorMessage = "This file is a duplicate of another file";
+    }
+  }
+
+  entry.errorMessage = errorMessage;
+  entry.status = errorMessage ? "failed" : "ready";
 }
 
 // ======================================
