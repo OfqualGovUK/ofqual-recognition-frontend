@@ -110,13 +110,14 @@ function handleFileSelection(file) {
   const { name: fileName, size: fileSize, lastModified } = file;
 
   let errorMessage = null;
+  const currentTotalSize = getTotalSizeBytes();
 
-  if (fileSize === 0) {
-    errorMessage = "The selected file is empty";
-  } else if (fileSize > MAX_TOTAL_SIZE_BYTES) {
-    errorMessage = `The selected file exceeds the maximum total size of ${MAX_TOTAL_SIZE_MB}MB`;
+  if (currentTotalSize + fileSize > MAX_TOTAL_SIZE_BYTES) {
+    errorMessage = `Adding this file would exceed the maximum total size of ${MAX_TOTAL_SIZE_MB}MB`;
   } else if (fileSize > MAX_FILE_SIZE_BYTES) {
     errorMessage = `The selected file must be smaller than ${MAX_FILE_SIZE_MB}MB`;
+  } else if (fileSize === 0) {
+    errorMessage = "The selected file is empty";
   } else {
     const isDuplicate = Array.from(filesMap.values()).some(
       (f) =>

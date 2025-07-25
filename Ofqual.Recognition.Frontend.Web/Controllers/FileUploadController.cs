@@ -1,4 +1,5 @@
 using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Core.Attributes;
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Web.ViewModels;
 using Ofqual.Recognition.Frontend.Core.Helpers;
@@ -8,8 +9,6 @@ using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using System;
-using Ofqual.Recognition.Frontend.Core.Attributes;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -53,9 +52,10 @@ public class FileUploadController : Controller
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
 
         var existingAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
-
         var allAttachments = new List<AttachmentDetails>(existingAttachments);
         var validationErrors = new List<ErrorItemViewModel>();
+
+        long currentTotalSize = existingAttachments.Sum(a => a.FileSize);
 
         if (files != null && files.Any())
         {
@@ -93,7 +93,16 @@ public class FileUploadController : Controller
                     continue;
                 }
 
-                var attachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+                long newTotal = currentTotalSize + file.Length;
+                if (newTotal > 100 * 1024 * 1024)
+                {
+                    validationErrors.Add(new ErrorItemViewModel
+                    {
+                        PropertyName = fieldName,
+                        ErrorMessage = $"Adding \"{file.FileName}\" would exceed the 100MB total file size limit for this question."
+                    });
+                    continue;
+                }
 
                 bool isDuplicate = allAttachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
                 if (isDuplicate)
@@ -110,6 +119,7 @@ public class FileUploadController : Controller
                 if (attachment != null)
                 {
                     allAttachments.Add(attachment);
+                    currentTotalSize += file.Length;
                 }
                 else
                 {
@@ -122,7 +132,7 @@ public class FileUploadController : Controller
             }
         }
 
-        if (questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Validation?.Required == true && !validationErrors.Any())
+        if (questionViewModel?.QuestionContent?.FormGroup?.FileUpload?.Validation?.Required == true && !allAttachments.Any())
         {
             validationErrors.Add(new ErrorItemViewModel
             {
@@ -194,7 +204,19 @@ public class FileUploadController : Controller
             return BadRequest("Unsupported file type or content.");
         }
 
-        var attachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+        var attachments = await _attachmentService.GetAllLinkedFiles(
+            LinkType.Question,
+            questionDetails.QuestionId,
+            application.ApplicationId
+        );
+
+        long totalExistingSize = attachments.Sum(a => a.FileSize);
+        long totalSizeAfterUpload = totalExistingSize + file.Length;
+
+        if (totalSizeAfterUpload > 100 * 1024 * 1024)
+        {
+            return BadRequest("Total file size for this question must not exceed 100MB.");
+        }
 
         bool isDuplicate = attachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
         if (isDuplicate)
