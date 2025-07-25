@@ -376,7 +376,7 @@ function renderFileItem(fileId) {
       break;
     case "failed":
       template = hasUploadStarted()
-        ? getFailedTemplate(entry, percent)
+        ? getFailedTemplate(entry)
         : getPreUploadFailedTemplate(entry);
       break;
     case "ready":
@@ -436,7 +436,7 @@ function getUploadedTemplate(entry) {
   `;
 }
 
-function getFailedTemplate(entry, percent) {
+function getFailedTemplate(entry) {
   const name = getDisplayName(entry);
   const size = getDisplaySize(entry);
 
@@ -450,7 +450,7 @@ function getFailedTemplate(entry, percent) {
     </div>
     <div class="ofqual-file-list__footer">
       <div class="ofqual-file-list__progress-wrapper ofqual-file-list__progress-wrapper--red">
-        <div class="ofqual-file-list__progress-bar ofqual-file-list__progress-bar--red" style="width: ${percent}%"></div>
+        <div class="ofqual-file-list__progress-bar ofqual-file-list__progress-bar--red" style="width: 100%"></div>
       </div>
       <div class="ofqual-file-list__actions">
         <a href="#" class="ofqual-file-list__action govuk-link file-retry-link">
@@ -630,7 +630,7 @@ function validateFileEntry(fileId, entry) {
   if (fileSize === 0) {
     errorMessage = "The selected file is empty";
   } else if (totalSize > MAX_TOTAL_SIZE_BYTES) {
-    errorMessage = `Total file size exceeds ${MAX_TOTAL_SIZE_MB}MB`;
+    errorMessage = `Adding this file would exceed the maximum total size of ${MAX_TOTAL_SIZE_MB}MB`;
   } else if (fileSize > MAX_FILE_SIZE_BYTES) {
     errorMessage = `The file must be smaller than ${MAX_FILE_SIZE_MB}MB`;
   } else {
