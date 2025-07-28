@@ -168,12 +168,17 @@ async function startUploadProcess() {
 async function retryFileUpload(target) {
   const fileId = target.closest(".ofqual-file-list__item")?.id;
   if (!fileId) return;
+
   const entry = filesMap.get(fileId);
   if (!entry || !entry.file) return;
+
+  const isValid = validateFileEntry(fileId, entry);
+  if (!isValid) return;
 
   entry.status = "uploading";
   entry.uploadPercent = 0;
   entry.errorMessage = null;
+
   renderFileItem(fileId);
   updateInterface();
   await uploadSingleFile(fileId);
@@ -640,7 +645,7 @@ function validateFileEntry(fileId, entry) {
   if (!entry.file) {
     entry.errorMessage = null;
     entry.status = "uploaded";
-    return;
+    return true;
   }
 
   const { name: fileName, size: fileSize, lastModified } = entry.file;
@@ -648,11 +653,6 @@ function validateFileEntry(fileId, entry) {
 
   const allFiles = Array.from(filesMap.entries());
   const otherFiles = allFiles.filter(([id]) => id !== fileId);
-
-  const totalSize = otherFiles.reduce(
-    (sum, [, e]) => sum + (e.file?.size || e.fileSize || 0),
-    fileSize
-  );
 
   if (fileSize === 0) {
     errorMessage = "The selected file is empty";
@@ -674,6 +674,7 @@ function validateFileEntry(fileId, entry) {
 
   entry.errorMessage = errorMessage;
   entry.status = errorMessage ? "failed" : "ready";
+  return !errorMessage;
 }
 
 // ======================================
