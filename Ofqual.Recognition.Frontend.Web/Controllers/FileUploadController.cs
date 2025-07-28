@@ -7,6 +7,7 @@ using Ofqual.Recognition.Frontend.Web.Mappers;
 using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
@@ -22,6 +23,8 @@ public class FileUploadController : Controller
     private readonly IAttachmentService _attachmentService;
     private readonly ITaskService _taskService;
     private readonly IApplicationService _applicationService;
+
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _uploadLocks = new();
 
     public FileUploadController(ISessionService sessionService, IQuestionService questionService, IAttachmentService attachmentService, ITaskService taskService, IApplicationService applicationService)
     {
@@ -204,42 +207,53 @@ public class FileUploadController : Controller
             return BadRequest("Unsupported file type or content.");
         }
 
-        var attachments = await _attachmentService.GetAllLinkedFiles(
-            LinkType.Question,
-            questionDetails.QuestionId,
-            application.ApplicationId
-        );
+        var lockKey = $"{application.ApplicationId}:{questionDetails.QuestionId}";
+        var semaphore = _uploadLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
 
-        long totalExistingSize = attachments.Sum(a => a.FileSize);
-        long totalSizeAfterUpload = totalExistingSize + file.Length;
-
-        if (totalSizeAfterUpload > 100 * 1024 * 1024)
+        await semaphore.WaitAsync();
+        try
         {
-            return BadRequest("Total file size for this question must not exceed 100MB.");
-        }
+            var attachments = await _attachmentService.GetAllLinkedFiles(
+                LinkType.Question,
+                questionDetails.QuestionId,
+                application.ApplicationId
+            );
 
-        bool isDuplicate = attachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
-        if (isDuplicate)
+            long totalExistingSize = attachments.Sum(a => a.FileSize);
+            long totalSizeAfterUpload = totalExistingSize + file.Length;
+
+            if (totalSizeAfterUpload > 100 * 1024 * 1024)
+            {
+                return BadRequest("Total file size for this question must not exceed 100MB.");
+            }
+
+            bool isDuplicate = attachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
+            if (isDuplicate)
+            {
+                return BadRequest("This file has already been uploaded.");
+            }
+
+            AttachmentDetails? attachmentDetails = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionDetails.QuestionId, application.ApplicationId, file);
+            if (attachmentDetails == null)
+            {
+                return BadRequest("Failed to upload file.");
+            }
+
+            bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.InProgress);
+            if (!updateSucceeded)
+            {
+                return BadRequest();
+            }
+
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{application.ApplicationId}:{questionDetails.TaskId}");
+            _sessionService.ClearFromSession($"{SessionKeys.ApplicationAnswersReview}:{application.ApplicationId}");
+
+            return Ok(attachmentDetails.AttachmentId);
+        }
+        finally
         {
-            return BadRequest("This file has already been uploaded.");
+            semaphore.Release();
         }
-
-        AttachmentDetails? attachmentDetails = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionDetails.QuestionId, application.ApplicationId, file);
-        if (attachmentDetails == null)
-        {
-            return BadRequest("Failed to upload file.");
-        }
-
-        bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.InProgress);
-        if (!updateSucceeded)
-        {
-            return BadRequest();
-        }
-
-        _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{application.ApplicationId}:{questionDetails.TaskId}");
-        _sessionService.ClearFromSession($"{SessionKeys.ApplicationAnswersReview}:{application.ApplicationId}");
-        
-        return Ok(attachmentDetails.AttachmentId);
     }
 
     [HttpPost("{taskNameUrl}/{questionNameUrl}/delete/{attachmentId}")]
@@ -259,23 +273,34 @@ public class FileUploadController : Controller
             return NotFound();
         }
 
-        bool isDeleted = await _attachmentService.DeleteLinkedFile(LinkType.Question, questionDetails.QuestionId, attachmentId, application.ApplicationId);
-        if (!isDeleted)
-        {
-            return BadRequest("Failed to delete file.");
-        }
+        var lockKey = $"{application.ApplicationId}:{questionDetails.QuestionId}";
+        var semaphore = _uploadLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
 
-        bool isHtmlRequest = Request.Headers["Accept"].Any(h => h != null && h.Contains("text/html", StringComparison.OrdinalIgnoreCase));
-        if (isHtmlRequest)
+        await semaphore.WaitAsync();
+        try
         {
-            return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
+            bool isDeleted = await _attachmentService.DeleteLinkedFile(LinkType.Question, questionDetails.QuestionId, attachmentId, application.ApplicationId);
+            if (!isDeleted)
             {
-                QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.taskNameUrl,
-                QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.questionNameUrl
-            });
-        }
+                return BadRequest("Failed to delete file.");
+            }
 
-        return Ok("File deleted successfully.");
+            bool isHtmlRequest = Request.Headers["Accept"].Any(h => h != null && h.Contains("text/html", StringComparison.OrdinalIgnoreCase));
+            if (isHtmlRequest)
+            {
+                return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
+                {
+                    QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.taskNameUrl,
+                    QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.questionNameUrl
+                });
+            }
+
+            return Ok("File deleted successfully.");
+        }
+        finally
+        {
+            semaphore.Release();
+        }
     }
 
     [HttpGet("{taskNameUrl}/{questionNameUrl}/download/{attachmentId}")]
