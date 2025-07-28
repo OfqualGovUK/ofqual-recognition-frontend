@@ -561,6 +561,24 @@ function updateFileErrorSummary() {
     ([, entry]) => entry.errorMessage
   );
 
+  const totalSize = getTotalSizeBytes();
+  const totalSizeErrorId = "__total_size_limit__";
+  const totalSizeErrorMessage = `Total file size must not exceed ${MAX_TOTAL_SIZE_MB} MB`;
+
+  const totalSizeErrorIndex = activeErrors.findIndex(
+    ([id]) => id === totalSizeErrorId
+  );
+  if (totalSize > MAX_TOTAL_SIZE_BYTES) {
+    if (totalSizeErrorIndex === -1) {
+      activeErrors.push([
+        totalSizeErrorId,
+        { errorMessage: totalSizeErrorMessage },
+      ]);
+    }
+  } else if (totalSizeErrorIndex !== -1) {
+    activeErrors.splice(totalSizeErrorIndex, 1);
+  }
+
   const existingAnchors = new Map(
     Array.from(errorList.children).map((li) => {
       const anchor = li.querySelector("a");
@@ -570,7 +588,7 @@ function updateFileErrorSummary() {
   );
 
   for (const [fileId, entry] of activeErrors) {
-    const href = `#${fileId}`;
+    const href = fileId === totalSizeErrorId ? `#upload-section` : `#${fileId}`;
     if (!existingAnchors.has(href)) {
       const li = document.createElement("li");
       const a = document.createElement("a");
@@ -629,8 +647,6 @@ function validateFileEntry(fileId, entry) {
 
   if (fileSize === 0) {
     errorMessage = "The selected file is empty";
-  } else if (totalSize > MAX_TOTAL_SIZE_BYTES) {
-    errorMessage = `Adding this file would exceed the maximum total size of ${MAX_TOTAL_SIZE_MB}MB`;
   } else if (fileSize > MAX_FILE_SIZE_BYTES) {
     errorMessage = `The file must be smaller than ${MAX_FILE_SIZE_MB}MB`;
   } else {
