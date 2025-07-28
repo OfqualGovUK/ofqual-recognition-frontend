@@ -5,9 +5,9 @@ using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
+using Microsoft.Identity.Web;
 using System.Net.Http.Json;
 using Serilog;
-using Microsoft.Identity.Web;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 

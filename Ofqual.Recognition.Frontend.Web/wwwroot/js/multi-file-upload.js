@@ -172,9 +172,6 @@ async function retryFileUpload(target) {
   const entry = filesMap.get(fileId);
   if (!entry || !entry.file) return;
 
-  const isValid = validateFileEntry(fileId, entry);
-  if (!isValid) return;
-
   entry.status = "uploading";
   entry.uploadPercent = 0;
   entry.errorMessage = null;
@@ -564,33 +561,24 @@ function updateFileSizeCount() {
   const totalSizeBytes = getTotalSizeBytes();
   fileSizeCount.innerText = `${formatFileSize(
     totalSizeBytes
-  )} of ${MAX_TOTAL_SIZE_MB}MB used`;
+  )} of ${MAX_TOTAL_SIZE_MB} MB used`;
 }
 
 function updateFileErrorSummary() {
   const errorList = errorSummary.querySelector("ul");
   if (!errorList) return;
 
-  const activeErrors = Array.from(filesMap.entries()).filter(
-    ([, entry]) => entry.errorMessage
-  );
+  const activeErrors = Array.from(filesMap.entries())
+    .filter(([, entry]) => entry.errorMessage)
+    .map(([id, entry]) => ({
+      id,
+      href: `#${id}`,
+      message: entry.errorMessage,
+    }));
 
-  const totalSize = getTotalSizeBytes();
-  const totalSizeErrorId = "__total_size_limit__";
-  const totalSizeErrorMessage = `Total file size must not exceed ${MAX_TOTAL_SIZE_MB} MB`;
-
-  const totalSizeErrorIndex = activeErrors.findIndex(
-    ([id]) => id === totalSizeErrorId
-  );
-  if (totalSize > MAX_TOTAL_SIZE_BYTES) {
-    if (totalSizeErrorIndex === -1) {
-      activeErrors.push([
-        totalSizeErrorId,
-        { errorMessage: totalSizeErrorMessage },
-      ]);
-    }
-  } else if (totalSizeErrorIndex !== -1) {
-    activeErrors.splice(totalSizeErrorIndex, 1);
+  const totalSizeError = getTotalSizeErrorEntry();
+  if (totalSizeError) {
+    activeErrors.push(totalSizeError);
   }
 
   const existingAnchors = new Map(
@@ -601,20 +589,19 @@ function updateFileErrorSummary() {
     })
   );
 
-  for (const [fileId, entry] of activeErrors) {
-    const href = fileId === totalSizeErrorId ? `#upload-section` : `#${fileId}`;
+  for (const { href, message } of activeErrors) {
     if (!existingAnchors.has(href)) {
       const li = document.createElement("li");
       const a = document.createElement("a");
       a.href = href;
-      a.textContent = entry.errorMessage;
+      a.textContent = message;
       li.appendChild(a);
       errorList.appendChild(li);
     } else {
       const li = existingAnchors.get(href);
       const a = li?.querySelector("a");
-      if (a && a.textContent !== entry.errorMessage) {
-        a.textContent = entry.errorMessage;
+      if (a && a.textContent !== message) {
+        a.textContent = message;
       }
       existingAnchors.delete(href);
     }
@@ -657,7 +644,7 @@ function validateFileEntry(fileId, entry) {
   if (fileSize === 0) {
     errorMessage = "The selected file is empty";
   } else if (fileSize > MAX_FILE_SIZE_BYTES) {
-    errorMessage = `The file must be smaller than ${MAX_FILE_SIZE_MB}MB`;
+    errorMessage = `The file must be smaller than ${MAX_FILE_SIZE_MB} MB`;
   } else {
     const isDuplicate = otherFiles.some(
       ([, otherEntry]) =>
@@ -708,10 +695,10 @@ function announceToScreenReader(message, options = {}) {
 // ======================================
 function formatFileSize(bytes) {
   if (bytes < 1000) return bytes + "B";
-  if (bytes < 1000 * 1000) return (bytes / 1000).toFixed(1) + "KB";
+  if (bytes < 1000 * 1000) return (bytes / 1000).toFixed(1) + " KB";
   if (bytes < 1000 * 1000 * 1000)
-    return (bytes / (1000 * 1000)).toFixed(1) + "MB";
-  return (bytes / (1000 * 1000 * 1000)).toFixed(1) + "GB";
+    return (bytes / (1000 * 1000)).toFixed(1) + " MB";
+  return (bytes / (1000 * 1000 * 1000)).toFixed(1) + " GB";
 }
 
 function getTotalSizeBytes() {
@@ -735,4 +722,16 @@ function getDisplayName(entry) {
 
 function getDisplaySize(entry) {
   return formatFileSize(entry.file?.size || entry.fileSize || 0);
+}
+
+function getTotalSizeErrorEntry() {
+  const totalSize = getTotalSizeBytes();
+  if (totalSize > MAX_TOTAL_SIZE_BYTES) {
+    return {
+      id: "__total_size_limit__",
+      href: "#upload-section",
+      message: `Total file size must not exceed ${MAX_TOTAL_SIZE_MB} MB. Remove some files to continue.`,
+    };
+  }
+  return null;
 }

@@ -238,6 +238,7 @@ public class FileUploadController : Controller
 
         _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{application.ApplicationId}:{questionDetails.TaskId}");
         _sessionService.ClearFromSession($"{SessionKeys.ApplicationAnswersReview}:{application.ApplicationId}");
+        
         return Ok(attachmentDetails.AttachmentId);
     }
 
