@@ -576,9 +576,12 @@ function updateFileErrorSummary() {
       message: entry.errorMessage,
     }));
 
-  const totalSizeError = getTotalSizeErrorEntry();
-  if (totalSizeError) {
-    activeErrors.push(totalSizeError);
+  if (getTotalSizeBytes() > MAX_TOTAL_SIZE_BYTES && !hasUploadStarted()) {
+    activeErrors.push({
+      id: "__total_size_limit__",
+      href: "#upload-section",
+      message: `Total file size must not exceed ${MAX_TOTAL_SIZE_MB} MB. Remove some files to continue.`,
+    });
   }
 
   const existingAnchors = new Map(
@@ -722,16 +725,4 @@ function getDisplayName(entry) {
 
 function getDisplaySize(entry) {
   return formatFileSize(entry.file?.size || entry.fileSize || 0);
-}
-
-function getTotalSizeErrorEntry() {
-  const totalSize = getTotalSizeBytes();
-  if (totalSize > MAX_TOTAL_SIZE_BYTES) {
-    return {
-      id: "__total_size_limit__",
-      href: "#upload-section",
-      message: `Total file size must not exceed ${MAX_TOTAL_SIZE_MB} MB. Remove some files to continue.`,
-    };
-  }
-  return null;
 }
