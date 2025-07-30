@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -36,11 +36,7 @@
     <Using Include="System.Text.RegularExpressions" />
     <Using Include="System.Threading.Tasks" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="reports\" />
-  </ItemGroup>
-
+	
   <ItemGroup>
     <None Update="appsettings.Test.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -49,5 +45,20 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+    <ItemGroup>
+		<None Update="TestData\JpegTest.jpeg">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="TestData\file-example_PDF_1MB.pdf">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="TestData\file-sample_1MB.docx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

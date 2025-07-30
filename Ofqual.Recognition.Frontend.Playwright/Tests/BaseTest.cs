@@ -3,7 +3,7 @@ using NUnit.Framework.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Playwright.Tests
 {
-    public class BaseTest : PageTest
+    public abstract class BaseTest : PageTest
     {
         [TearDown]
         public async Task TearDown()
