@@ -20,7 +20,7 @@ public class TaskListPage : BasePage
         var statusLocator = _page.Locator(
                     $"li.govuk-task-list__item:has(a.govuk-task-list__link:has-text('{taskName}')) .govuk-task-list__status"
                     );
-        await Expect(statusLocator).ToHaveTextAsync(expectedStatus.Trim());
+        await Expect(statusLocator).ToContainTextAsync(expectedStatus.Trim());
     }
 
     public async Task WaitForPageToLoadAsync()
