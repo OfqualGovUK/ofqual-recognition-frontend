@@ -45,6 +45,39 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
             await SaveAndContinue();
         }
 
+        public async Task VerifyErrorMessage(string expectedErrorMessage)
+        {
+            var summaryLocator = _page.Locator("#error-summary ul.govuk-error-summary__list li");
+            await Expect(summaryLocator).ToContainTextAsync(expectedErrorMessage);
+
+            var fieldLocator = _page.Locator("p.govuk-error-message");
+            await Expect(fieldLocator).ToContainTextAsync(expectedErrorMessage);
+        }
+
+        public async Task VerifyMultipleErrorMessages(List<string> expectedErrors)
+        {
+            var summaryLocator = _page.Locator("#error-summary ul.govuk-error-summary__list li");
+            var fieldLocator = _page.Locator("p.govuk-error-message");
+            int countOfErrors = await summaryLocator.CountAsync();
+            var actualErrorSumary = new List<string> { };
+            var actualErrorMessages = new List<string> { };
+
+            for(int i=0; i < countOfErrors; i++)
+            {
+                actualErrorSumary.Add((await summaryLocator.Nth(i).InnerTextAsync()).Trim());
+                actualErrorMessages.Add((await fieldLocator.Nth(i).InnerTextAsync()).Trim()
+                    .Substring("Error:".Length).TrimStart('\n', '\r', ' '));
+            }
+
+            bool areSummaryErrorsEqual = new HashSet<string>(actualErrorSumary).SetEquals(expectedErrors);
+            bool areFieldErrorsEqual = new HashSet<string>(actualErrorMessages).SetEquals(expectedErrors);
+            
+            if(!(areSummaryErrorsEqual && areFieldErrorsEqual))
+            {
+                throw new Exception($"Error messages do not match. \n Summary list: {actualErrorSumary} \n field errors: {actualErrorMessages} \n expected errors: {expectedErrors}");
+            }
+        }
+
         public async Task RunAxeCheck()
         {
             AxeHtmlReportOptions reportOptions = new(reportDir: ".//tempReports");

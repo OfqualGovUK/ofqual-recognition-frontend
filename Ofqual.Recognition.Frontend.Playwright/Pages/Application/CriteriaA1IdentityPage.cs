@@ -30,7 +30,7 @@ public class CriteriaA1IdentityPage : BasePage
         _otherCountryNumber = page.Locator("#otherCountryNumber");
     }
 
-    public async Task CompleteAllOrganisationTypes()
+    private async Task CompleteAllOrganisationTypes()
     {
         await _companiesHouseCheckbox.CheckAsync();
         await _companiesHouseNumber.FillAsync("1234567");
@@ -48,6 +48,24 @@ public class CriteriaA1IdentityPage : BasePage
         await _otherCountryNumber.FillAsync("FR123456789");
 
         await SaveAndContinue();
+    }
+
+    public async Task CheckAllBoxes()
+    {
+        await _companiesHouseCheckbox.CheckAsync();
+        await _charitiesCheckbox.CheckAsync();
+        await _publicBodyCheckbox.CheckAsync();
+        await _individualOrSoletraderCheckbox.CheckAsync();
+        await _registerInAnotherCountryCheckbox.CheckAsync();
+    }
+
+    public async Task EnterInvalidCompanyNumbers()
+    {
+        await _companiesHouseNumber.FillAsync("12345674785");
+        await _charitiesNumber.FillAsync("1");
+        await _selectPublicBodyOption.SelectOptionAsync(new[] { "Public body" });
+        await _registeredCountry.FillAsync("France");
+        await _otherCountryNumber.FillAsync("FR123456789");
     }
 
     public async Task CompleteA1IdentityTask(TaskListPage taskListPage, HomePage homePage)

@@ -29,8 +29,37 @@ public class OrganisationDetailsPage : BasePage
         _country = page.Locator("[id='country']");
     }
 
-    private async Task CompleteOrganisationDetails(string orgName, string legalName, string acronym, string email, string website)
+    public async Task CompleteOrganisationDetails()
     {
+        var now = DateTime.UtcNow;
+        string uniqueSuffix = now.ToString("yyyyMMdd_HHmmss");
+        string orgName = $"Test Organisation {uniqueSuffix}";
+        string legalName = $"Test Organisation {uniqueSuffix} Ltd";
+        string acronym = $"TEST{now.ToString("MMddHHmmss")}";
+        string email = TestConfig.B2CUsername;
+        string website = "www.google.com";
+
+        await _orgName.ClearAsync();
+        await _orgName.FillAsync(orgName);
+        await _orgLegalName.ClearAsync();
+        await _orgLegalName.FillAsync(legalName);
+        await _acronym.ClearAsync();
+        await _acronym.FillAsync(acronym);
+        await _email.ClearAsync();
+        await _email.FillAsync(email);
+        await _website.ClearAsync();
+        await _website.FillAsync(website);
+        await SaveAndContinue();
+    }
+
+    public async Task CompleteOrganisationDetails(string orgName, string acronym)
+    {
+        var now = DateTime.UtcNow;
+        string uniqueSuffix = now.ToString("yyyyMMdd_HHmmss");
+        string legalName = $"Test Organisation {uniqueSuffix} Ltd";
+        string email = TestConfig.B2CUsername;
+        string website = "www.google.com";
+
         await _orgName.ClearAsync();
         await _orgName.FillAsync(orgName);
         await _orgLegalName.ClearAsync();
@@ -59,22 +88,16 @@ public class OrganisationDetailsPage : BasePage
 
     public async Task CompleteOrganisationDetailsTask(TaskListPage taskListPage, HomePage homePage)
     {
-        var now = DateTime.UtcNow;
-        string uniqueSuffix = now.ToString("yyyyMMdd_HHmmss");
-        string orgName = $"Test Organisation {uniqueSuffix}";
-        string legalName = $"Test Organisation {uniqueSuffix} Ltd";
-        string acronym = $"TEST{now.ToString("MMddHHmmss")}";
-        string email = TestConfig.B2CUsername;
-        string website = "www.google.com";
-
         await taskListPage.CheckTaskStatus("Organisation details", "Not started");
         await taskListPage.ClickTaskLink("Organisation details");
         await homePage.RunAxeCheck();
-        await CompleteOrganisationDetails(orgName, legalName, acronym, email, website);
+        await CompleteOrganisationDetails();
         await homePage.RunAxeCheck();
         await CompleteOrgAddressDetails("1 test street", "test city", "AA1 1AA", "United Kingdom");
         await homePage.RunAxeCheck();
         await CheckYourAnswersContinue();
         await taskListPage.CheckTaskStatus("Organisation details", "Completed");
     }
+
+    
 }
