@@ -20,8 +20,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Services
 
-// Add GovUK frontend
-builder.Services.AddGovUkFrontend();
+// Add GovUK frontend with new branding
+builder.Services.AddGovUkFrontend(options => 
+{
+    options.Rebrand = true; 
+});
 
 // Add Controllers with Views
 builder.Services.AddControllersWithViews(options => 
@@ -152,6 +155,7 @@ builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 var app = builder.Build();
 
 #region Middleware
+app.UseGovUkFrontend();
 
 // Configure middleware and request pipeline
 if (!app.Environment.IsDevelopment())

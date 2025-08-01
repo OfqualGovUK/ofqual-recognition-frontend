@@ -38,7 +38,7 @@ public class HomePage : BasePage
         await _eligibilityStartButton.ClickAsync();
     }
 
-    public async Task CheckApplicationStartButton()
+    public async Task ClickApplicationStartButton()
     {
         await _applicationStartButton.ClickAsync();
     }
@@ -54,5 +54,20 @@ public class HomePage : BasePage
         await _signOutButton.IsVisibleAsync();
         await _signOutButton.ClickAsync();
         await _signedInText.IsHiddenAsync();
+    }
+
+    public async Task Signin()
+    {
+        await _userName.ClickAsync();
+        await _userName.FillAsync(TestConfig.B2CUsername);
+        await _passWord.FillAsync(TestConfig.B2CPassword);
+        await _submitCredentials.ClickAsync();
+        await _signedInText.IsVisibleAsync();
+    }
+
+    public async Task Signout()
+    {
+        await _signOutButton.IsVisibleAsync();
+        await _signOutButton.ClickAsync();
     }
 }
