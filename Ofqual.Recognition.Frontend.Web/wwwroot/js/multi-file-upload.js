@@ -1,9 +1,11 @@
-const version = "0.0.1";
+const version = "0.0.2";
 
 // ======================================
 // Initialisation
 // ======================================
-const requestVerificationToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+const requestVerificationToken = document.querySelector(
+  'input[name="__RequestVerificationToken"]'
+)?.value;
 const fileInput = document.getElementById("files");
 const fileList = document.getElementById("files-list");
 const fileCount = document.getElementById("files-count");
@@ -60,7 +62,34 @@ fileList.addEventListener("click", async (event) => {
 });
 
 submitButton.addEventListener("click", (event) => {
-  if (filesMap.size > 0 && !hasUploadStarted()) {
+  const hasErrors = Array.from(filesMap.values()).some(
+    (f) => f.status === "failed"
+  );
+
+  const hasErrorSummaryItems = errorSummary.querySelector("ul")?.children.length > 0;
+
+  if (filesMap.size > 0 && (hasErrors || hasErrorSummaryItems)) {
+    event.preventDefault();
+
+    const firstErroredEntry = Array.from(filesMap.entries()).find(
+      ([, entry]) => entry.status === "failed"
+    );
+
+    if (firstErroredEntry) {
+      const [fileId] = firstErroredEntry;
+      const targetElement = document.getElementById(fileId);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        targetElement.focus({ preventScroll: true });
+        return;
+      }
+    }
+
+    if (hasErrorSummaryItems) {
+      errorSummary.scrollIntoView({ behavior: "smooth", block: "start" });
+      errorSummary.focus({ preventScroll: true });
+    }
+  } else if (filesMap.size > 0 && !hasUploadStarted()) {
     event.preventDefault();
     startUploadProcess();
   }
@@ -87,37 +116,17 @@ errorSummary.addEventListener("click", (event) => {
 // ======================================
 function handleFileSelection(file) {
   const fileId = crypto.randomUUID();
-  const fileSize = file.size;
-  const fileName = file.name;
 
-  const errorMessage =
-    fileSize === 0
-      ? "The selected file is empty"
-      : fileSize > MAX_FILE_SIZE_BYTES
-      ? `The selected file must be smaller than ${MAX_FILE_SIZE_MB}MB`
-      : Array.from(filesMap.values()).some(
-          (f) =>
-            f.file &&
-            f.file.name === fileName &&
-            f.file.size === fileSize &&
-            f.file.lastModified === file.lastModified
-        )
-      ? "The selected file has already been uploaded"
-      : null;
-
-  const status = errorMessage ? "failed" : "ready";
-
-  filesMap.set(fileId, {
+  const entry = {
     attachmentId: null,
     file,
-    status,
+    status: "ready",
     uploadPercent: 0,
-    errorMessage,
-  });
+    errorMessage: null,
+  };
 
-  if (errorMessage) {
-    showFileErrorMessageSummary(fileId);
-  }
+  filesMap.set(fileId, entry);
+  validateFileEntry(fileId, entry);
 
   renderFileToList(fileId);
   updateInterface();
@@ -135,7 +144,6 @@ function removeFileFromFileList(target) {
   }
 
   filesMap.delete(fileId);
-  clearFileErrorMessageSummary(fileId);
   row.remove();
   updateInterface();
   announceToScreenReader(`File ${getDisplayName(entry)} removed.`, {
@@ -160,14 +168,16 @@ async function startUploadProcess() {
 async function retryFileUpload(target) {
   const fileId = target.closest(".ofqual-file-list__item")?.id;
   if (!fileId) return;
+
   const entry = filesMap.get(fileId);
   if (!entry || !entry.file) return;
 
   entry.status = "uploading";
   entry.uploadPercent = 0;
   entry.errorMessage = null;
+
   renderFileItem(fileId);
-  clearFileErrorMessageSummary(fileId);
+  updateInterface();
   await uploadSingleFile(fileId);
 }
 
@@ -202,16 +212,13 @@ async function uploadSingleFile(fileId) {
         entry.uploadPercent = 100;
         entry.errorMessage = null;
         entry.attachmentId = attachmentId;
-        clearFileErrorMessageSummary(fileId);
       } catch {
         entry.status = "failed";
         entry.errorMessage = "Upload succeeded but returned invalid response";
-        showFileErrorMessageSummary(fileId);
       }
     } else {
       entry.status = "failed";
       entry.errorMessage = xhr.responseText || "Upload failed";
-      showFileErrorMessageSummary(fileId);
     }
 
     renderFileItem(fileId);
@@ -221,7 +228,6 @@ async function uploadSingleFile(fileId) {
   xhr.onerror = () => {
     entry.status = "failed";
     entry.errorMessage = "Network error";
-    showFileErrorMessageSummary(fileId);
     renderFileItem(fileId);
     updateInterface();
   };
@@ -381,7 +387,7 @@ function renderFileItem(fileId) {
       break;
     case "failed":
       template = hasUploadStarted()
-        ? getFailedTemplate(entry, percent)
+        ? getFailedTemplate(entry)
         : getPreUploadFailedTemplate(entry);
       break;
     case "ready":
@@ -441,7 +447,7 @@ function getUploadedTemplate(entry) {
   `;
 }
 
-function getFailedTemplate(entry, percent) {
+function getFailedTemplate(entry) {
   const name = getDisplayName(entry);
   const size = getDisplaySize(entry);
 
@@ -455,7 +461,7 @@ function getFailedTemplate(entry, percent) {
     </div>
     <div class="ofqual-file-list__footer">
       <div class="ofqual-file-list__progress-wrapper ofqual-file-list__progress-wrapper--red">
-        <div class="ofqual-file-list__progress-bar ofqual-file-list__progress-bar--red" style="width: ${percent}%"></div>
+        <div class="ofqual-file-list__progress-bar ofqual-file-list__progress-bar--red" style="width: 100%"></div>
       </div>
       <div class="ofqual-file-list__actions">
         <a href="#" class="ofqual-file-list__action govuk-link file-retry-link">
@@ -515,16 +521,11 @@ function getReadyToUploadTemplate(entry) {
 // Interface Updates
 // ======================================
 function updateButtonState() {
-  const totalSizeBytes = getTotalSizeBytes();
   const uploadingCount = Array.from(filesMap.values()).filter(
     (f) => f.status === "uploading"
   ).length;
-  const hasErrors = Array.from(filesMap.values()).some(
-    (f) => f.status === "failed"
-  );
 
-  submitButton.disabled =
-    hasErrors || totalSizeBytes > MAX_TOTAL_SIZE_BYTES || uploadingCount > 0;
+  submitButton.disabled = uploadingCount > 0;
 
   if (uploadingCount > 0) {
     submitButton.innerText = "Uploading...";
@@ -560,50 +561,110 @@ function updateFileSizeCount() {
   const totalSizeBytes = getTotalSizeBytes();
   fileSizeCount.innerText = `${formatFileSize(
     totalSizeBytes
-  )} of ${MAX_TOTAL_SIZE_MB}MB used`;
+  )} of ${MAX_TOTAL_SIZE_MB} MB used`;
+}
+
+function updateFileErrorSummary() {
+  const errorList = errorSummary.querySelector("ul");
+  if (!errorList) return;
+
+  const activeErrors = Array.from(filesMap.entries())
+    .filter(([, entry]) => entry.errorMessage)
+    .map(([id, entry]) => ({
+      id,
+      href: `#${id}`,
+      message: entry.errorMessage,
+    }));
+
+  if (getTotalSizeBytes() > MAX_TOTAL_SIZE_BYTES && !hasUploadStarted()) {
+    activeErrors.push({
+      id: "__total_size_limit__",
+      href: "#upload-section",
+      message: `Total file size must not exceed ${MAX_TOTAL_SIZE_MB} MB. Remove some files to continue.`,
+    });
+  }
+
+  const existingAnchors = new Map(
+    Array.from(errorList.children).map((li) => {
+      const anchor = li.querySelector("a");
+      const href = anchor?.getAttribute("href");
+      return [href, li];
+    })
+  );
+
+  for (const { href, message } of activeErrors) {
+    if (!existingAnchors.has(href)) {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = href;
+      a.textContent = message;
+      li.appendChild(a);
+      errorList.appendChild(li);
+    } else {
+      const li = existingAnchors.get(href);
+      const a = li?.querySelector("a");
+      if (a && a.textContent !== message) {
+        a.textContent = message;
+      }
+      existingAnchors.delete(href);
+    }
+  }
+
+  for (const li of existingAnchors.values()) {
+    li.remove();
+  }
+
+  if (activeErrors.length > 0) {
+    errorSummary.classList.remove("govuk-!-display-none");
+  } else {
+    errorSummary.classList.add("govuk-!-display-none");
+  }
 }
 
 function updateInterface() {
   updateFileSizeCount();
   updateFileCountProgress();
   updateButtonState();
+  updateFileErrorSummary();
 }
 
 // ======================================
-// Error Summary
+// Error Handling
 // ======================================
-function showFileErrorMessageSummary(fileId) {
-  const entry = filesMap.get(fileId);
-  const errorList = errorSummary.querySelector("ul");
-  if (!entry || !entry.errorMessage || !errorList) return;
+function validateFileEntry(fileId, entry) {
+  if (!entry.file) {
+    entry.errorMessage = null;
+    entry.status = "uploaded";
+    return true;
+  }
 
-  const existing = errorList.querySelector(`a[href="#${fileId}"]`);
-  if (!existing) {
-    errorList.insertAdjacentHTML(
-      "beforeend",
-      `<li><a href="#${fileId}">${entry.errorMessage}</a></li>`
+  const { name: fileName, size: fileSize, lastModified } = entry.file;
+  let errorMessage = null;
+
+  const allFiles = Array.from(filesMap.entries());
+  const otherFiles = allFiles.filter(([id]) => id !== fileId);
+
+  if (fileSize === 0) {
+    errorMessage = "The selected file is empty";
+  } else if (fileSize > MAX_FILE_SIZE_BYTES) {
+    errorMessage = `The file must be smaller than ${MAX_FILE_SIZE_MB} MB`;
+  } else {
+    const isDuplicate = otherFiles.some(
+      ([, otherEntry]) =>
+        otherEntry.file &&
+        otherEntry.file.name === fileName &&
+        otherEntry.file.size === fileSize &&
+        otherEntry.file.lastModified === lastModified
     );
-  }
 
-  errorSummary.classList.remove("govuk-!-display-none");
-}
-
-function clearFileErrorMessageSummary(fileId) {
-  const entry = filesMap.get(fileId);
-  if (entry) entry.errorMessage = null;
-
-  const errorList = errorSummary.querySelector("ul");
-  if (!errorList) return;
-
-  [...errorList.children].forEach((li) => {
-    if (li.querySelector(`a[href="#${fileId}"]`)) {
-      li.remove();
+    if (isDuplicate) {
+      errorMessage = "This file is a duplicate of another file";
     }
-  });
-
-  if (errorList.children.length === 0) {
-    errorSummary.classList.add("govuk-!-display-none");
   }
+
+  entry.errorMessage = errorMessage;
+  entry.status = errorMessage ? "failed" : "ready";
+  return !errorMessage;
 }
 
 // ======================================
@@ -637,10 +698,10 @@ function announceToScreenReader(message, options = {}) {
 // ======================================
 function formatFileSize(bytes) {
   if (bytes < 1000) return bytes + "B";
-  if (bytes < 1000 * 1000) return (bytes / 1000).toFixed(1) + "KB";
+  if (bytes < 1000 * 1000) return (bytes / 1000).toFixed(1) + " KB";
   if (bytes < 1000 * 1000 * 1000)
-    return (bytes / (1000 * 1000)).toFixed(1) + "MB";
-  return (bytes / (1000 * 1000 * 1000)).toFixed(1) + "GB";
+    return (bytes / (1000 * 1000)).toFixed(1) + " MB";
+  return (bytes / (1000 * 1000 * 1000)).toFixed(1) + " GB";
 }
 
 function getTotalSizeBytes() {
