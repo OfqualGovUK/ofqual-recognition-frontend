@@ -281,13 +281,19 @@ public class ApplicationController : Controller
 
         if (taskDetails.Stage == StageType.Declaration)
         {
-            Application? submitted = await _applicationService.SubmitApplication(application.ApplicationId);
-            if (submitted == null || !submitted.Submitted)
+            try
             {
-                return BadRequest("Could not submit application.");
+                var submitted = await _applicationService.SubmitApplication(application.ApplicationId);
+                if (submitted != null && submitted.Submitted)                
+                    return RedirectToAction(nameof(ConfirmSubmission));
+                
+                Log.Error($"Could not submit application: \"{application.ApplicationId}\"");
             }
-
-            return RedirectToAction(nameof(ConfirmSubmission));
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occured when attempting to submit application: \"{ApplicationId}\"", application.ApplicationId);                
+            }
+            return BadRequest();            
         }
 
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
