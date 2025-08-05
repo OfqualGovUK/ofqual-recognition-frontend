@@ -281,15 +281,11 @@ public class ApplicationController : Controller
 
         if (taskDetails.Stage == StageType.Declaration)
         {
-
+            //If declaration task, we need to submit the application, if good, go to confirmation else go to error page
             var submitted = await _applicationService.SubmitApplication(application.ApplicationId);
-            if (submitted == null || !submitted.Submitted)
-            {
-                Log.Error($"Could not submit application: \"{application.ApplicationId}\"");
-                return BadRequest();
-            }
-            
-            return RedirectToAction(nameof(ConfirmSubmission));
+            if (submitted != null && submitted.Submitted)
+                return RedirectToAction(nameof(ConfirmSubmission));           
+            return BadRequest();           
         }
         return Redirect(RouteConstants.ApplicationConstants.TASK_LIST_PATH);
     }
