@@ -16,6 +16,7 @@ public static class FileValidationHelper
         "text/csv",
         "image/jpeg",
         "image/png",
+        "application/vnd.ms-excel",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/msword",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
