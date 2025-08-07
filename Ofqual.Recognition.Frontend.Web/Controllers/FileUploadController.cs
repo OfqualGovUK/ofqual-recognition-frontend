@@ -194,17 +194,17 @@ public class FileUploadController : Controller
 
         if (file == null || file.Length == 0)
         {
-            return BadRequest("The selected file is empty.");
+            return BadRequest();
         }
 
         if (file.Length > 25 * 1024 * 1024)
         {
-            return BadRequest("The selected file must be smaller than 25MB.");
+            return BadRequest();
         }
 
         if (!FileValidationHelper.IsAllowedFile(file))
         {
-            return BadRequest("Unsupported file type or content.");
+            return BadRequest();
         }
 
         var lockKey = $"{application.ApplicationId}:{questionDetails.QuestionId}";
@@ -224,19 +224,19 @@ public class FileUploadController : Controller
 
             if (totalSizeAfterUpload > 100 * 1024 * 1024)
             {
-                return BadRequest("Total file size for this question must not exceed 100MB.");
+                return BadRequest();
             }
 
             bool isDuplicate = attachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
             if (isDuplicate)
             {
-                return BadRequest("This file has already been uploaded.");
+                return BadRequest();
             }
 
             AttachmentDetails? attachmentDetails = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionDetails.QuestionId, application.ApplicationId, file);
             if (attachmentDetails == null)
             {
-                return BadRequest("Failed to upload file.");
+                return BadRequest();
             }
 
             bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.InProgress);
@@ -282,7 +282,7 @@ public class FileUploadController : Controller
             bool isDeleted = await _attachmentService.DeleteLinkedFile(LinkType.Question, questionDetails.QuestionId, attachmentId, application.ApplicationId);
             if (!isDeleted)
             {
-                return BadRequest("Failed to delete file.");
+                return BadRequest();
             }
 
             bool isHtmlRequest = Request.Headers["Accept"].Any(h => h != null && h.Contains("text/html", StringComparison.OrdinalIgnoreCase));
@@ -333,7 +333,7 @@ public class FileUploadController : Controller
         var stream = await _attachmentService.DownloadLinkedFile(LinkType.Question, questionDetails.QuestionId, attachmentId, application.ApplicationId);
         if (stream == null)
         {
-            return BadRequest("Failed to retrieve file.");
+            return BadRequest();
         }
 
         return File(stream, attachment.FileMIMEtype, attachment.FileName);

@@ -284,7 +284,7 @@ public class ApplicationController : Controller
             Application? submitted = await _applicationService.SubmitApplication(application.ApplicationId);
             if (submitted == null || !submitted.Submitted)
             {
-                return BadRequest("Could not submit application.");
+                return BadRequest();
             }
 
             return RedirectToAction(nameof(ConfirmSubmission));
