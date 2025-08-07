@@ -112,8 +112,8 @@ public class ApplicationController : Controller
         {
             return RedirectToAction(nameof(QuestionDetails), new
             {
-                QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
-                QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+                UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+                UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
             });
         }
 
@@ -199,8 +199,8 @@ public class ApplicationController : Controller
 
         return RedirectToAction(nameof(QuestionDetails), new
         {
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
     }
 
