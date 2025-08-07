@@ -19,7 +19,7 @@
     var countId = $"{fieldName}-count";
     var fileListId = $"{fieldName}-list";
     var ariaStatusId = $"{fieldName}-aria-status";
-    var currentQuestion = QuestionUrlHelper.Parse(Model?.CurrentQuestionUrl);
+    var currentQuestion = UrlHelper.Parse(Model?.CurrentQuestionUrl);
 }
 
 @if (fileUpload != null)

@@ -1,3 +1,6 @@
+@using Ofqual.Recognition.Frontend.Web.ViewModels
+@using Ofqual.Recognition.Frontend.Core.Helpers
+@model ErrorViewModel
 @{
     var originalPath = Context.Features.Get<Microsoft.AspNetCore.Diagnostics.IStatusCodeReExecuteFeature>()?.OriginalPath;
 }
@@ -7,23 +10,33 @@
 
         <h1 class="govuk-heading-l">Page not found</h1>
         <p class="govuk-body">
-            There is no page at <strong>@originalPath</strong>
+            We couldn't find a page at <strong>@originalPath</strong>.
         </p>
 
-        <p class="govuk-body">This might be because:</p>
+        <p class="govuk-body">
+            This could be because:
+        </p>
         <ul class="govuk-list govuk-list--bullet">
-            <li>the web address was typed incorrectly</li>
-            <li>the link you followed is broken</li>
-            <li>there's an issue with a form on the site</li>
+            <li>the web address was entered incorrectly</li>
+            <li>the link you used is broken or outdated</li>
             <li>the page hasn't been created yet</li>
         </ul>
 
-        <!-- reword this for citizen recognition-->
         <p class="govuk-body">
-            You can try and fix this yourself or <a class="govuk-link" 
-            href="https://prototype-kit.service.gov.uk/docs/support">contact the GOV.UK Prototype Kit team</a> if
-            you need help.
+            @if (UrlHelper.IsEmail(Model.Url))
+            {
+                <span>
+                    Please check the web address and try again. If you need to contact us by email,
+                    <a class="govuk-link" href="@Model.Url">send @Model.ContactName an email</a>.
+                </span>
+            }
+            else
+            {
+                <span>
+                    Please check the web address and try again. If you still need help,
+                    <a class="govuk-link" href="@Model.Url">contact the @Model.ContactName</a>.
+                </span>
+            }
         </p>
-
     </div>
 </div>

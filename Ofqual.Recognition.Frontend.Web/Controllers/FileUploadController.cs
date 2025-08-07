@@ -170,8 +170,8 @@ public class FileUploadController : Controller
 
         return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
         {
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
     }
 
@@ -290,8 +290,8 @@ public class FileUploadController : Controller
             {
                 return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
                 {
-                    QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.taskNameUrl,
-                    QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.questionNameUrl
+                    UrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.taskNameUrl,
+                    UrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.questionNameUrl
                 });
             }
 
