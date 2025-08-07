@@ -19,7 +19,6 @@
         <ul class="govuk-list govuk-list--bullet">
             <li>the web address was entered incorrectly</li>
             <li>the link you used is broken or outdated</li>
-            <li>the page hasn't been created yet</li>
         </ul>
 
         <p class="govuk-body">
@@ -27,14 +26,14 @@
             {
                 <span>
                     Please check the web address and try again. If you need to contact us by email,
-                    <a class="govuk-link" href="@Model.Url">Send @Model.ContactName an email</a>.
+                    <a class="govuk-link" href="@Model.Url">send @Model.ContactName an email</a>.
                 </span>
             }
             else
             {
                 <span>
                     Please check the web address and try again. If you still need help,
-                    <a class="govuk-link" href="@Model.Url">Contact the @Model.ContactName</a>.
+                    <a class="govuk-link" href="@Model.Url">contact the @Model.ContactName</a>.
                 </span>
             }
         </p>
