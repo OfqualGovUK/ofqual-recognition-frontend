@@ -23,8 +23,7 @@
         @if (Model.QuestionAnswerSections.Any(s => string.IsNullOrWhiteSpace(s.SectionHeading)))
         {
             <dl class="govuk-summary-list govuk-!-margin-bottom-9">
-                @foreach (var section in Model.QuestionAnswerSections.Where(s =>
-                           string.IsNullOrWhiteSpace(s.SectionHeading)))
+                @foreach (var section in Model.QuestionAnswerSections.Where(s => string.IsNullOrWhiteSpace(s.SectionHeading)))
                 {
                     foreach (var question in section.QuestionAnswers)
                     {
@@ -33,7 +32,7 @@
                             <dd class="govuk-summary-list__value">
                                 @foreach (var answer in question.AnswerValue)
                                 {
-                                    <div>@answer</div>
+                                    <div class="summary-list-value-item">@answer</div>
                                 }
                             </dd>
                             @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
