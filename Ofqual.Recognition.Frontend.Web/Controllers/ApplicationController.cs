@@ -320,7 +320,7 @@ public class ApplicationController : Controller
         bool success = await _preEngagementService.SendPreEngagementInformationEmail(application.ApplicationId);
         if (!success)
         {
-            return BadRequest("Failed to process request information.");
+            return BadRequest();
         }
 
         bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, StatusType.InProgress);
