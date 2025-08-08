@@ -5,7 +5,7 @@
 @model QuestionViewModel
 
 @{
-    var currentTaskNameUrl = QuestionUrlHelper.Parse(Model.CurrentQuestionUrl)!.Value.taskNameUrl;
+    var currentTaskNameUrl = UrlHelper.Parse(Model.CurrentQuestionUrl)!.Value.taskNameUrl;
 
     var backLinkUrl = Model.FromReview
         ? $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{currentTaskNameUrl}/review-your-answers"

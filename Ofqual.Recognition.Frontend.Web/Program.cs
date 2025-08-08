@@ -1,20 +1,27 @@
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
-using Ofqual.Recognition.Frontend.Infrastructure.Services;
-using Ofqual.Recognition.Frontend.Infrastructure.Client;
+using System.Reflection;
+
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Ofqual.Recognition.Frontend.Web.Middlewares;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.Http;
+
+using CorrelationId;
+using CorrelationId.DependencyInjection;
+
+using GovUk.Frontend.AspNetCore;
+
 using Ofqual.Recognition.Frontend.Core.Constants;
 using Ofqual.Recognition.Frontend.Core.Models;
-using CorrelationId.DependencyInjection;
-using GovUk.Frontend.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
+using Ofqual.Recognition.Frontend.Infrastructure.Client;
+using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Ofqual.Recognition.Frontend.Infrastructure.Services;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Ofqual.Recognition.Frontend.Web.Middlewares;
+
 using Microsoft.Identity.Web;
-using Serilog.Sinks.Http;
-using System.Reflection;
-using Serilog.Events;
-using CorrelationId;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,19 +90,24 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     {
         builder.Configuration.Bind("AzureAdB2C", options);
 
-        if (builder.Configuration.GetValue<bool?>("AzureAdB2C:UseAutomationPolicies") ?? false)        
-            options.SignUpSignInPolicyId = builder.Configuration
-                .GetValue<string>("AzureAdB2C:SignUpSignInPolicyForAutomationId");        
-
+        if (builder.Configuration.GetValue<bool?>("AzureAdB2C:UseAutomationPolicies") ?? false)
+        {
+            options.SignUpSignInPolicyId = builder.Configuration.GetValue<string>("AzureAdB2C:SignUpSignInPolicyForAutomationId");
+        }
+  
         options.Events.OnRedirectToIdentityProvider += async (context) =>
         {
             var token = context.Properties.Items.FirstOrDefault(x => x.Key == AuthConstants.TokenHintIdentifier).Value;
             if (token != null)
-                context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);
-
+            {
+               context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token); 
+            }
+    
             var redirectUri = builder.Configuration.GetValue<string>("AzureAdB2C:RedirectUri");
             if (!string.IsNullOrEmpty(redirectUri))
+            {
                 context.ProtocolMessage.RedirectUri = redirectUri + options.CallbackPath.Value;
+            }
             
             await Task.CompletedTask.ConfigureAwait(false);
         };
@@ -137,6 +149,11 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(20);
     options.Cookie.IsEssential = true;
 });
+
+// Register Helpdesk contact configuration
+builder.Services.Configure<HelpDeskContact>(builder.Configuration.GetSection("HelpdeskContact"));
+builder.Services.AddSingleton<HelpDeskContact>(sp =>
+    sp.GetRequiredService<IOptions<HelpDeskContact>>().Value);
 
 // Register essential services
 builder.Services.AddHttpContextAccessor();
