@@ -173,14 +173,29 @@ public class ApplicationController : Controller
 
             if (validationResponse.Errors != null && validationResponse.Errors.Any())
             {
+                var linkedAttachments = new List<AttachmentDetails>();
+                var applicationReviewAnswers = new List<TaskReviewSection>();
+
+                if (questionDetails.QuestionTypeName == QuestionType.FileUpload)
+                {
+                    linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
+                }
+
+                if (questionDetails.QuestionTypeName == QuestionType.Review)
+                {
+                    applicationReviewAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
+                }
+
                 QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
                 questionViewModel.Validation = QuestionMapper.MapToViewModel(validationResponse);
                 questionViewModel.AnswerJson = jsonAnswer;
+                questionViewModel.Attachments = AttachmentMapper.MapToViewModel(linkedAttachments);
+                questionViewModel.TaskReviewSection = ApplicationAnswersMapper.MapToViewModel(applicationReviewAnswers);
 
                 return View(questionViewModel);
             }
         }
-        
+
         if (questionDetails.QuestionTypeName == QuestionType.Review)
         {
             var applicationStatus = Enum.Parse(typeof(StatusType), JsonHelper.GetFirstAnswerFromJson(jsonAnswer)!);
