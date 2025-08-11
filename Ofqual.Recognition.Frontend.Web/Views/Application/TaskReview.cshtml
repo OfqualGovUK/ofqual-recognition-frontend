@@ -33,7 +33,7 @@
                             <dd class="govuk-summary-list__value">
                                 @foreach (var answer in question.AnswerValue)
                                 {
-                                    <div>@answer</div>
+                                    <div class="summary-list-value-item">@answer</div>
                                 }
                             </dd>
                             @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
