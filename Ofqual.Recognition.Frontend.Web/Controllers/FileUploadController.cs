@@ -194,17 +194,17 @@ public class FileUploadController : Controller
 
         if (file == null || file.Length == 0)
         {
-            return BadRequest();
+            return BadRequest("The selected file is empty.");
         }
 
         if (file.Length > 25 * 1024 * 1024)
         {
-            return BadRequest();
+            return BadRequest("The selected file must be smaller than 25MB.");
         }
 
         if (!FileValidationHelper.IsAllowedFile(file))
         {
-            return BadRequest();
+            return BadRequest("Unsupported file type or content.");
         }
 
         var lockKey = $"{application.ApplicationId}:{questionDetails.QuestionId}";
@@ -224,19 +224,19 @@ public class FileUploadController : Controller
 
             if (totalSizeAfterUpload > 100 * 1024 * 1024)
             {
-                return BadRequest();
+                return BadRequest("Total file size for this question must not exceed 100MB.");
             }
 
             bool isDuplicate = attachments.Any(a => a.FileName.Equals(file.FileName, StringComparison.OrdinalIgnoreCase) && a.FileSize == file.Length);
             if (isDuplicate)
             {
-                return BadRequest();
+                return BadRequest("This file has already been uploaded.");
             }
 
             AttachmentDetails? attachmentDetails = await _attachmentService.UploadFileToLinkedRecord(LinkType.Question, questionDetails.QuestionId, application.ApplicationId, file);
             if (attachmentDetails == null)
             {
-                return BadRequest();
+                return BadRequest("Failed to upload file.");
             }
 
             bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, questionDetails.TaskId, StatusType.InProgress);

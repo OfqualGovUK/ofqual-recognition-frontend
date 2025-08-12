@@ -276,7 +276,8 @@ public class FileUploadControllerTests
         var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestResult>(result);
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("The selected file is empty.", badRequest.Value);
     }
 
     [Fact]
@@ -308,7 +309,8 @@ public class FileUploadControllerTests
         var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestResult>(result);
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("The selected file must be smaller than 25MB.", badRequest.Value);
     }
 
     [Fact]
@@ -340,7 +342,8 @@ public class FileUploadControllerTests
         var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestResult>(result);
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Unsupported file type or content.", badRequest.Value);
     }
 
     [Fact]
@@ -385,7 +388,8 @@ public class FileUploadControllerTests
         var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestResult>(result);
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("This file has already been uploaded.", badRequest.Value);
     }
 
     [Fact]
@@ -422,7 +426,8 @@ public class FileUploadControllerTests
         var result = await _controller.UploadFile("task", "question", file);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestResult>(result);
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Failed to upload file.", badRequest.Value);
     }
 
     [Fact]
