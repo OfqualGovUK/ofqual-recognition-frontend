@@ -1,10 +1,10 @@
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Helpers;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Core.Enums;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Enums;
+using Ofqual.Recognition.Frontend.Core.Helpers;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using System.Text;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
@@ -105,22 +105,48 @@ public class SessionService : ISessionService
             }
         }
 
-        bool anyActive = taskSections
-            .SelectMany(sec => sec.Tasks)
-            .Any(t => t.Status == StatusType.InProgress
-                   || t.Status == StatusType.NotStarted);
-
-        if (!anyActive)
-        {
-            session.Remove(SessionKeys.ApplicationTaskList);
-            return;
-        }
-
         var updatedData = JsonConvert.SerializeObject(taskSections);
         session.Set(
             SessionKeys.ApplicationTaskList,
             Encoding.UTF8.GetBytes(updatedData)
         );
+    }
+
+    public bool HasOnlyCompletedAndCannotStartYetTasks()
+    {
+        var session = _httpContextAccessor.HttpContext?.Session;
+        if (session == null)
+        {
+            return false;
+        }
+
+        if (!session.TryGetValue(SessionKeys.ApplicationTaskList, out var data))
+        {
+            return false;
+        }
+
+        var serializedTasks = Encoding.UTF8.GetString(data);
+        if (string.IsNullOrEmpty(serializedTasks))
+        {
+            return false;
+        }
+
+        var taskSections = JsonConvert.DeserializeObject<List<TaskItemStatusSection>>(serializedTasks);
+        if (taskSections == null)
+        {
+            return false;
+        }
+
+        var allTasks = taskSections.SelectMany(sec => sec.Tasks).ToList();
+
+        bool allOthersCompleted = allTasks
+            .Where(t => t.Status != StatusType.CannotStartYet)
+            .All(t => t.Status == StatusType.Completed);
+
+        bool hasCannotStartYet = allTasks
+            .Any(t => t.Status == StatusType.CannotStartYet);
+
+        return allOthersCompleted && hasCannotStartYet;
     }
 
     public StatusType? GetTaskStatusFromSession(Guid taskId)
