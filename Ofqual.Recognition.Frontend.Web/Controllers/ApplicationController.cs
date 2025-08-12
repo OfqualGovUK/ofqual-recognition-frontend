@@ -112,8 +112,8 @@ public class ApplicationController : Controller
         {
             return RedirectToAction(nameof(QuestionDetails), new
             {
-                QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
-                QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+                UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+                UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
             });
         }
 
@@ -214,8 +214,8 @@ public class ApplicationController : Controller
 
         return RedirectToAction(nameof(QuestionDetails), new
         {
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
     }
 
@@ -299,7 +299,7 @@ public class ApplicationController : Controller
             Application? submitted = await _applicationService.SubmitApplication(application.ApplicationId);
             if (submitted == null || !submitted.Submitted)
             {
-                return BadRequest("Could not submit application.");
+                return BadRequest();
             }
 
             return RedirectToAction(nameof(ConfirmSubmission));
@@ -335,7 +335,7 @@ public class ApplicationController : Controller
         bool success = await _preEngagementService.SendPreEngagementInformationEmail(application.ApplicationId);
         if (!success)
         {
-            return BadRequest("Failed to process request information.");
+            return BadRequest();
         }
 
         bool updateSucceeded = await _taskService.UpdateTaskStatus(application.ApplicationId, taskDetails.TaskId, StatusType.InProgress);

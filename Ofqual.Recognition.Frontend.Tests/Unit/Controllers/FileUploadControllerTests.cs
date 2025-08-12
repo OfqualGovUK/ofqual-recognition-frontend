@@ -610,8 +610,7 @@ public class FileUploadControllerTests
         var result = await _controller.DeleteFile("task", "question", attachmentId);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Failed to delete file.", badRequest.Value);
+        var badRequest = Assert.IsType<BadRequestResult>(result);
     }
 
     [Fact]
@@ -804,8 +803,7 @@ public class FileUploadControllerTests
         var result = await _controller.DownloadFile("task", "question", attachmentId);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Failed to retrieve file.", badRequest.Value);
+        var badRequest = Assert.IsType<BadRequestResult>(result);
     }
 
     [Fact]
