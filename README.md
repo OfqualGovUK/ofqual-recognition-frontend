@@ -138,7 +138,7 @@ The main application settings are defined in `appsettings.json` and can be tailo
   A **boolean** flag used to redirect users from the current Google Form for signing up for a Legacy Recognition account, to the new system
   When set to `true`, users are redirected to the pre-engagement flow instead of the Google form.
 
-  - **`FeatureFlag:HideDevPage`**
+- **`FeatureFlag:HideDevPage`**
   A **boolean** flag, when set to `true`, allows the user to disable the developer home page and redirect the user as if the application is in production,
   This only applies to the development environment and will be ignored in production. This feature is expected to be used for testing purposes only.
 
