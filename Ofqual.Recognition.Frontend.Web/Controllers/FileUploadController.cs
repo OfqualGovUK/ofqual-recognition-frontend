@@ -170,8 +170,8 @@ public class FileUploadController : Controller
 
         return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
         {
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
     }
 
@@ -282,7 +282,7 @@ public class FileUploadController : Controller
             bool isDeleted = await _attachmentService.DeleteLinkedFile(LinkType.Question, questionDetails.QuestionId, attachmentId, application.ApplicationId);
             if (!isDeleted)
             {
-                return BadRequest("Failed to delete file.");
+                return BadRequest();
             }
 
             bool isHtmlRequest = Request.Headers["Accept"].Any(h => h != null && h.Contains("text/html", StringComparison.OrdinalIgnoreCase));
@@ -290,8 +290,8 @@ public class FileUploadController : Controller
             {
                 return RedirectToAction(nameof(ApplicationController.QuestionDetails), "Application", new
                 {
-                    QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.taskNameUrl,
-                    QuestionUrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.questionNameUrl
+                    UrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.taskNameUrl,
+                    UrlHelper.Parse(questionDetails.CurrentQuestionUrl)!.Value.questionNameUrl
                 });
             }
 
@@ -333,7 +333,7 @@ public class FileUploadController : Controller
         var stream = await _attachmentService.DownloadLinkedFile(LinkType.Question, questionDetails.QuestionId, attachmentId, application.ApplicationId);
         if (stream == null)
         {
-            return BadRequest("Failed to retrieve file.");
+            return BadRequest();
         }
 
         return File(stream, attachment.FileMIMEtype, attachment.FileName);

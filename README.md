@@ -61,6 +61,10 @@ The main application settings are defined in `appsettings.json` and can be tailo
     "Environment": "",
     "Uri": ""
   },
+  "HelpdeskContact": {
+    "ContactName": "",
+    "Url": ""
+  },
   "FeatureFlag": {
     "Application": true,
     "EligibilityLink": false,
@@ -129,6 +133,12 @@ The main application settings are defined in `appsettings.json` and can be tailo
 
 - **`LogzIo:Uri`**
   The endpoint URI for sending log data to an external logging service such as Logz.io.
+
+- **`HelpdeskContact:ContactName`**  
+  The name or title of the helpdesk contact to display on error pages.
+
+- **`HelpdeskContact:Url`**  
+  The email address or URL for users to contact the helpdesk, shown on error pages.
 
 - **`FeatureFlag:Application`**
   A **boolean** flag used to enable or disable middleware URL redirection and application UI visibility.

@@ -100,8 +100,8 @@ public class PreEngagementController : Controller
 
         return RedirectToAction(nameof(PreEngagementQuestionDetails), new
         {
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
-            QuestionUrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
+            UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
         });
     }
 

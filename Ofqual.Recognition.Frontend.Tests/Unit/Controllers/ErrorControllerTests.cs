@@ -1,5 +1,7 @@
-using Ofqual.Recognition.Frontend.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Web.Controllers;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
@@ -9,7 +11,8 @@ public class ErrorControllerTests
 
     public ErrorControllerTests()
     {
-        _controller = new ErrorController();
+        var mockHelpDeskContact = new Mock<HelpDeskContact>();
+        _controller = new ErrorController(mockHelpDeskContact.Object);
     }
 
     [Fact]
@@ -17,10 +20,34 @@ public class ErrorControllerTests
     public void NotFoundPage_ReturnsNotFoundView()
     {
         // Act
-        var result = _controller.NotFoundPage();
+        var result = _controller.NotFoundError();
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
         Assert.Equal("NotFound", viewResult.ViewName);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void InternalServerError_ReturnsProblemView()
+    {
+        // Act
+        var result = _controller.InteralServerError();
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal("Problem", viewResult.ViewName);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void BadRequestError_ReturnsProblemView()
+    {
+        // Act
+        var result = _controller.BadRequestError();
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal("Problem", viewResult.ViewName);
     }
 }

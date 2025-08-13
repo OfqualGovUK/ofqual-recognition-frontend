@@ -1,13 +1,13 @@
-using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
-using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Core.Enums;
 using System.Net.Http.Json;
-using Newtonsoft.Json;
 using System.Text;
-using Serilog;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Enums;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Infrastructure.Client.Interfaces;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
+using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Infrastructure.Services;
 
@@ -27,7 +27,7 @@ public class TaskService : ITaskService
         try
         {
             var sessionKey = SessionKeys.ApplicationTaskList;
-            if (_sessionService.HasInSession(sessionKey))
+            if (_sessionService.HasInSession(sessionKey) && !_sessionService.HasOnlyCompletedAndCannotStartYetTasks())
             {
                 return _sessionService.GetFromSession<List<TaskItemStatusSection>>(sessionKey) ?? new List<TaskItemStatusSection>();
             }
