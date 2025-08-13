@@ -2,6 +2,9 @@ using Ofqual.Recognition.Frontend.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Moq;
+using Microsoft.Extensions.Configuration;
+using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
@@ -11,7 +14,7 @@ public class HomeControllerTests
 
     public HomeControllerTests()
     {
-        _controller = new HomeController();
+        _controller = new HomeController(new Mock<IConfiguration>().Object, new Mock<IFeatureFlagService>().Object);
     }
 
     [Theory]
@@ -36,7 +39,7 @@ public class HomeControllerTests
     public void SignedOut_ReturnsRedirect_WhenUserIsAuthenticated()
     {
         // Arrange
-        var controller = new HomeController();
+        var controller = new HomeController(new Mock<IConfiguration>().Object, new Mock<IFeatureFlagService>().Object);
         var httpContext = new DefaultHttpContext
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "test") }, "mock"))
@@ -60,7 +63,7 @@ public class HomeControllerTests
     public void SignedOut_ReturnsView_WhenUserIsNotAuthenticated()
     {
         // Arrange
-        var controller = new HomeController();
+        var controller = new HomeController(new Mock<IConfiguration>().Object, new Mock<IFeatureFlagService>().Object);
         var httpContext = new DefaultHttpContext
         {
             User = new ClaimsPrincipal(new ClaimsIdentity())
