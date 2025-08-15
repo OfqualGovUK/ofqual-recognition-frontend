@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Http;
+using Moq;
+using Newtonsoft.Json;
+using Ofqual.Recognition.Frontend.Core.Constants;
+using Ofqual.Recognition.Frontend.Core.Enums;
+using Ofqual.Recognition.Frontend.Core.Models;
 using Ofqual.Recognition.Frontend.Infrastructure.Services;
 using Ofqual.Recognition.Frontend.Tests.TestData;
-using Ofqual.Recognition.Frontend.Core.Constants;
-using Ofqual.Recognition.Frontend.Core.Models;
-using Ofqual.Recognition.Frontend.Core.Enums;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using System.Text;
-using Moq;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Services;
 
@@ -151,11 +151,9 @@ public class SessionServiceTests
         _sessionMock.Verify(s => s.Clear(), Times.Once);
     }
 
-    [Theory]
+    [Fact]
     [Trait("Category", "Unit")]
-    [InlineData(StatusType.CannotStartYet, StatusType.Completed)]
-    [InlineData(StatusType.InProgress, StatusType.CannotStartYet)]
-    public void UpdateTaskStatusInSession_ClearsCache_WhenNoActiveTasksRemain(StatusType originalStatus, StatusType newStatus)
+    public void UpdateTaskStatusInSession_UpdatesStatus_AndPersistsSession()
     {
         // Arrange
         var taskId = Guid.NewGuid();
@@ -163,7 +161,7 @@ public class SessionServiceTests
         {
             TaskId = taskId,
             TaskName = "Test Task",
-            Status = originalStatus,
+            Status = StatusType.InProgress,
             FirstQuestionURL = "/application-details/contact-details"
         };
         var section = new TaskItemStatusSection
@@ -190,12 +188,67 @@ public class SessionServiceTests
             .Setup(s => s.Remove(SessionKeys.ApplicationTaskList))
             .Callback(() => removeCalled = true);
 
+        var newStatus = StatusType.Completed;
+
         // Act
         _sessionService.UpdateTaskStatusInSession(taskId, newStatus);
 
         // Assert
-        Assert.True(removeCalled);
-        Assert.Null(updatedBytes);
+        Assert.False(removeCalled);
+        Assert.NotNull(updatedBytes);
+        _sessionMock.Verify(s => s.Set(SessionKeys.ApplicationTaskList, It.IsAny<byte[]>()), Times.Once);
+
+        var updatedJson = Encoding.UTF8.GetString(updatedBytes!);
+        var updatedSections = JsonConvert.DeserializeObject<List<TaskItemStatusSection>>(updatedJson);
+        Assert.NotNull(updatedSections);
+        var updatedTask = updatedSections!
+            .SelectMany(x => x.Tasks)
+            .FirstOrDefault(t => t.TaskId == taskId);
+
+        Assert.NotNull(updatedTask);
+        Assert.Equal(newStatus, updatedTask!.Status);
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(true, StatusType.Completed, StatusType.Completed, StatusType.CannotStartYet)]
+    [InlineData(false, StatusType.Completed, StatusType.Completed, StatusType.Completed)]
+    [InlineData(false, StatusType.InProgress, StatusType.Completed, StatusType.CannotStartYet)]
+    [InlineData(false)]
+    public void HasOnlyCompletedAndCannotStartYetTasks_WorksAsExpected(
+    bool expectedResult,
+    params StatusType[] statuses)
+    {
+        // Arrange
+        var tasks = statuses.Select((status, index) =>
+            new TaskItemStatus
+            {
+                TaskId = Guid.NewGuid(),
+                TaskName = $"Task {index + 1}",
+                Status = status,
+                FirstQuestionURL = "/application-details/contact-details"
+            }).ToList();
+
+        var sections = new List<TaskItemStatusSection>
+        {
+            new TaskItemStatusSection
+            {
+                SectionId = Guid.NewGuid(),
+                SectionName = "Section 1",
+                Tasks = tasks
+            }
+        };
+
+        var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(sections));
+        _sessionMock
+            .Setup(s => s.TryGetValue(SessionKeys.ApplicationTaskList, out bytes))
+            .Returns(true);
+
+        // Act
+        var result = _sessionService.HasOnlyCompletedAndCannotStartYetTasks();
+
+        // Assert
+        Assert.Equal(expectedResult, result);
     }
 
     [Theory]

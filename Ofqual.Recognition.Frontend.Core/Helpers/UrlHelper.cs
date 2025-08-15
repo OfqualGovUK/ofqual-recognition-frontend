@@ -1,6 +1,6 @@
 namespace Ofqual.Recognition.Frontend.Core.Helpers;
 
-public static class QuestionUrlHelper
+public static class UrlHelper
 {
     public static (string taskNameUrl, string questionNameUrl)? Parse(string? url)
     {
@@ -17,5 +17,10 @@ public static class QuestionUrlHelper
         }
 
         return (segments[0], segments[1]);
+    }
+
+    public static bool IsEmail(string url)
+    {
+        return url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase);
     }
 }

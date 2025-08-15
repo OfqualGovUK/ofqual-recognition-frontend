@@ -977,8 +977,7 @@ public class ApplicationControllerTests
         var result = await _controller.RequestInformation(taskNameUrl);
 
         // Assert
-        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Failed to process request information.", badRequestResult.Value);
+        var badRequestResult = Assert.IsType<BadRequestResult>(result);
 
         _applicationServiceMock.Verify(s => s.GetLatestApplication(), Times.Once);
         _taskServiceMock.Verify(s => s.GetTaskDetailsByTaskNameUrl(taskNameUrl), Times.Once);
