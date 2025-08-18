@@ -6,27 +6,17 @@
         <h1 class="govuk-heading-xl">Apply to have your qualifications regulated</h1>
         <h2 class="govuk-heading-m">About this service</h2>
         <p class="govuk-body">This service is currently in private beta. Use this service and support its continuous improvement.</p>
-        <h2 class="govuk-heading-m">Eligibility:</h2>
-        <a asp-controller="eligibility" asp-action="start" data-test="eligibility-start" class="govuk-button govuk-button--start">Start now</a>
-        @if (FeatureFlagService.IsFeatureEnabled("Application"))
-        {
-            <h2 class="govuk-heading-m">Application:</h2>
-            <a asp-controller="application" data-test="application-start" class="govuk-button govuk-button--start">Start now</a>
-        }
+        
+        <a asp-controller="eligibility" asp-action="start" data-test="eligibility-start" class="govuk-button govuk-button--start">Eligibility</a>
+
         @if (!(User.Identity?.IsAuthenticated ?? false))
         {
-            <h2 class="govuk-heading-m">Pre-Engagement:</h2>
             <a asp-controller="pre-engagement" class="govuk-button govuk-button--start">Pre-Engagement</a>
         }
-        @if (!(User.Identity?.IsAuthenticated ?? false))
+
+        @if (FeatureFlagService.IsFeatureEnabled("Application"))
         {
-            <h2 class="govuk-heading-m">Sign in:</h2>
-            <a asp-area="MicrosoftIdentity" id="sign-in-btn" asp-controller="OfqualAccount" asp-action="SignIn" class="govuk-button govuk-button--start">Sign In</a>
-        }
-        else
-        {
-            <h2 class="govuk-heading-m">Account information:</h2> 
-            <p class="govuk-body">Signed in as @User.Identity.Name</p> 
+            <a asp-controller="application" data-test="application-start" class="govuk-button govuk-button--start">Main Application</a>
         }
     </div>
 </div>
