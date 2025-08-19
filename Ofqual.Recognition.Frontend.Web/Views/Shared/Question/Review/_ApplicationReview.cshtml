@@ -8,28 +8,17 @@
     @foreach (var taskSection in Model.TaskReviewSection)
     {
         <h2 class="govuk-heading-m">@taskSection.SectionName</h2>
-
         @foreach (var group in taskSection.TaskGroups)
         {
-            var groupedQuestions = group.QuestionAnswers
-            .GroupBy(q => q.QuestionText)
-            .Select(g => new
-            {
-                QuestionText = g.Key,
-                AnswerValue = g.SelectMany(q => q.AnswerValue).ToList(),
-                QuestionUrl = g.First().QuestionUrl
-            });
-
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-
                     <h2 class="govuk-summary-card__title">
                         @group.SectionHeading
                     </h2>
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        @foreach (var question in groupedQuestions)
+                        @foreach (var question in group.QuestionAnswers)
                         {
                             <div class="govuk-summary-list__row">
                                 <dt class="govuk-summary-list__key">
@@ -43,6 +32,7 @@
                                         }
                                     </ul>
                                 </dd>
+                                
                                 @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
                                 {
                                     <dd class="govuk-summary-list__actions">

@@ -1,38 +1,27 @@
 @using Ofqual.Recognition.Frontend.Web.ViewModels
 @using Ofqual.Recognition.Frontend.Core.Helpers
 @model ErrorViewModel
-@{
-    var originalPath = Context.Features.Get<Microsoft.AspNetCore.Diagnostics.IStatusCodeReExecuteFeature>()?.OriginalPath;
-}
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
-        <h1 class="govuk-heading-l">Page not found</h1>
+        <h1 class="govuk-heading-l">Sorry, there is a problem with the service</h1>
         <p class="govuk-body">
-            We couldn't find a page at <strong>@originalPath</strong>.
+            Try again later.
         </p>
-
-        <p class="govuk-body">
-            This could be because:
-        </p>
-        <ul class="govuk-list govuk-list--bullet">
-            <li>the web address was entered incorrectly</li>
-            <li>the link you used is broken or outdated</li>
-        </ul>
 
         <p class="govuk-body">
             @if (UrlHelper.IsEmail(Model.Url))
             {
                 <span>
-                    Please check the web address and try again. If you need to contact us by email,
+                    If you need to contact us by email,
                     <a class="govuk-link" href="@Model.Url">send @Model.ContactName an email</a>.
                 </span>
             }
             else
             {
                 <span>
-                    Please check the web address and try again. If you still need help,
+                    If you need help,
                     <a class="govuk-link" href="@Model.Url">contact the @Model.ContactName</a>.
                 </span>
             }

@@ -10,6 +10,7 @@ public interface ISessionService
     public void ClearFromSession(string key);
     public void ClearAllSession();
     public void UpdateTaskStatusInSession(Guid taskId, StatusType newStatus);
+    public bool HasOnlyCompletedAndCannotStartYetTasks();
     public StatusType? GetTaskStatusFromSession(Guid taskId);
     public void UpsertPreEngagementAnswer(Guid questionId, Guid taskId, string answerJson);
 }

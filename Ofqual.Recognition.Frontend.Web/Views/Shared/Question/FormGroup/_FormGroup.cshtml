@@ -11,7 +11,7 @@
 
     var isFileUpload = Model.QuestionContent.FormGroup?.FileUpload != null;
     var enctypeAttr = isFileUpload ? "multipart/form-data" : null;
-    var currentQuestion = QuestionUrlHelper.Parse(Model.CurrentQuestionUrl);
+    var currentQuestion = UrlHelper.Parse(Model.CurrentQuestionUrl);
 
     string controllerName;
     string actionName;
