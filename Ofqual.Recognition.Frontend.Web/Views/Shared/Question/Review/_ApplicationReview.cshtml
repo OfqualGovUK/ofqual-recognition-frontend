@@ -2,6 +2,9 @@
 @using Ofqual.Recognition.Frontend.Core.Constants
 @using Ofqual.Recognition.Frontend.Core.Helpers
 @model QuestionViewModel
+@{
+    var currentPath = Context.Request.Path + Context.Request.QueryString;
+}
 
 @if (Model.TaskReviewSection != null && Model.TaskReviewSection.Any())
 {
@@ -32,12 +35,12 @@
                                         }
                                     </ul>
                                 </dd>
-                                
+
                                 @if (!(bool)(ViewData["ApplicationReadOnly"] ?? false))
                                 {
                                     <dd class="govuk-summary-list__actions">
                                         <a class="govuk-link"
-                                           href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
+                                            href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?redirectUrl={currentPath}")">
                                             Change<span class="govuk-visually-hidden">@question.QuestionText</span>
                                         </a>
                                     </dd>

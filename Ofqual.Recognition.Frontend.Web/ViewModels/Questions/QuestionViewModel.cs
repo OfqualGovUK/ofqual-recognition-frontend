@@ -13,10 +13,8 @@ public class QuestionViewModel
     public string? AnswerJson { get; set; }
     public List<AttachmentDetailsViewModel>? Attachments { get; set; }
     public string? PreviousQuestionUrl { get; set; }
-    public bool FromReview { get; set; }
+    public string? RedirectUrl { get; set; }
     public bool FromPreEngagement { get; set; }
-    
     public ValidationViewModel? Validation { get; set; }
-
     public List<TaskReviewSectionViewModel>? TaskReviewSection{ get; set; }
 }

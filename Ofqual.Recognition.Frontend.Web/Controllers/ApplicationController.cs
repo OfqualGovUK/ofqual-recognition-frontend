@@ -80,7 +80,7 @@ public class ApplicationController : Controller
 
     [HttpGet("{taskNameUrl}/{questionNameUrl}")]
     [RedirectReadOnly]
-    public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, bool fromReview = false)
+    public async Task<IActionResult> QuestionDetails(string taskNameUrl, string questionNameUrl, string? RedirectUrl = null)
     {
         Application? application = await _applicationService.GetLatestApplication();
         if (application == null)
@@ -103,7 +103,7 @@ public class ApplicationController : Controller
 
         StatusType? status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
 
-        if (status == StatusType.Completed && !fromReview && questionDetails.QuestionTypeName != QuestionType.Review)
+        if (status == StatusType.Completed && string.IsNullOrEmpty(RedirectUrl) && questionDetails.QuestionTypeName != QuestionType.Review)
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
@@ -133,7 +133,7 @@ public class ApplicationController : Controller
         }
 
         QuestionViewModel questionViewModel = QuestionMapper.MapToViewModel(questionDetails);
-        questionViewModel.FromReview = fromReview;
+        questionViewModel.RedirectUrl = RedirectUrl;
         questionViewModel.AnswerJson = questionAnswer?.Answer;
         questionViewModel.Attachments = AttachmentMapper.MapToViewModel(linkedAttachments);
         questionViewModel.TaskReviewSection = ApplicationAnswersMapper.MapToViewModel(applicationReviewAnswers);
