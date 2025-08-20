@@ -247,7 +247,7 @@ public class ApplicationControllerTests
         var viewResult = Assert.IsType<ViewResult>(result);
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
         Assert.Equal(question.QuestionId, model.QuestionId);
-        Assert.False(model.FromReview);
+        Assert.Null(model.RedirectUrl);
         Assert.Equal(answer.Answer, model.AnswerJson);
     }
 
@@ -283,12 +283,12 @@ public class ApplicationControllerTests
             .ReturnsAsync(new List<AttachmentDetails>());
 
         // Act
-        var result = await _controller.QuestionDetails("task", "question", fromReview: true);
+        var result = await _controller.QuestionDetails("task", "question", "/test/url");
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
         var model = Assert.IsType<QuestionViewModel>(viewResult.Model);
-        Assert.True(model.FromReview);
+        Assert.Equal("/test/url", model?.RedirectUrl);
     }
 
     [Fact]
