@@ -14,8 +14,6 @@
         : Model.FromPreEngagement
         ? RouteConstants.PreEngagementConstants.PRE_ENGAGEMENT_PATH
         : RouteConstants.ApplicationConstants.TASK_LIST_PATH;
-
-    var isReviewPage = Model.QuestionTypeName == QuestionType.Review;
 }
 
 @section BackLink {
@@ -23,15 +21,16 @@
 }
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-@(isReviewPage ? "full-width" : "two-thirds")">
+    <div class="govuk-grid-column-two-thirds">
+
         @await Html.PartialAsync($"~/Views/Shared/Question/Validation/_ErrorSummary.cshtml", Model.Validation)
 
         @await Html.PartialAsync($"~/Views/Shared/Question/Body/_Body.cshtml", Model.QuestionContent.Body)
 
         @await Html.PartialAsync($"~/Views/Shared/Question/Review/_ApplicationReview.cshtml", Model)
 
-        @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/_FormGroup.cshtml", Model)
-     
+        @await Html.PartialAsync($"~/Views/Shared/Question/FormGroup/_FormGroup.cshtml", Model)     
+
     </div>
 
     @await Html.PartialAsync($"~/Views/Shared/Question/Sidebar/_Sidebar.cshtml", Model.QuestionContent.Sidebar)
