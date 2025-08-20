@@ -113,7 +113,8 @@ public class ApplicationController : Controller
             return RedirectToAction(nameof(QuestionDetails), new
             {
                 UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.taskNameUrl,
-                UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl
+                UrlHelper.Parse(questionDetails.NextQuestionUrl)!.Value.questionNameUrl,
+                RedirectUrl = RouteConstants.ApplicationConstants.TASK_LIST_PATH
             });
         }
 
