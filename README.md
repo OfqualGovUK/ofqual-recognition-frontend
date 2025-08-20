@@ -50,6 +50,9 @@ The main application settings are defined in `appsettings.json` and can be tailo
     "CallBackPath": "",
     "SignedOutCallbackPath": ""
   },
+  "GovUk": {
+    "StartPage": ""    
+  },
   "RecognitionApi": {
     "BaseUrl": "",
     "Scopes": []
@@ -64,7 +67,8 @@ The main application settings are defined in `appsettings.json` and can be tailo
   },
   "FeatureFlag": {
     "Application": true,
-    "EligibilityLink": false
+    "EligibilityLink": false,
+    "HideDevPage": false
   }
 }
 ```
@@ -106,6 +110,9 @@ The main application settings are defined in `appsettings.json` and can be tailo
 - **`AzureAdB2C:SignedOutCallbackPath`**
   The callback path when signing out of Azure B2c, typically set to `/signout-callback-oidc`
 
+- **`GovUk:StartPage`**  
+  The URL of the GOV.UK page that directs the user to begin an application or to sign into a pre-existing application.
+
 - **`RecognitionApi:BaseUrl`**  
   The base URL of the external Recognition API the application communicates with. This should point to the correct environment (e.g., local, development, production).
 
@@ -140,6 +147,10 @@ The main application settings are defined in `appsettings.json` and can be tailo
 - **`FeatureFlag:EligibilityLink`**
   A **boolean** flag used to redirect users from the current Google Form for signing up for a Legacy Recognition account, to the new system
   When set to `true`, users are redirected to the pre-engagement flow instead of the Google form.
+
+- **`FeatureFlag:HideDevPage`**
+  A **boolean** flag, when set to `true`, allows the user to disable the developer home page and redirect the user as if the application is in production,
+  This only applies to the development environment and will be ignored in production. This feature is expected to be used for testing purposes only.
 
 > These settings should be environment-specific and managed through `appsettings.{Environment}.json` or overridden using environment variables in production scenarios.
 
