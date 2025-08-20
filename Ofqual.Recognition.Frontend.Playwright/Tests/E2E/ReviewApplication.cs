@@ -43,7 +43,7 @@ public class ReviewApplication : BaseTest
         await termsAndConditionsPage.CompleteTermsAndConditionsTask(taskListPage, homePage);
 
         //Contact details task - checks task status, fills in contact details and runs Axe checks
-        await contactDetailsPage.CompleteContactDetailsTask(taskListPage, homePage, "Test", "user", "+448012365478", "officer");
+        await contactDetailsPage.CompleteContactDetailsTask(taskListPage, homePage, "Tester", "user", "+448012365478", "officer");
 
         //Organisation details task - checks task status, fills in organisation details and runs Axe checks
         await organisationDetailsPage.CompleteOrganisationDetailsTask(taskListPage, homePage);
