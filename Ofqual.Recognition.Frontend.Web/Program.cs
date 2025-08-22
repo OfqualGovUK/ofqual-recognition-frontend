@@ -112,6 +112,27 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             await Task.CompletedTask.ConfigureAwait(false);
         };
 
+        options.Events.OnRemoteFailure = context =>
+        {
+            context.Response.Redirect($"");
+            context.HandleResponse();
+            return Task.CompletedTask;
+        };
+
+        options.Events.OnRemoteFailure = context =>
+        {
+            // Get the error code from the failure message, fallback to query string if needed
+            var errorCode = context.Failure?.Message ?? context.Request.Query["error"].ToString();
+
+            // URL encode the error code for safety
+            var encodedErrorCode = Uri.EscapeDataString(errorCode ?? string.Empty);
+
+            // Redirect to the error page in the MicrosoftIdentity area
+            context.Response.Redirect($"/MicrosoftIdentity/OfqualAccount/Error?errorCode={encodedErrorCode}");
+            context.HandleResponse();
+            return Task.CompletedTask;
+        };
+
         options.Events.OnRedirectToIdentityProviderForSignOut += async (context) =>
         {
             var id_token_hint = context.Properties.Items.FirstOrDefault(x => x.Key == "id_token_hint").Value;
