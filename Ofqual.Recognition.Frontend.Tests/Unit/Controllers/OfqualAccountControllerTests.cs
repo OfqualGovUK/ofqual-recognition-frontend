@@ -115,55 +115,6 @@ public class OfqualAccountControllerTests
         sessionServiceMock.Verify(s => s.ClearAllSession(), Times.Once);
     }
 
-    //[Theory]
-    //[InlineData("AADB2C90091", "User canceled the operation. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90118", "User has forgotten their password. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90052", "Invalid username or password. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90054", "Invalid username or password. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90053", "Invalid username or password. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90225", "Invalid username or password. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90111", "Your account has been locked. Contact your support person to unlock it, then try again. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90114", "Your account is temporarily locked to prevent unauthorized use. Try again later. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90008", "The request does not contain a client ID parameter. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90006", "The redirect URI provided in the request is not registered for the client. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90007", "The application has no registered redirect URIs. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90035", "The service is temporarily unavailable. Please retry after a few minutes. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90036", "The request does not contain a URI to redirect the user to post logout. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90046", "We are having trouble signing you in. You might want to try starting your session over from the beginning. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90048", "An unhandled exception has occurred on the server. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //[InlineData("AADB2C90244", "There are too many requests at this moment. Please wait for some time and try again. Error:{ErrorCode}. RequestId: {RequestId}")]
-    //public void GetB2CErrorMessage_ReturnsCorrectErrorMessage(string errorCode, string expectedMessage)
-    //{
-    //    // Arrange
-    //    var sessionServiceMock = new Mock<ISessionService>();
-    //    var optionsMonitorMock = new Mock<IOptionsMonitor<MicrosoftIdentityOptions>>();
-
-
-    //    var loggerMock = new Mock<ILogger<OfqualAccountController>>();
-
-    //    var controller = new OfqualAccountController(optionsMonitorMock.Object, sessionServiceMock.Object, loggerMock.Object);
-
-    //    var httpContext = new DefaultHttpContext();
-    //    httpContext.TraceIdentifier = "test-request-id";
-    //    controller.ControllerContext = new ControllerContext
-    //    {
-    //        HttpContext = httpContext
-    //    };
-
-    //    // Act
-    //    controller.Error(errorCode);
-
-    //    // Assert
-    //    loggerMock.Verify(
-    //        x => x.Log(
-    //            LogLevel.Error,
-    //            It.IsAny<EventId>(),
-    //            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Error:{errorCode}. RequestId: test-request-id")),
-    //            It.IsAny<Exception>(),
-    //            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-    //        Times.Once);
-    //}
-
     [Theory]
     [InlineData("AADB2C90091")]
     [InlineData("AADB2C90244")]
