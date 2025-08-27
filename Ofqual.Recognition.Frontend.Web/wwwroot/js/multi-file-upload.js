@@ -1,4 +1,4 @@
-const version = "0.0.2";
+const version = "0.0.3";
 
 // ======================================
 // Initialisation
@@ -227,7 +227,7 @@ async function uploadSingleFile(fileId) {
 
   xhr.onerror = () => {
     entry.status = "failed";
-    entry.errorMessage = "Network error";
+    entry.errorMessage = "Network error - check your connection and refresh the page";
     renderFileItem(fileId);
     updateInterface();
   };
