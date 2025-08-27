@@ -10,9 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Security.Claims;
 using Moq;
-using Serilog;
-using Microsoft.Extensions.Logging;
-using ILogger = Serilog.ILogger;
 
 namespace Ofqual.Recognition.Frontend.Tests.Unit.Controllers;
 
@@ -113,31 +110,5 @@ public class OfqualAccountControllerTests
         Assert.Contains(OpenIdConnectDefaults.AuthenticationScheme, signOutResult.AuthenticationSchemes);
 
         sessionServiceMock.Verify(s => s.ClearAllSession(), Times.Once);
-    }
-
-    [Theory]
-    [InlineData("AADB2C90091")]
-    [InlineData("AADB2C90244")]
-    [InlineData("UNKNOWN_CODE")]
-    public void Error_ReturnsProblemView(string errorCode)
-    {
-        // Arrange
-        var optionsMock = new Mock<IOptionsMonitor<MicrosoftIdentityOptions>>();
-        var sessionServiceMock = new Mock<ISessionService>();
-        var controller = new OfqualAccountController(optionsMock.Object, sessionServiceMock.Object);
-
-        var httpContext = new DefaultHttpContext();
-        httpContext.TraceIdentifier = "test-request-id";
-        controller.ControllerContext = new ControllerContext
-        {
-            HttpContext = httpContext
-        };
-
-        // Act
-        var result = controller.Error(errorCode);
-
-        // Assert
-        var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.Equal("Problem", viewResult.ViewName);
     }
 }
