@@ -28,13 +28,13 @@ var builder = WebApplication.CreateBuilder(args);
 #region Services
 
 // Add GovUK frontend with new branding
-builder.Services.AddGovUkFrontend(options => 
+builder.Services.AddGovUkFrontend(options =>
 {
-    options.Rebrand = true; 
+    options.Rebrand = true;
 });
 
 // Add Controllers with Views
-builder.Services.AddControllersWithViews(options => 
+builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
@@ -94,29 +94,22 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         {
             options.SignUpSignInPolicyId = builder.Configuration.GetValue<string>("AzureAdB2C:SignUpSignInPolicyForAutomationId");
         }
-  
+
         options.Events.OnRedirectToIdentityProvider += async (context) =>
         {
             var token = context.Properties.Items.FirstOrDefault(x => x.Key == AuthConstants.TokenHintIdentifier).Value;
             if (token != null)
             {
-               context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token); 
+                context.ProtocolMessage.SetParameter(AuthConstants.TokenHintIdentifier, token);
             }
-    
+
             var redirectUri = builder.Configuration.GetValue<string>("AzureAdB2C:RedirectUri");
             if (!string.IsNullOrEmpty(redirectUri))
             {
                 context.ProtocolMessage.RedirectUri = redirectUri + options.CallbackPath.Value;
             }
-            
-            await Task.CompletedTask.ConfigureAwait(false);
-        };
 
-        options.Events.OnRemoteFailure = context =>
-        {
-            context.Response.Redirect($"");
-            context.HandleResponse();
-            return Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
         };
 
         options.Events.OnRemoteFailure = context =>
@@ -127,8 +120,8 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             // URL encode the error code for safety
             var encodedErrorCode = Uri.EscapeDataString(errorCode ?? string.Empty);
 
-            // Redirect to the error page in the MicrosoftIdentity area
-            context.Response.Redirect($"/MicrosoftIdentity/OfqualAccount/Error?errorCode={encodedErrorCode}");
+            // Redirect to the error page
+            context.Response.Redirect($"/MicrosoftIdentity/OfqualAccount/Error?error={encodedErrorCode}");
             context.HandleResponse();
             return Task.CompletedTask;
         };
