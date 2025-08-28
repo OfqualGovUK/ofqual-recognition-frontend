@@ -137,7 +137,7 @@ public class OfqualAccountControllerTests
         var result = controller.Error(errorCode);
 
         // Assert
-        var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.Equal("Problem", viewResult.ViewName);
+        var redirectResult = Assert.IsType<RedirectResult>(result);
+        Assert.Equal("~/Error/400", redirectResult.Url);
     }
 }
