@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Serilog;
 
 namespace Ofqual.Recognition.Frontend.Web.Controllers;
 
@@ -56,5 +57,18 @@ public class OfqualAccountController : Controller
         properties.Items[AuthConstants.TokenHintIdentifier] = idToken;
 
         return SignOut(properties, CookieAuthenticationDefaults.AuthenticationScheme, scheme);
+    }
+
+    [HttpGet("{error?}")]
+    public IActionResult Error(string? error = null)
+    {
+        var requestId = HttpContext.TraceIdentifier;
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            Log.Error("Error during authentication. Error: {Error}. Request ID: {RequestId}", error, requestId);
+        }
+
+        return Redirect("~/Error/400");
     }
 }
