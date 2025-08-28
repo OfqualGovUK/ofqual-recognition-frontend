@@ -5,8 +5,10 @@
 
 @{
     var backLinkUrl = Model.IsCompletedStatus
-    ? RouteConstants.ApplicationConstants.TASK_LIST_PATH
-    : $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.LastQuestionUrl}";
+        ? RouteConstants.ApplicationConstants.TASK_LIST_PATH
+        : $"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{Model.LastQuestionUrl}";
+    
+    var currentPath = Context.Request.Path + Context.Request.QueryString;
 }
 
 @section BackLink {
@@ -16,7 +18,6 @@
 <h1 class="govuk-heading-l">
     Check your answers
 </h1>
-
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
 
@@ -40,7 +41,7 @@
                             {
                                 <dd class="govuk-summary-list__actions">
                                     <a class="govuk-link"
-                                    href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
+                                    href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?redirectUrl={currentPath}")">
                                         Change<span class="govuk-visually-hidden">@question.QuestionText</span>
                                     </a>
                                 </dd>
@@ -69,7 +70,7 @@
                         {
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
-                                href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?fromReview=true")">
+                                href="@($"{RouteConstants.ApplicationConstants.APPLICATION_PATH}/{question.QuestionUrl}?redirectUrl={currentPath}")">
                                     Change<span class="govuk-visually-hidden">@question.QuestionText</span>
                                 </a>
                             </dd>
