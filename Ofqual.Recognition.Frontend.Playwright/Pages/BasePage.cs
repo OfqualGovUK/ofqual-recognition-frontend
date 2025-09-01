@@ -2,6 +2,7 @@
 using Microsoft.Playwright;
 using Playwright.Axe;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Ofqual.Recognition.Frontend.Playwright.Pages
 {
@@ -54,23 +55,43 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         }
 
         public async Task GenerateConsolidatedHtmlReport(string path)
-        {
+        {            
             var html = new StringBuilder();
-            html.AppendLine("<html><head><title>Axe Accessibility Report</title></head><body>");
-            html.AppendLine("<h1>Axe Accessibility Report</h1>");
 
+            html.AppendLine("<html lang=\"en\"><head><title>Axe Accessibility Report</title>");
+            html.AppendLine("<style type=\"text/css\">");
+            html.AppendLine("body { font-family: Arial, sans-serif; margin: 20px; }");
+            html.AppendLine("h1 { color: #2E86C1; }");
+            html.AppendLine("h2 { color: #117A65; }");  
+            html.AppendLine("section { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; }"); 
+            html.AppendLine("ul { list-style-type: disc; margin-left: 20px; }");
+            html.AppendLine("li { margin-bottom: 10px; }");
+            html.AppendLine("li.content {");
+            html.AppendLine("   background-color: hsl(0,0%,96%);");
+            html.AppendLine("   color: hsl(210,8%,5%);");
+            html.AppendLine("   padding: 10px;");
+            html.AppendLine("   font-size: 14px;");
+            html.AppendLine("   font-family: monospace;");
+            html.AppendLine("   overflow: auto;");
+            html.AppendLine("}"); 
+            html.AppendLine("</style>");    
+            html.AppendLine("</head><body><h1>Axe Accessibility Report</h1>");
             foreach (var axe in _axeResultsList)
             {
-                html.AppendLine($"<section><h2>{axe.Url}</h2><p>{axe.Timestamp}</p>");
+                html.AppendLine($"<section><h2>{axe.Url}</h2><p><strong>Timestamp:</strong> {axe.Timestamp}</p>");
                 html.AppendLine($"<p><strong>Passes:</strong> {axe.Passes.Count}</p>");
                 html.AppendLine($"<p><strong>Violations:</strong> {axe.Violations.Count}</p>");
                 html.AppendLine("<ul>");
                 foreach (var v in axe.Violations)
                 {
-                    html.AppendLine($"<li>{v.Description} — Impact: {v.Impact} <br>");
+                    var description = HtmlEncoder.Default.Encode(v.Description);
+                    html.AppendLine($"<li>{description} — Impact: {v.Impact} <br>");
                     html.AppendLine($"<a href='{v.HelpUrl}'>{v.HelpUrl}</a><ul>");
                     foreach (var node in v.Nodes)
-                        html.AppendLine($"<li>{node.Html}</li>");
+                    {   
+                        var escapedHtml = HtmlEncoder.Default.Encode(node.Html);
+                        html.AppendLine($"<li class=\"content\">{escapedHtml}</li>");
+                    }
                     html.AppendLine("</ul></li>");
                 }
                 html.AppendLine("</ul></section>");
