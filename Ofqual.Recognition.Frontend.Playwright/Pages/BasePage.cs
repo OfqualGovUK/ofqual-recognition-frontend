@@ -55,7 +55,7 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
         }
 
         public async Task GenerateConsolidatedHtmlReport(string path)
-        {            
+        {
             var html = new StringBuilder();
 
             html.AppendLine("<html lang=\"en\"><head><title>Axe Accessibility Report</title>");
@@ -73,9 +73,9 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
             html.AppendLine("   font-size: 14px;");
             html.AppendLine("   font-family: monospace;");
             html.AppendLine("   overflow: auto;");
-            html.AppendLine("}"); 
-            html.AppendLine("</style>");    
-            html.AppendLine("</head><body><h1>Axe Accessibility Report</h1>");
+            html.AppendLine("}");
+            html.AppendLine("</style>");          
+            html.AppendLine("</head><body><h1>Axe Accessibility Report</h1>");            
             foreach (var axe in _axeResultsList)
             {
                 html.AppendLine($"<section><h2>{axe.Url}</h2><p><strong>Timestamp:</strong> {axe.Timestamp}</p>");
@@ -96,10 +96,9 @@ namespace Ofqual.Recognition.Frontend.Playwright.Pages
                 }
                 html.AppendLine("</ul></section>");
             }
-
-            html.AppendLine("</body></html>");
+            html.AppendLine("</body></html>");            
             await File.WriteAllTextAsync(path, html.ToString());
-            Console.WriteLine($"Report saved at {path}.");
+            Console.WriteLine($"Report saved at \"{Path.GetFullPath(path)}\".");
         }
     }
 }
