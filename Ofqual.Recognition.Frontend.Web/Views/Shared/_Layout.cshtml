@@ -25,23 +25,35 @@
         })();
     </script>
     <!-- End Matomo -->
-    @await Html.PartialAsync("Layout/_AnalyticsCookieBanner.cshtml")
-    @await Html.PartialAsync("Layout/_Header.cshtml")
-    <div class="govuk-width-container">
+    <header class="govuk-header govuk-header--full-width-border" data-module="govuk-header">
+        @await Html.PartialAsync("Layout/_AnalyticsCookieBanner.cshtml")
+        @await Html.PartialAsync("Layout/_Header.cshtml")
+    </header>
+    <nav class="govuk-service-navigation" data-module="govuk-service-navigation">
+        @await Html.PartialAsync("Layout/_Navigation.cshtml")
+    </nav>
+    <section role="region" aria-label="govuk-phase-banner" class="govuk-width-container">
         @await Html.PartialAsync("Layout/_PhaseBanner.cshtml")
-        @await RenderSectionAsync("Backlink", required: false)
-    </div>
-    @if((bool)(ViewData["ApplicationReadOnly"] ?? false) ) {
-        <div class="govuk-width-container">
+    </section>
+    @if (IsSectionDefined("BackLink"))
+    {
+        <section role="region" aria-label="govuk-back-link" class="govuk-width-container">
+            @await RenderSectionAsync("Backlink", required: false)
+        </section>
+    }
+
+    @if((bool)(ViewData["ApplicationReadOnly"] ?? false)) 
+    {
+        <section role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
             @await Html.PartialAsync("Layout/_ReadOnlyNotification.cshtml")
-        </div>
+        </section>
     }
 }
 
 @RenderBody()
 
-@section Footer {
-    @await Html.PartialAsync("Layout/_Footer.cshtml")
+@section Footer {    
+    @await Html.PartialAsync("Layout/_Footer.cshtml")    
     @await RenderSectionAsync("Scripts", required: false)
     <script type="text/javascript" src="~/js/analytics.js" asp-append-version="true"></script>
     <script type="text/javascript">

@@ -1,0 +1,41 @@
+﻿
+<div class="govuk-width-container">
+    <div class="govuk-service-navigation__container">
+        <span class="govuk-service-navigation__service-name">
+            <a href="/@ViewData["HomePage"]" class="govuk-service-navigation__link">
+                @ViewData["HeaderTitle"]
+            </a>
+        </span>
+        <nav aria-label="Menu" class="govuk-service-navigation__wrapper">
+            <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle"
+                    aria-controls="navigation" hidden>
+                Menu
+            </button>
+            <ul class="govuk-service-navigation__list" id="navigation">
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li class="govuk-service-navigation__item" style="margin-left: auto;">
+                        <a asp-area="MicrosoftIdentity" asp-controller="OfqualAccount" asp-action="SignOut"
+                           id="sign-out-btn" class="govuk-service-navigation__link">
+                            <strong>
+                                Sign out
+                            </strong>
+                        </a>
+                    </li>
+                }
+                @if (!(User.Identity?.IsAuthenticated ?? false) &&
+                                    (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production"))
+                {
+                    <li class="govuk-service-navigation__item" style="margin-left: auto;">
+                        <a asp-area="MicrosoftIdentity" asp-controller="OfqualAccount" asp-action="SignIn"
+                           id="sign-in-btn" class="govuk-service-navigation__link">
+                            <strong>
+                                Sign in
+                            </strong>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
