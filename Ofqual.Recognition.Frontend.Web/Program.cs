@@ -22,6 +22,10 @@ using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Ofqual.Recognition.Frontend.Web.Middlewares;
 
 using Microsoft.Identity.Web;
+using Elastic.CommonSchema;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using StackExchange.Redis;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -143,6 +147,23 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
     .AddDistributedTokenCaches();
 
+builder.Services.Configure<MsalDistributedTokenCacheAdapterOptions>(options =>
+{
+    // Optional: Disable the L1 cache in apps that don't use session affinity
+    //                 by setting DisableL1Cache to 'true'.
+    options.DisableL1Cache = true;
+
+    // Or limit the memory (by default, this is 500 MB)
+    // options.L1CacheOptions.SizeLimit = 1024 * 1024 * 1024; // 1 GB
+
+    // You can choose if you encrypt or not encrypt the cache
+    options.Encrypt = true;
+
+    // And you can set eviction policies for the distributed
+    // cache.
+    options.SlidingExpiration = TimeSpan.FromHours(1);
+});
+
 // Configure HttpClient for API calls
 builder.Services.AddHttpClient("RecognitionCitizen", client =>
 {
@@ -150,7 +171,13 @@ builder.Services.AddHttpClient("RecognitionCitizen", client =>
 });
 
 // Register in-memory caching
-builder.Services.AddDistributedMemoryCache();
+// builder.Services.AddDistributedMemoryCache();
+DefaultAzureCredential cred = new DefaultAzureCredential();
+ConfigurationOptions opt = await ConfigurationOptions.Parse("test.redis.cache.windows.net:6380").ConfigureForAzureWithTokenCredentialAsync(cred); ;
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.ConfigurationOptions = opt;
+});
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IMemoryCacheService, MemoryCacheService>();
 
