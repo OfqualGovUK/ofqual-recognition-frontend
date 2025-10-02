@@ -146,12 +146,13 @@
     font-size: 14px;
     color: #505a5f;
     margin-top: 0;
-    line-height: 1.2;
+    line-height: 0.5;
 }
 
 .ofqual-file-list__item--advisory .ofqual-file-list__status, .ofqual-file-list__item--error .ofqual-file-list__status {
     font-size: 1rem;
     font-weight: bold;
+    line-height: 1.3;
 }
 
 .ofqual-file-list__item--advisory .ofqual-file-list__status {
