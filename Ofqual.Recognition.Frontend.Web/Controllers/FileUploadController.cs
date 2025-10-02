@@ -248,7 +248,7 @@ public class FileUploadController : Controller
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationQuestionReview}:{application.ApplicationId}:{questionDetails.TaskId}");
             _sessionService.ClearFromSession($"{SessionKeys.ApplicationAnswersReview}:{application.ApplicationId}");
 
-            return Ok(attachmentDetails.AttachmentId);
+            return Ok(new { attachmentDetails.AttachmentId, attachmentDetails.IsInOtherCriteria });
         }
         finally
         {
@@ -364,7 +364,8 @@ public class FileUploadController : Controller
         {
             fieldName = a.FileName,
             length = a.FileSize,
-            attachmentId = a.AttachmentId
+            attachmentId = a.AttachmentId,
+            isInOtherCriteria = a.IsInOtherCriteria
         });
 
         return Ok(response);
