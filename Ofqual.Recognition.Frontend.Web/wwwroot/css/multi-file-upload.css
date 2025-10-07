@@ -22,7 +22,7 @@
     padding-left: 15px;
 }
 
-.ofqual-file-list__item--error::before{
+.ofqual-file-list__item--error::before {
     content: "";
     position: absolute;
     left: 0;
@@ -31,9 +31,6 @@
     height: 75%;
     width: 5px;
     border-radius: 1px;
-}
-
-.ofqual-file-list__item--error::before {
     background-color: #d4351c;
 }
 
@@ -159,7 +156,7 @@
         font-size: 13px;
     }
 
-    .ofqual-file-list__item--error .ofqual-file-list__status{
+    .ofqual-file-list__item--error .ofqual-file-list__status {
         font-size: 0.85rem;
     }
 }
