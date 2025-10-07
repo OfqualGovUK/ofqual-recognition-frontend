@@ -51,6 +51,7 @@ public class AttachmentService : IAttachmentService
             if (uploadedAttachment != null)
             {
                 _memoryCacheService.AddOrAppendToList(cacheKey, uploadedAttachment);
+                _memoryCacheService.RecalculateIsInOtherCriteria(applicationId);
             }
 
             return uploadedAttachment;
@@ -144,6 +145,7 @@ public class AttachmentService : IAttachmentService
             }
 
             _memoryCacheService.RemoveFromList<AttachmentDetails>(cacheKey, a => a.AttachmentId == attachmentId);
+            _memoryCacheService.RecalculateIsInOtherCriteria(applicationId, true);
             return true;
         }
         catch (MicrosoftIdentityWebChallengeUserException ex)

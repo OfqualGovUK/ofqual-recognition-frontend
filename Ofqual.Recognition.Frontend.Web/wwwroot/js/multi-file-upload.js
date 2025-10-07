@@ -376,16 +376,12 @@ function renderFileItem(fileId) {
     row.classList.add("ofqual-file-list__item--preupload");
   }
 
-  if (entry.status === "uploaded" && entry.isInOtherCriteria) {
-    row.classList.add("ofqual-file-list__item--advisory");
-  }
-
   const percent = entry.uploadPercent || 0;
   let template = "";
 
   switch (entry.status) {
     case "uploaded":
-      template = entry.isInOtherCriteria ? getUploadedAdvisoryTemplate(entry) : getUploadedTemplate(entry);
+      template = getUploadedTemplate(entry);
       break;
     case "uploading":
       template = getUploadingTemplate(entry, percent);
@@ -429,6 +425,7 @@ function getUploadingTemplate(entry, percent) {
 function getUploadedTemplate(entry) {
   const name = getDisplayName(entry);
   const size = getDisplaySize(entry);
+  const statusText = entry.isInOtherCriteria ? "Upload complete. This file name is already used in another section. You can continue to use it again, or remove it if you made a mistake." : "Upload complete"
 
   return `
     <div class="ofqual-file-list__header">
@@ -446,33 +443,7 @@ function getUploadedTemplate(entry) {
         Remove<span class="govuk-visually-hidden"> ${name}</span>
       </a>
     </div>
-    <div class="ofqual-file-list__status" aria-live="polite">Upload complete</div>
-  `;
-}
-
-function getUploadedAdvisoryTemplate(entry){
-  const name = getDisplayName(entry);
-  const size = getDisplaySize(entry);
-
-  return `
-    <div class="ofqual-file-list__header">
-      <a href="#" class="ofqual-file-list__name govuk-link file-download-link">
-        ${name}
-        <span class="govuk-visually-hidden"> - download file</span>
-      </a>
-      <span class="ofqual-file-list__size">${size}</span>
-    </div>
-    <div class="ofqual-file-list__footer">
-      <div class="ofqual-file-list__progress-wrapper ofqual-file-list__progress-wrapper--red">
-        <div class="ofqual-file-list__progress-bar ofqual-file-list__progress-bar--green" style="width: 100%"></div>
-      </div>
-      <div class="ofqual-file-list__actions">
-        <a href="#" class="ofqual-file-list__action govuk-link file-remove-link">
-          Remove<span class="govuk-visually-hidden"> ${name}</span>
-        </a>
-      </div>
-    </div>
-    <div class="ofqual-file-list__status" role="alert">This file name is already used in another section. You can continue to use it again, or remove it if you made a mistake.</div>
+    <div class="ofqual-file-list__status" aria-live="polite">${statusText}</div>
   `;
 }
 

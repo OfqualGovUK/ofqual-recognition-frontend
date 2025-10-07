@@ -56,7 +56,7 @@
                 var fileId = attachment.AttachmentId;
                 var readableSize = Math.Round((double)attachment.FileSize / (1024 * 1024), 1);
 
-                <li class="ofqual-file-list__item @(attachment.IsInOtherCriteria ? "ofqual-file-list__item--advisory" : "")" role="listitem" id="@fileId">
+                <li class="ofqual-file-list__item" role="listitem" id="@fileId">
                     <div class="ofqual-file-list__header">
                         <a href="@Url.Action("DownloadFile", "FileUpload", new {
                                 taskNameUrl = currentQuestion!.Value.taskNameUrl,
@@ -87,7 +87,7 @@
                         </button>
                     </div>
 
-                    <div class="ofqual-file-list__status" aria-live="@(attachment.IsInOtherCriteria ? "alert" : "polite")">@(attachment.IsInOtherCriteria ? "This file name is already used in another section. You can continue to use it again, or remove it if you made a mistake." : "Upload complete")</div>
+                    <div class="ofqual-file-list__status" aria-live="polite">@(attachment.IsInOtherCriteria ? "Upload complete. This file name is already used in another section. You can continue to use it again, or remove it if you made a mistake." : "Upload complete")</div>
                 </li>
             }
         </ul>

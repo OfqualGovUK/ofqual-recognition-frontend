@@ -17,12 +17,12 @@
     gap: 10px;
 }
 
-.ofqual-file-list__item--error, .ofqual-file-list__item--advisory {
+.ofqual-file-list__item--error {
     position: relative;
     padding-left: 15px;
 }
 
-.ofqual-file-list__item--advisory::before, .ofqual-file-list__item--error::before{
+.ofqual-file-list__item--error::before{
     content: "";
     position: absolute;
     left: 0;
@@ -35,10 +35,6 @@
 
 .ofqual-file-list__item--error::before {
     background-color: #d4351c;
-}
-
-.ofqual-file-list__item--advisory::before {
-    background-color: #1d70b8;
 }
 
 .ofqual-file-list__header {
@@ -146,20 +142,11 @@
     font-size: 14px;
     color: #505a5f;
     margin-top: 0;
-    line-height: 0.5;
-}
-
-.ofqual-file-list__item--advisory .ofqual-file-list__status, .ofqual-file-list__item--error .ofqual-file-list__status {
-    font-size: 1rem;
-    font-weight: bold;
-    line-height: 1.3;
-}
-
-.ofqual-file-list__item--advisory .ofqual-file-list__status {
-    color: #505a5f;
 }
 
 .ofqual-file-list__item--error .ofqual-file-list__status {
+    font-size: 1rem;
+    font-weight: bold;
     color: #d4351c;
 }
 
@@ -170,10 +157,9 @@
 @media screen and (max-width: 640px) {
     .ofqual-file-list__status {
         font-size: 13px;
-        line-height: 0.2;
     }
 
-    .ofqual-file-list__item--error .ofqual-file-list__status, .ofqual-file-list__item--advisory .ofqual-file-list__status {
+    .ofqual-file-list__item--error .ofqual-file-list__status{
         font-size: 0.85rem;
     }
 }
