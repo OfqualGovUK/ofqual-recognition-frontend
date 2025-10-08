@@ -87,7 +87,7 @@
                         </button>
                     </div>
 
-                    <div class="ofqual-file-list__status" aria-live="polite">Upload complete</div>
+                    <div class="ofqual-file-list__status" aria-live="polite">@(attachment.IsInOtherCriteria ? "Upload complete. This file name is already used in another section. You can continue to use it again, or remove it if you made a mistake." : "Upload complete")</div>
                 </li>
             }
         </ul>

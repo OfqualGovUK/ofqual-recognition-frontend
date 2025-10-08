@@ -8,4 +8,5 @@ public interface IMemoryCacheService
     public bool HasInMemoryCache(string key);
     public void AddOrAppendToList<T>(string key, T item, TimeSpan? ttl = null) where T : class;
     public void RemoveFromList<T>(string key, Func<T, bool> match) where T : class;
+    public void RecalculateIsInOtherCriteria(Guid applicationId, bool isAfterDelete = false);
 }

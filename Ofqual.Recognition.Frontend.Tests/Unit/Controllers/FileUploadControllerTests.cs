@@ -512,7 +512,8 @@ public class FileUploadControllerTests
             AttachmentId = Guid.NewGuid(),
             FileName = "success.txt",
             FileMIMEtype = "text/plain",
-            FileSize = 100
+            FileSize = 100,
+            IsInOtherCriteria = false
         };
 
         _applicationServiceMock
@@ -540,7 +541,14 @@ public class FileUploadControllerTests
 
         // Assert
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(attachment.AttachmentId, ok.Value);
+
+        var valueType = ok.Value!.GetType();
+
+        var attachmentId = valueType.GetProperty("AttachmentId")!.GetValue(ok.Value, null);
+        var isInOtherCriteria = valueType.GetProperty("IsInOtherCriteria")!.GetValue(ok.Value, null);
+
+        Assert.Equal(attachment.AttachmentId, attachmentId);
+        Assert.False((bool)isInOtherCriteria!);
     }
 
     [Fact]

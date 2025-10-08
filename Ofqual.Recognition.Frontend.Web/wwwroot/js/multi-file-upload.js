@@ -1,4 +1,4 @@
-const version = "0.0.3";
+const version = "0.0.4";
 
 // ======================================
 // Initialisation
@@ -123,6 +123,7 @@ function handleFileSelection(file) {
     status: "ready",
     uploadPercent: 0,
     errorMessage: null,
+    isInOtherCriteria: false
   };
 
   filesMap.set(fileId, entry);
@@ -207,11 +208,12 @@ async function uploadSingleFile(fileId) {
 
     if (xhr.status === 200) {
       try {
-        const attachmentId = JSON.parse(xhr.responseText);
+        const response = JSON.parse(xhr.responseText);
         entry.status = "uploaded";
         entry.uploadPercent = 100;
         entry.errorMessage = null;
-        entry.attachmentId = attachmentId;
+        entry.attachmentId = response.attachmentId;
+        entry.isInOtherCriteria = response.isInOtherCriteria;
       } catch {
         entry.status = "failed";
         entry.errorMessage = "Upload succeeded but returned invalid response";
@@ -322,6 +324,7 @@ async function fetchAllFiles() {
         fileSize: fileInfo.length,
         status: "uploaded",
         uploadPercent: 100,
+        isInOtherCriteria: fileInfo.isInOtherCriteria,
       });
 
       renderFileToList(fileId);
@@ -368,10 +371,8 @@ function renderFileItem(fileId) {
     row.classList.add("ofqual-file-list__item--error");
   }
 
-  if (
-    entry.status === "ready" ||
-    (entry.status === "failed" && entry.uploadPercent === 0)
-  ) {
+  if (entry.status === "ready" || (entry.status === "failed" && entry.uploadPercent === 0)) 
+  {
     row.classList.add("ofqual-file-list__item--preupload");
   }
 
@@ -386,9 +387,7 @@ function renderFileItem(fileId) {
       template = getUploadingTemplate(entry, percent);
       break;
     case "failed":
-      template = hasUploadStarted()
-        ? getFailedTemplate(entry)
-        : getPreUploadFailedTemplate(entry);
+      template = hasUploadStarted() ? getFailedTemplate(entry) : getPreUploadFailedTemplate(entry);
       break;
     case "ready":
     default:
@@ -426,6 +425,7 @@ function getUploadingTemplate(entry, percent) {
 function getUploadedTemplate(entry) {
   const name = getDisplayName(entry);
   const size = getDisplaySize(entry);
+  const statusText = entry.isInOtherCriteria ? "Upload complete. This file name is already used in another section. You can continue to use it again, or remove it if you made a mistake." : "Upload complete"
 
   return `
     <div class="ofqual-file-list__header">
@@ -443,7 +443,7 @@ function getUploadedTemplate(entry) {
         Remove<span class="govuk-visually-hidden"> ${name}</span>
       </a>
     </div>
-    <div class="ofqual-file-list__status" aria-live="polite">Upload complete</div>
+    <div class="ofqual-file-list__status" aria-live="polite">${statusText}</div>
   `;
 }
 

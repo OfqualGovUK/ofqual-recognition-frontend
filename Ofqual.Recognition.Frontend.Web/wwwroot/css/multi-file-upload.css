@@ -30,8 +30,8 @@
     transform: translateY(-50%);
     height: 75%;
     width: 5px;
-    background-color: #d4351c;
     border-radius: 1px;
+    background-color: #d4351c;
 }
 
 .ofqual-file-list__header {
@@ -139,13 +139,12 @@
     font-size: 14px;
     color: #505a5f;
     margin-top: 0;
-    line-height: 0.5;
 }
 
 .ofqual-file-list__item--error .ofqual-file-list__status {
     font-size: 1rem;
-    color: #d4351c;
     font-weight: bold;
+    color: #d4351c;
 }
 
 .govuk-file-upload-button__status {
@@ -155,7 +154,6 @@
 @media screen and (max-width: 640px) {
     .ofqual-file-list__status {
         font-size: 13px;
-        line-height: 0.2;
     }
 
     .ofqual-file-list__item--error .ofqual-file-list__status {

@@ -6,4 +6,5 @@ public class AttachmentDetails
     public required string FileName { get; set; }
     public required string FileMIMEtype { get; set; }
     public long FileSize { get; set; }
+    public bool IsInOtherCriteria { get; set; }
 }

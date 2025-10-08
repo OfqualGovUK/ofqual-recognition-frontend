@@ -2,6 +2,8 @@ using Ofqual.Recognition.Frontend.Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http;
+using Ofqual.Recognition.Frontend.Core.Models;
+using Ofqual.Recognition.Frontend.Core.Constants;
 
 public class MemoryCacheService : IMemoryCacheService
 {
@@ -91,6 +93,52 @@ public class MemoryCacheService : IMemoryCacheService
                     list.Remove(itemToRemove);
                     _cache.Set(scopedKey, list);
                 }
+            }
+        }
+    }
+
+    public void RecalculateIsInOtherCriteria(Guid applicationId, bool isAfterDelete = false)
+    {
+        var allCacheKeys = _keyLocks.Keys
+            .Where(k => k.StartsWith(MemoryCacheKeys.UploadedFilesByQuestion, StringComparison.OrdinalIgnoreCase)
+                     && k.Contains($":{applicationId}", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var allAttachments = new List<(string Key, AttachmentDetails Attachment)>();
+
+        foreach (var key in allCacheKeys)
+        {
+            if (_cache.TryGetValue(key, out List<AttachmentDetails>? attachments) && attachments != null)
+            {
+                allAttachments.AddRange(attachments.Select(a => (key, a)));
+            }
+        }
+
+        var duplicateFileNames = allAttachments
+            .GroupBy(x => x.Attachment.FileName, StringComparer.OrdinalIgnoreCase)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (key, attachment) in allAttachments)
+        {
+            var hasDuplicate = duplicateFileNames.Contains(attachment.FileName);
+
+            if (hasDuplicate)
+            {
+                attachment.IsInOtherCriteria = true;
+            }
+            else if (isAfterDelete)
+            {
+                attachment.IsInOtherCriteria = false;
+            }
+        }
+
+        foreach (var key in allCacheKeys)
+        {
+            if (_cache.TryGetValue(key, out List<AttachmentDetails>? attachments) && attachments != null)
+            {
+                _cache.Set(key, attachments);
             }
         }
     }

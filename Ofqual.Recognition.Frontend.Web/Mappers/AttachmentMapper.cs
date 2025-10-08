@@ -12,7 +12,8 @@ public static class AttachmentMapper
             AttachmentId = a.AttachmentId,
             FileName = a.FileName,
             FileMIMEtype = a.FileMIMEtype,
-            FileSize = a.FileSize
+            FileSize = a.FileSize,
+            IsInOtherCriteria = a.IsInOtherCriteria
         }).ToList();
     }
 }
