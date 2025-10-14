@@ -12,7 +12,7 @@ public static class QuestionMapper
 
         QuestionViewModel questionViewModel = new QuestionViewModel
         {
-            QuestionTypeName = question.QuestionTypeName,
+            QuestionType = question.QuestionType,
             QuestionId = question.QuestionId,
             TaskId = question.TaskId,
             QuestionContent = new QuestionContentViewModel

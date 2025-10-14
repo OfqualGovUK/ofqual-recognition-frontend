@@ -103,12 +103,12 @@ public class ApplicationController : Controller
 
         StatusType? status = _sessionService.GetTaskStatusFromSession(questionDetails.TaskId);
 
-        if (status == StatusType.Completed && string.IsNullOrEmpty(RedirectUrl) && questionDetails.QuestionTypeName != QuestionType.Review)
+        if (status == StatusType.Completed && string.IsNullOrEmpty(RedirectUrl) && questionDetails.QuestionType != QuestionType.Review)
         {
             return RedirectToAction(nameof(TaskReview), new { taskNameUrl });
         }
 
-        if (status == StatusType.InProgress && questionDetails.QuestionTypeName == QuestionType.PreEngagement && !string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
+        if (status == StatusType.InProgress && questionDetails.QuestionType == QuestionType.PreEngagement && !string.IsNullOrEmpty(questionDetails.NextQuestionUrl))
         {
             return RedirectToAction(nameof(QuestionDetails), new
             {
@@ -123,12 +123,12 @@ public class ApplicationController : Controller
         var linkedAttachments = new List<AttachmentDetails>();
         var applicationReviewAnswers = new List<TaskReviewSection>();
 
-        if (questionDetails.QuestionTypeName == QuestionType.FileUpload)
+        if (questionDetails.QuestionType == QuestionType.FileUpload)
         {
             linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
         }
 
-        if (questionDetails.QuestionTypeName == QuestionType.Review)
+        if (questionDetails.QuestionType == QuestionType.Review)
         {
             applicationReviewAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
         }
@@ -177,12 +177,12 @@ public class ApplicationController : Controller
                 var linkedAttachments = new List<AttachmentDetails>();
                 var applicationReviewAnswers = new List<TaskReviewSection>();
 
-                if (questionDetails.QuestionTypeName == QuestionType.FileUpload)
+                if (questionDetails.QuestionType == QuestionType.FileUpload)
                 {
                     linkedAttachments = await _attachmentService.GetAllLinkedFiles(LinkType.Question, questionDetails.QuestionId, application.ApplicationId);
                 }
 
-                if (questionDetails.QuestionTypeName == QuestionType.Review)
+                if (questionDetails.QuestionType == QuestionType.Review)
                 {
                     applicationReviewAnswers = await _questionService.GetAllApplicationAnswers(application.ApplicationId);
                 }
@@ -197,7 +197,7 @@ public class ApplicationController : Controller
             }
         }
 
-        if (questionDetails.QuestionTypeName == QuestionType.Review)
+        if (questionDetails.QuestionType == QuestionType.Review)
         {
             var applicationStatus = Enum.Parse(typeof(StatusType), JsonHelper.GetFirstAnswerFromJson(jsonAnswer)!);
 

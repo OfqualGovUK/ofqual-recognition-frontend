@@ -69,7 +69,7 @@ public class PreEngagementControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionType.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -128,7 +128,7 @@ public class PreEngagementControllerTests
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "task2/question2",
-            QuestionTypeName = QuestionType.Textarea
+            QuestionType = QuestionType.Textarea
         };
 
         _preEngagementServiceMock.Setup(x => x.GetPreEngagementQuestionDetails("task1", "question1"))
@@ -158,7 +158,7 @@ public class PreEngagementControllerTests
             QuestionContent = "{}",
             NextQuestionUrl = null,
             CurrentQuestionUrl = "current-url",
-            QuestionTypeName = QuestionType.Textarea
+            QuestionType = QuestionType.Textarea
         };
 
         _preEngagementServiceMock.Setup(x => x.GetPreEngagementQuestionDetails("task1", "question1"))
@@ -207,7 +207,7 @@ public class PreEngagementControllerTests
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "task2/question2",
-            QuestionTypeName = QuestionType.Textarea
+            QuestionType = QuestionType.Textarea
         };
 
         var validationResponse = new ValidationResponse

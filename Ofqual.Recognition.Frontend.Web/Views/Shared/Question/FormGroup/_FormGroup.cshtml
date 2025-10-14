@@ -44,7 +44,7 @@
     asp-route-taskNameUrl="@currentQuestion!.Value.taskNameUrl"
     asp-route-questionNameUrl="@currentQuestion!.Value.questionNameUrl">
 
-        @switch (Model.QuestionTypeName)
+        @switch (Model.QuestionType)
         {
             case QuestionType.CheckboxGroup:
                 @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_CheckboxGroup.cshtml", Model)

@@ -9,9 +9,10 @@ public class QuestionDetails
     public Guid TaskId { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public QuestionType QuestionTypeName { get; set; }
+    public required QuestionType QuestionType { get; set; }
     public required string QuestionContent { get; set; }
     public required string CurrentQuestionUrl { get; set; }
     public string? PreviousQuestionUrl { get; set; }
     public string? NextQuestionUrl { get; set; }
+    public bool? EditableOnResubmission { get; set; }
 }
