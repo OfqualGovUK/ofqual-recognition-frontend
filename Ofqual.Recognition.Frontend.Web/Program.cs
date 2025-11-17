@@ -149,8 +149,27 @@ builder.Services.AddHttpClient("RecognitionCitizen", client =>
     client.BaseAddress = new Uri(builder.Configuration["RecognitionApi:BaseUrl"]!);
 });
 
-// Register in-memory caching
-builder.Services.AddDistributedMemoryCache();
+var sqlCacheConnectionString = builder.Configuration.GetConnectionString("OfqualODS");
+
+//If SQL caching is enabled and connection string is provided, use SQL Server caching
+if (!string.IsNullOrEmpty(sqlCacheConnectionString)
+    && builder.Configuration.GetSection("FeatureFlag:UseSqlServerCaching").Get<bool>())
+{   
+    // Register SQL caching service
+    builder.Services.AddDistributedSqlServerCache(options =>
+    {
+        options.ConnectionString = sqlCacheConnectionString;
+        options.SchemaName = "recognitionCitizen";
+        options.TableName = "TokenCache";
+    });
+}
+else
+{   
+    // Otherwise, register a default distributed in-memory cache
+    builder.Services.AddDistributedMemoryCache();
+}
+
+// Register non-distributed in-memory caching
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IMemoryCacheService, MemoryCacheService>();
 
