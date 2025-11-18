@@ -68,7 +68,11 @@ The main application settings are defined in `appsettings.json` and can be tailo
   "FeatureFlag": {
     "Application": true,
     "EligibilityLink": false,
-    "HideDevPage": false
+    "HideDevPage": false,
+    "UseSqlServerCaching": false
+  },
+  "ConnectionStrings": {
+    "OfqualODS": ""
   }
 }
 ```
@@ -150,7 +154,14 @@ The main application settings are defined in `appsettings.json` and can be tailo
 
 - **`FeatureFlag:HideDevPage`**
   A **boolean** flag, when set to `true`, allows the user to disable the developer home page and redirect the user as if the application is in production,
-  This only applies to the development environment and will be ignored in production. This feature is expected to be used for testing purposes only.
+  this only applies to the development environment and will be ignored in production. This feature is expected to be used for testing purposes only.
+
+- **`FeatureFlag:UseSqlServerCaching`**
+  A **boolean** flag, when set to `true`, allows the user to use SQL Server to perform distributed caching,  
+  if enabled, requires an Ofqual ODS connection string to a database with the required table, otherwise, application will use memory based caching.
+
+- **`ConnectionStrings:OfqualODS`**
+  The connection string used to connect to the Ofqual ODS SQL Server database for distributed caching (if enabled), if not provided, will use memory based caching.
 
 > These settings should be environment-specific and managed through `appsettings.{Environment}.json` or overridden using environment variables in production scenarios.
 
