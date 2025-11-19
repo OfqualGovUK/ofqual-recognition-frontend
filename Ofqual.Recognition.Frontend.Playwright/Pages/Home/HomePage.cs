@@ -14,6 +14,7 @@ public class HomePage : BasePage
     private readonly ILocator _passWord;
     private readonly ILocator _submitCredentials;
     private readonly ILocator _signedInText;
+    private readonly ILocator _signedOutText;
 
     public HomePage(IPage page) : base(page)
     {
@@ -26,6 +27,7 @@ public class HomePage : BasePage
         _passWord = page.Locator("[id='password']");
         _submitCredentials = page.Locator("[id=next]");
         _signedInText = page.GetByText("Sign in as QA");
+        _signedOutText = page.GetByText("You have been signed out");
     }
 
     public async Task GoToHomePage()
@@ -42,7 +44,6 @@ public class HomePage : BasePage
     {
         await _applicationStartButton.ClickAsync();
     }
-    
     public async Task CheckSignInAndSignOut()
     {
         await _signInButton.ClickAsync();
@@ -69,5 +70,6 @@ public class HomePage : BasePage
     {
         await _signOutButton.IsVisibleAsync();
         await _signOutButton.ClickAsync();
+        await _signedOutText.IsVisibleAsync();
     }
 }
