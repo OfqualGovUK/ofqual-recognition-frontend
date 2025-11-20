@@ -9,7 +9,7 @@ public class QuestionDetails
     public Guid TaskId { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public QuestionType QuestionTypeEnum { get; set; }
+    public QuestionTypeEnum QuestionType { get; set; }
     public required string QuestionContent { get; set; }
     public required string CurrentQuestionUrl { get; set; }
     public string? PreviousQuestionUrl { get; set; }

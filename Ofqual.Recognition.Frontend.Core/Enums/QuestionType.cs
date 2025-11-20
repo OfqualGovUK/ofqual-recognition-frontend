@@ -1,6 +1,6 @@
 ﻿namespace Ofqual.Recognition.Frontend.Core.Enums;
 
-public enum QuestionType
+public enum QuestionTypeEnum
 {
     Textarea = 1,
     CheckboxGroup = 2,
