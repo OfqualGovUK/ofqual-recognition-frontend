@@ -44,22 +44,22 @@
     asp-route-taskNameUrl="@currentQuestion!.Value.taskNameUrl"
     asp-route-questionNameUrl="@currentQuestion!.Value.questionNameUrl">
 
-        @switch (Model.QuestionTypeName)
+        @switch (Model.QuestionType)
         {
-            case QuestionType.CheckboxGroup:
+            case QuestionTypeEnum.CheckboxGroup:
                 @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_CheckboxGroup.cshtml", Model)
                 break; 
-            case QuestionType.FileUpload:
+            case QuestionTypeEnum.FileUpload:
                 @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_FileUpload.cshtml", Model)
                 break;
-            case QuestionType.RadioButtonGroup:
-            case QuestionType.Review:
+            case QuestionTypeEnum.RadioButtonGroup:
+            case QuestionTypeEnum.Review:
                 @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_RadioButtonGroup.cshtml", Model)
                 break;
-            case QuestionType.Textarea:
+            case QuestionTypeEnum.Textarea:
                 @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_Textarea.cshtml", Model)
                 break;
-            case QuestionType.TextInputGroup:
+            case QuestionTypeEnum.TextInputGroup:
                 @await Html.PartialAsync("~/Views/Shared/Question/FormGroup/Elements/_TextInputGroup.cshtml", Model)
                 break;
         }

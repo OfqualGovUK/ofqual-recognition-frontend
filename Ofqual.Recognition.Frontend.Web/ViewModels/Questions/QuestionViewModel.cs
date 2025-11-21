@@ -7,7 +7,7 @@ public class QuestionViewModel
 {
     public Guid QuestionId { get; set; }
     public Guid TaskId { get; set; }
-    public QuestionType QuestionTypeName { get; set; }
+    public QuestionTypeEnum QuestionType { get; set; }
     public required QuestionContentViewModel QuestionContent { get; set; }
     public required string CurrentQuestionUrl { get; set; }
     public string? AnswerJson { get; set; }

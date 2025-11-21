@@ -183,7 +183,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionTypeEnum.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -217,7 +217,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionTypeEnum.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -261,7 +261,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionTypeEnum.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question"
         };
@@ -303,7 +303,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.PreEngagement,
+            QuestionType = QuestionTypeEnum.PreEngagement,
             QuestionContent = "{}",
             CurrentQuestionUrl = "task/question",
             NextQuestionUrl = nextQuestionUrl
@@ -379,7 +379,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionTypeEnum.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "not-a-valid-url"
@@ -408,7 +408,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionTypeEnum.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "nextTask/nextQuestion"
@@ -443,7 +443,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionTypeEnum.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current"
         };
@@ -485,8 +485,8 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
-            QuestionContent = "{}",
+            QuestionType = QuestionTypeEnum.Textarea,
+            QuestionContent = "{}", 
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "nextTask/nextQuestion"
         };
@@ -518,7 +518,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionTypeEnum.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = "nextTask/nextQuestion"
@@ -554,7 +554,7 @@ public class ApplicationControllerTests
         {
             QuestionId = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
-            QuestionTypeName = QuestionType.Textarea,
+            QuestionType = QuestionTypeEnum.Textarea,
             QuestionContent = "{}",
             CurrentQuestionUrl = "current",
             NextQuestionUrl = null
