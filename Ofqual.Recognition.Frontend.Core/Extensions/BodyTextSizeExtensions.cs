@@ -67,15 +67,23 @@ public static class BodyTextSizeExtensions
     /// <summary>
     /// Gets the appropriate HTML heading tag for the given text size.
     /// </summary>
-    public static string ToHeadingTag(this BodyTextSize size)
-    {
-        return size switch
+    public static string ToHeadingTag(this BodyTextSize size, HTMLHeading headingType)
+        => headingType switch
         {
-            BodyTextSize.XL => "h1",
-            BodyTextSize.L => "h2",
-            BodyTextSize.M => "h3",
-            BodyTextSize.S => "h4",
-            _ => "h3"
-        };
+            HTMLHeading.H1 => "h1",
+            HTMLHeading.H2 => "h2",
+            HTMLHeading.H3 => "h3",
+            HTMLHeading.H4 => "h4",
+            HTMLHeading.H5 => "h5",
+            HTMLHeading.H6 => "h6",
+            _ => size switch
+            {
+                BodyTextSize.XL => "h1",
+                BodyTextSize.L => "h2",
+                BodyTextSize.M => "h3",
+                BodyTextSize.S => "h4",
+                _ => "h3"
+            }
+        };             
     }
-}
+

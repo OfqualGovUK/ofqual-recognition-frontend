@@ -16,9 +16,9 @@ public class ApplicationAnswersMapper
                 SectionHeading = group.SectionHeading,
                 QuestionAnswers = group.QuestionAnswers.Select(qa => new TaskReviewItemViewModel
                 {
-                    AnswerValue = qa.AnswerValue,
-                    QuestionText = qa.QuestionText,
-                    QuestionUrl = qa.QuestionUrl
+                    AnswerValue = qa.AnswerValue ?? [],
+                    QuestionText = qa.QuestionText ?? string.Empty,
+                    QuestionUrl = qa.QuestionUrl ?? string.Empty
                 }).ToList()
             }).ToList()
         }).ToList();

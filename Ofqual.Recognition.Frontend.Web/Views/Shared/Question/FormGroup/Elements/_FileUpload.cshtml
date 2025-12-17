@@ -12,7 +12,7 @@
     var allowMultiple = fileUpload?.AllowMultiple ?? true;
 
     var labelText = label?.Text ?? "Upload files";
-    var labelTag = label?.Size.ToHeadingTag();
+    var labelTag = label?.Size.ToHeadingTag(label.HeadingType);
     var labelClass = label?.Size.ToGovUkLabelClass();
 
     var sizeCountId = $"{fieldName}-size-count";

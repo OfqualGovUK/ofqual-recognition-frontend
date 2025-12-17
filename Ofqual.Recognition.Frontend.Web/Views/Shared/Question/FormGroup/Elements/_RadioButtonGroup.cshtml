@@ -28,7 +28,7 @@
             @if (!string.IsNullOrEmpty(radioBtnGroup?.Heading?.Text))
             {
                 var size = radioBtnGroup.Heading.Size;
-                var headingTag = size.ToHeadingTag();
+                var headingTag = size.ToHeadingTag(radioBtnGroup.Heading.HeadingType);
                 var headingText = radioBtnGroup.Heading.Text;
                 var legendClass = size.ToGovUkLegendClass();
 

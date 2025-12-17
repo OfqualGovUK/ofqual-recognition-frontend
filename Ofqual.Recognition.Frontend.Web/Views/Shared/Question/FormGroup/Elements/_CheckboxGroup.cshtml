@@ -28,7 +28,7 @@
             @if (!string.IsNullOrEmpty(checkboxGroup?.Heading?.Text))
             {
                 var size = checkboxGroup.Heading.Size;
-                var headingTag = size.ToHeadingTag();
+                var headingTag = size.ToHeadingTag(checkboxGroup.Heading.HeadingType);
                 var headingText = checkboxGroup.Heading.Text;
                 var legendClass = size.ToGovUkLegendClass();
 

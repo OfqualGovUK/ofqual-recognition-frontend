@@ -28,12 +28,13 @@
     <div class="govuk-form-group govuk-character-count @(hasError ? "govuk-form-group--error" : "")"
          data-module="govuk-character-count"
          @(countWords && maxLimit.HasValue ? $"data-maxwords={maxLimit}" : "")
-         @(!countWords && maxLimit.HasValue ? $"data-maxlength={maxLimit}" : "")>
+         @(!countWords && maxLimit.HasValue ? $"data-maxlength={maxLimit}" :"")
+         >
 
         @if (!string.IsNullOrEmpty(textarea.Label?.Text))
         {
             var labelSize = textarea.Label.Size;
-            var labelTag = labelSize.ToHeadingTag();
+            var labelTag = labelSize.ToHeadingTag(textarea.Label.HeadingType);
             var labelClass = labelSize.ToGovUkLabelClass();
             var labelText = textarea.Label.Text;
 
