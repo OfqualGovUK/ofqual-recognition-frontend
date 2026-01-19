@@ -40,5 +40,6 @@ public static class RouteConstants
     {
         public const string APPLICATION_PATH = "/application";
         public const string TASK_LIST_PATH = "/application/tasks";
+        public const string PRINT_REVIEW_PATH = "/application/print";
     }
 }

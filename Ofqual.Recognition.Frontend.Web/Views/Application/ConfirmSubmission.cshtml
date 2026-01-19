@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Ofqual.Recognition.Frontend.Core.Constants
+@{
     var feedbackUrl = $"https://forms.office.com/Pages/ResponsePage.aspx?id=aWQzjmscC0ugbHSKfFhvfATsksjOCgNFm2yr1lfODUxUQVlHNUFXNEFRSjJBNTlKRUwzQ1lQVEVONSQlQCN0PWcu&rffa74bd1e4fe42d88ef9994c4304d570={ViewData["HeaderTitle"]}";
 }
 
@@ -16,6 +17,9 @@
         </p>
         <p class="govuk-body">
             They will contact you either to confirm your registration, or to ask for more information.
+        </p>
+        <p class="govuk-body">
+            You can also get a <a href="@RouteConstants.ApplicationConstants.PRINT_REVIEW_PATH">copy of your application</a>, that you can print as a PDF or paper copy.
         </p>
         <p class="govuk-body">
             <a href="@feedbackUrl" class="govuk-link">What did you think of this service?</a> (takes 1 minute)

@@ -1,0 +1,75 @@
+﻿@using Ofqual.Recognition.Frontend.Web.ViewModels.ApplicationAnswers
+@model List<TaskReviewSectionViewModel>
+@{
+    ViewData["Title"] = "Apply to have your qualifications regulated";
+    ViewData["HeaderTitle"] = "Apply to have your qualifications regulated";
+    Layout = "_GovUkPageTemplate";
+}
+
+<link rel="stylesheet" href="~/css/print.css" asp-append-version="true" />
+
+<section role="region" aria-label="govuk-print-link" style="display:none;" class="govuk-width-container govuk-!-text-align-right screen-only js-check">
+    <a class="govuk-link" onclick="print()" href="">Print page</a>
+</section>
+
+<div id="js-check" style="display:none;" class="govuk-inset-text screen-only js-check">
+    You can save a copy of your application by printing this page as a PDF
+</div>
+
+<noscript>
+    <div class="govuk-inset-text screen-only">
+        You can save a copy of your application by using your browser's print menu to save this page as a PDF
+    </div>
+</noscript>
+
+<h1 class="govuk-heading-l screen-only">
+    Copy of your application
+</h1>
+
+@if (Model != null && Model.Any())
+{
+    @foreach (var taskSection in Model)
+    {
+        <h2 class="govuk-heading-m">@taskSection.SectionName</h2>
+        @foreach (var group in taskSection.TaskGroups)
+        {
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">
+                        @group.SectionHeading
+                    </h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                    <dl class="govuk-summary-list">
+                        @foreach (var question in group.QuestionAnswers)
+                        {
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    @question.QuestionText
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    <ul class="govuk-list govuk-list">
+                                        @foreach (var answer in question.AnswerValue)
+                                        {
+                                            <li>
+                                                <div class="summary-list-value-item">
+                                                    @answer
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </dd>
+                            </div>
+                        }
+                    </dl>
+                </div>
+            </div>
+        }
+    }
+}
+
+<script>
+    document.querySelectorAll(".js-check").forEach(el => {
+      el.style.display = "block";
+    });
+</script>
