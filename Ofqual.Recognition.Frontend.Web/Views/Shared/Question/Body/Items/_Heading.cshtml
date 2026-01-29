@@ -3,7 +3,7 @@
 @model HeadingContentViewModel
 
 @{
-    var tag = Model.Size.ToHeadingTag();
+    var tag = Model.HeadingLevel.ToHeadingTag();
     var cssClass = Model.Size.ToGovUkHeadingClass();
 }
 

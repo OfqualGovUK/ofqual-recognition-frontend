@@ -27,10 +27,10 @@
 
             @if (!string.IsNullOrEmpty(checkboxGroup?.Heading?.Text))
             {
-                var size = checkboxGroup.Heading.Size;
-                var headingTag = size.ToHeadingTag();
-                var headingText = checkboxGroup.Heading.Text;
-                var legendClass = size.ToGovUkLegendClass();
+                var heading = checkboxGroup.Heading;
+                var headingTag = heading.HeadingLevel.ToHeadingTag();
+                var headingText = heading.Text;
+                var legendClass = heading.Size.ToGovUkLegendClass();
 
                 <legend class="govuk-fieldset__legend @legendClass">
                     <text>
