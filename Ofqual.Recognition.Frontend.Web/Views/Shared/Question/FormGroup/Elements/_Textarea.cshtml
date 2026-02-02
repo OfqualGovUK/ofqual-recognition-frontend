@@ -32,10 +32,10 @@
 
         @if (!string.IsNullOrEmpty(textarea.Label?.Text))
         {
-            var labelSize = textarea.Label.Size;
-            var labelTag = labelSize.ToHeadingTag();
-            var labelClass = labelSize.ToGovUkLabelClass();
-            var labelText = textarea.Label.Text;
+            var label = textarea.Label;
+            var labelTag = label.HeadingLevel.ToHeadingTag();
+            var labelClass = label.Size.ToGovUkLabelClass();
+            var labelText = label.Text;
 
             <text>
                 @Html.Raw($"<{labelTag} class=\"govuk-label-wrapper\"><label class=\"govuk-label {labelClass}\" for=\"{textarea.Name}\">{labelText}</label></{labelTag}>")

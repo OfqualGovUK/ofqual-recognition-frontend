@@ -16,7 +16,7 @@
         @if (!string.IsNullOrEmpty(textInputGroup?.Heading?.Text))
         {
             var heading = textInputGroup.Heading;
-            var headingTag = heading.Size.ToHeadingTag();
+            var headingTag = heading.HeadingLevel.ToHeadingTag();
             var legendClass = heading.Size.ToGovUkLegendClass();
 
             <legend class="govuk-fieldset__legend @legendClass">

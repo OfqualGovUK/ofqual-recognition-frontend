@@ -27,10 +27,10 @@
 
             @if (!string.IsNullOrEmpty(radioBtnGroup?.Heading?.Text))
             {
-                var size = radioBtnGroup.Heading.Size;
-                var headingTag = size.ToHeadingTag();
-                var headingText = radioBtnGroup.Heading.Text;
-                var legendClass = size.ToGovUkLegendClass();
+                var heading = radioBtnGroup.Heading;
+                var headingTag = heading.HeadingLevel.ToHeadingTag();
+                var headingText = heading.Text;
+                var legendClass = heading.Size.ToGovUkLegendClass();
 
                 <legend class="govuk-fieldset__legend @legendClass">
                     <text>

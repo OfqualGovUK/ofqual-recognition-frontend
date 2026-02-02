@@ -13,4 +13,9 @@ public class TextWithSizeViewModel
     /// The display size of the text.
     /// </summary>
     public BodyTextSize Size { get; set; } = BodyTextSize.M;
+
+    /// <summary>
+    /// Sets the heading level for the text size.
+    /// </summary>
+    public int HeadingLevel { get; set; } = 1;
 }
