@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178
+# Visual Studio Version 18
+VisualStudioVersion = 18.7.11919.86 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ofqual.Recognition.Frontend.Web", "Ofqual.Recognition.Frontend.Web\Ofqual.Recognition.Frontend.Web.csproj", "{98A2FB1C-5D03-43F5-B13D-07BD141CBDBC}"
 	ProjectSection(ProjectDependencies) = postProject

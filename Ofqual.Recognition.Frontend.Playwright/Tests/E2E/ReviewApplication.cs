@@ -49,7 +49,7 @@ public class ReviewApplication : BaseTest
         await organisationDetailsPage.CompleteOrganisationDetailsTask(taskListPage, homePage);
 
         //Qualifications details task - checks task status, fills in qualifications details and runs Axe checks
-        await textBoxPage.CompleteTextAreaTask(taskListPage, homePage, "Qualifications or EPAs you want to be regulated for");
+        await textBoxPage.CompleteTextAreaTask(taskListPage, homePage, "Qualifications or Apprenticeship Assessment you want to be regulated for");
 
         //Why do you want to be regulated by Ofqual? - checks task status, fills in text area and runs Axe checks
         await textBoxPage.CompleteTextAreaTask(taskListPage, homePage, "Why do you want to be regulated by Ofqual?");
