@@ -50,7 +50,6 @@ stages:
           command: "build"
           projects: "**/*.csproj"
           arguments: "--no-restore"
-        displayName: 'Snyk Install & Auth'
       # Step 6: Scan code
       - task: SnykSecurityScan@1
         displayName: 'Snyk scanning code'
