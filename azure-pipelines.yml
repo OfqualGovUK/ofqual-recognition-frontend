@@ -26,60 +26,6 @@ stages:
   displayName: 'Run Static Analysis'
   condition: always()
   jobs:
-    # SonarQube job: This job performs static code analysis using SonarQube.
-    - job: SonarQube
-      condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/heads/main'))
-      displayName: 'Run SonarQube Static Code Analysis'
-      steps:
-        # Step 1: Set up .NET SDK
-        - task: UseDotNet@2
-          displayName: 'Set Up .NET SDK (Version $(dotnetVersion))'
-          inputs:
-            version: '$(dotnetVersion).x'
-            performMultiLevelLookup: true
-            includePreviewVersions: true
-        # Step 2: Restore NuGet packages to ensure all dependencies are installed
-        - task: DotNetCoreCLI@2
-          displayName: 'Restore NuGet Packages'
-          inputs:
-            command: 'restore'
-            projects: '**/*.csproj'
-            feedsToUse: 'select'
-            vstsFeed: 'b8db0229-c220-4583-b1d9-1111e482a1ce'
-        # Step 3: Prepare SonarQube analysis
-        - task: SonarQubePrepare@7
-          displayName: 'Prepare SonarQube Analysis'
-          inputs:
-            SonarQube: $(SonarQubeServiceConnectionName)
-            scannerMode: 'dotnet'
-            projectKey: $(SonarQubeProjectKey)
-        # Step 4: PowerShell script to modify SonarQube parameters
-        - task: PowerShell@2
-          displayName: "Modify SonarQube Parameters"
-          inputs:
-            targetType: 'inline'
-            script: |
-              if ($env:BUILD_REASON -eq "PullRequest") {
-                  $params = "$env:SONARQUBE_SCANNER_PARAMS" -replace '"sonar.pullrequest.*":"[\w,/,-]*"\,?'
-              } else {
-                  $params = "$env:SONARQUBE_SCANNER_PARAMS" -replace '"sonar.branch.name":"[\w,/,-]*"\,?'
-              }
-              Write-Host "##vso[task.setvariable variable=SONARQUBE_SCANNER_PARAMS]$params"
-        # Step 5: Build the project before running static analysis
-        - task: DotNetCoreCLI@2
-          displayName: 'Build .NET Project'
-          inputs:
-            command: "build"
-            projects: "**/*.csproj"
-            arguments: "--no-restore"
-        # Step 6: Run SonarQube static code analysis
-        - task: SonarQubeAnalyze@7
-          displayName: 'Run SonarQube Static Code Analysis'
-        # Step 7: Publish SonarQube results to the dashboard
-        - task: SonarQubePublish@7
-          displayName: 'Publish SonarQube Analysis Results'
-          inputs:
-            pollingTimeoutSec: '300'
     - job: Snyk
       displayName: "Snyk Analysis"
       steps:
@@ -104,32 +50,25 @@ stages:
           command: "build"
           projects: "**/*.csproj"
           arguments: "--no-restore"
-      # Step 4: Install and authenticate Snyk
-      - script: |
-          npm install -g snyk
-          snyk config set endpoint=$(SNYK_ENDPOINT)
-          snyk auth $(SNYK_TOKEN)
-          set +e
         displayName: 'Snyk Install & Auth'
-      # Step 5: Scan code
+      # Step 6: Scan code
       - task: SnykSecurityScan@1
         displayName: 'Snyk scanning code'
         inputs:
           serviceConnectionEndpoint: 'snyk-integration-eu'
           testType: 'code'
           codeSeverityThreshold: 'high'
-          failOnIssues: false
-      # Step 6: Scan app
+          failOnIssues: true
+      # Step 7: Scan app
       - task: SnykSecurityScan@1
         displayName: 'Snyk scanning app'
         inputs:
           serviceConnectionEndpoint: 'snyk-integration-eu'
           testType: 'app'
-          monitorWhen: 'always'
           severityThreshold: 'high'
-          failOnIssues: false
+          failOnIssues: true
           additionalArguments: '--all-projects'
-      # Step 7: Scan docker image     
+      # Step 8: Scan docker image     
       - task: Docker@2
         displayName: Build Docker Image
         inputs:
