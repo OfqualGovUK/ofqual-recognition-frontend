@@ -50,32 +50,25 @@ stages:
           command: "build"
           projects: "**/*.csproj"
           arguments: "--no-restore"
-      # Step 4: Install and authenticate Snyk
-      - script: |
-          npm install -g snyk
-          snyk config set endpoint=$(SNYK_ENDPOINT)
-          snyk auth $(SNYK_TOKEN)
-          set +e
         displayName: 'Snyk Install & Auth'
-      # Step 5: Scan code
+      # Step 6: Scan code
       - task: SnykSecurityScan@1
         displayName: 'Snyk scanning code'
         inputs:
           serviceConnectionEndpoint: 'snyk-integration-eu'
           testType: 'code'
           codeSeverityThreshold: 'high'
-          failOnIssues: false
-      # Step 6: Scan app
+          failOnIssues: true
+      # Step 7: Scan app
       - task: SnykSecurityScan@1
         displayName: 'Snyk scanning app'
         inputs:
           serviceConnectionEndpoint: 'snyk-integration-eu'
           testType: 'app'
-          monitorWhen: 'always'
           severityThreshold: 'high'
-          failOnIssues: false
+          failOnIssues: true
           additionalArguments: '--all-projects'
-      # Step 7: Scan docker image     
+      # Step 8: Scan docker image     
       - task: Docker@2
         displayName: Build Docker Image
         inputs:
