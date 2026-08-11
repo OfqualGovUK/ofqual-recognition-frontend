@@ -50,8 +50,7 @@ stages:
           command: "build"
           projects: "**/*.csproj"
           arguments: "--no-restore"
-        displayName: 'Snyk Install & Auth'
-      # Step 6: Scan code
+      # Step 4: Scan code
       - task: SnykSecurityScan@1
         displayName: 'Snyk scanning code'
         inputs:
@@ -59,7 +58,7 @@ stages:
           testType: 'code'
           codeSeverityThreshold: 'high'
           failOnIssues: true
-      # Step 7: Scan app
+      # Step 5: Scan app
       - task: SnykSecurityScan@1
         displayName: 'Snyk scanning app'
         inputs:
@@ -68,7 +67,7 @@ stages:
           severityThreshold: 'high'
           failOnIssues: true
           additionalArguments: '--all-projects'
-      # Step 8: Scan docker image     
+      # Step 6: Scan docker image     
       - task: Docker@2
         displayName: Build Docker Image
         inputs:

@@ -261,16 +261,18 @@ async function downloadSingleFile(target) {
     }
 
     const blob = await response.blob();
-    const fileName = entry.fileName || entry.file?.name || "download";
+    const rawName = entry.fileName ?? entry.file?.name ?? "download";
+    const fileName = String(rawName)
+      .replace(/[\r\n]+/g, " ")
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, "_")
+      .slice(0, 255) || "download";
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
-    document.body.appendChild(link);
     link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   } catch {
     console.error("Download failed");
   }
