@@ -248,10 +248,10 @@ async function downloadSingleFile(target) {
     const response = await fetch(
       `${window.location.pathname}/download/${entry.attachmentId}`,
       {
-      method: "GET",
-      headers: {
-        RequestVerificationToken: requestVerificationToken,
-      },
+        method: "GET",
+        headers: {
+          RequestVerificationToken: requestVerificationToken,
+        },
       }
     );
 
