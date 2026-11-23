@@ -11,7 +11,7 @@ resources:
 - repo: self
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: '22.04'
 
 variables:
   # Container registry service connection established during pipeline creation
